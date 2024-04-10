@@ -1,0 +1,33 @@
+Problema:Helmozt  #cerebro/electro/Bergues/papa/papa2d/Bergues3D/Electro/Helmozt
+
+malla: 1         # 1 arma la malla generica. 2 la lee. 3 malla electrodo. 4 problema Bergues
+
+#archivo1: cer_cada4.dat
+#archivo2: zonaafec.dat
+
+opcion: 1         # 1 construye el sistema. 2 lo lee
+
+archivo3:  sistema.dat
+
+ladox=1.0
+ladoy=1.0
+
+sigman:  1.0       #condutividad zona normal
+sigmat:  1.0       #condutividad zona interna
+
+#tiempo:     0.0  # seg totales
+
+#historia:  1    # pasos en que se divide. primero el pulso, luego sin joule
+#   1.000
+
+#electrodo
+
+Nelectro:   2       #numero de electrodos
+
+potencial: 1.0     #potencial  
+tierra:    0.0     #tierra
+
+disele:    0.4     # distancia entre electrodos (mm) 
+
+
+end_data

@@ -1,0 +1,38 @@
+Problema: Bergues      #cerebro/electro/Bergues/papa
+
+
+malla: 4         # 1 arma la malla generica. 2 la lee. 3 malla electrodo. 4 problema Bergues
+
+
+opcion: 1         # 1 construye el sistema. 2 lo lee
+
+archivo3:  sistema.dat
+
+
+sigman:  0.00026       #condutividad de la papa
+sigmat:  0.0004       #condutividad de la papa
+sigmae:  0.00000001   #condutividad de la zona externa
+
+tiempo:     2.0  # seg totales
+paso_ti1:   0.00005 # seg 
+paso_ti2:   0.5 # seg 
+
+historia:  4    # pasos en que se divide. primero el pulso, luego sin joule
+   0.0001
+   0.9999
+   0.0001
+   0.9999
+
+
+#electrodo
+
+Nelectro:   6       #numero de electrodos
+
+potencial: 6.0     #potencial  6.0
+tierra:    0.0     #tierra
+disele:    5.0     # distancia entre electrodos (mm) 5.0(esfera)
+exentric:  2.0    # 0.0 esfera,  0.6 elipse, 1.0 parabola,  2.0 hyperbola   -1.0 alineado
+
+modo:      2        # 1 intercalado, 2 enfrentados
+
+end_data

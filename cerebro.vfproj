@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="11.0" ProjectIdGuid="{28978FE0-FA13-427B-902D-E05FB7365C29}">
+	<Platforms>
+		<Platform Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" UseCompiler="ifortCompiler">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" Interfaces="true"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFResourceCompilerTool"/>
+			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+			<Tool Name="VFCustomBuildTool"/>
+			<Tool Name="VFPreLinkEventTool"/>
+			<Tool Name="VFPreBuildEventTool"/>
+			<Tool Name="VFPostBuildEventTool"/>
+			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
+		</Configuration>
+		<Configuration Name="Release|Win32" UseCompiler="ifortCompiler">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+			<Tool Name="VFResourceCompilerTool"/>
+			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+			<Tool Name="VFCustomBuildTool"/>
+			<Tool Name="VFPreLinkEventTool"/>
+			<Tool Name="VFPreBuildEventTool"/>
+			<Tool Name="VFPostBuildEventTool"/>
+			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<Filter Name="fuentes" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath=".\fuentes\bio_therma2d.f90"/>
+		<File RelativePath=".\fuentes\biotherma.f90"/>
+		<File RelativePath=".\fuentes\campo.f90"/>
+		<File RelativePath=".\fuentes\Cerebro.f90"/>
+		<File RelativePath=".\fuentes\CONTROLA.F90"/>
+		<File RelativePath=".\fuentes\def_bio.f90"/>
+		<File RelativePath=".\fuentes\def_contantes.f90"/>
+		<File RelativePath=".\fuentes\def_solver.f90"/>
+		<File RelativePath=".\fuentes\def_variables.f90"/>
+		<File RelativePath=".\fuentes\ENSAMBLO.F90"/>
+		<File RelativePath=".\fuentes\finalice.f90"/>
+		<File RelativePath=".\fuentes\Helmozt_2d.f90"/>
+		<File RelativePath=".\fuentes\inicio.f90"/>
+		<File RelativePath=".\fuentes\lbcg.f90"/>
+		<File RelativePath=".\fuentes\lectura.f90"/>
+		<File RelativePath=".\fuentes\leemalla.f90"/>
+		<File RelativePath=".\fuentes\leo_mallado.f90"/>
+		<File RelativePath=".\fuentes\Malla3d.f"/>
+		<File RelativePath=".\fuentes\malla_Bergues.f90"/>
+		<File RelativePath=".\fuentes\mallagen.f90"/>
+		<File RelativePath=".\fuentes\masadiag.f90"/>
+		<File RelativePath=".\fuentes\modifico_fuentes.f90"/>
+		<File RelativePath=".\fuentes\OH_Evol_2d.f90"/>
+		<File RelativePath=".\fuentes\Ph_Evol_2d.f90"/>
+		<File RelativePath=".\fuentes\poisson.f90"/>
+		<File RelativePath=".\fuentes\poisson_2d.f90"/>
+		<File RelativePath=".\fuentes\salidas.f90"/>
+		<File RelativePath=".\fuentes\seteo.f90"/>
+		<File RelativePath=".\fuentes\sistema.f90"/>
+		<File RelativePath=".\fuentes\thorio_temper.f90"/></Filter>
+		<Filter Name="Header Files" Filter="fi;fd"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+	</Files>
+	<Globals/>
+</VisualStudioProject>

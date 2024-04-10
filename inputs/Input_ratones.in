@@ -1,0 +1,76 @@
+Problema: ratones  #cerebro/electro
+
+malla: 7         # 7 ratones   1 arma la malla generica. 2 la lee. 3 malla electrodo  4 malla bidimensional (begues)
+
+opcion: 2         # 1 construye el sistema. 2 lo lee
+
+archivo3:  sistema.dat
+
+TUMORx: 4.2
+TUMORy: 2.11
+TUMORz: 1.0
+tama_el: 0.1
+
+sigmat:  0.00056      #condutividad de la zona tumoral
+sigman:  0.00026      #condutividad de la zona normal
+sigmal:  0.00135      #condutividad de la zona liquido
+sigmae:  0.00000001   #condutividad de la zona externa
+
+
+tiempo:   3.0  # seg totales
+paso_ti1: 0.02 # seg 
+paso_ti2: 0.2  # seg 
+historia: 6    # pasos en que se divide. primero el pulso, luego sin joule
+   0.02
+   0.98
+   0.02
+   0.98
+   0.02
+   0.98
+#electrodo
+potencial: 30.0        #potencial  20  40  60
+tierra:    0.0         #tierra
+ELEC_ALT:    6         # en numeros de elementos
+ELEC_SEP:    20        # en numeros de elementos
+
+end_data
+
+  
+
+
+
+#Datos del porbelma electro
+
+data_entrada
+
+Problema: electro        #cerebro/electro
+
+opcion: 2         # 1 construye el sistema. 2 lo lee
+
+archivo3:  sistema.dat
+
+
+#Dominio
+tumor:   1.4     #dimension de la zona tumoral cm
+normal:  2.6    #dimension del domnio externos  cm
+sigmat:  0.004  #conductividad de la zona tumoral
+sigman:  0.0026  #conductividad de la zona externa
+sigmal:  0.0135  #condutividad de la zona liquido
+sigmae:  0.00000001 #condutividad de la zona externa
+
+#electrodo
+potencial: 500.0      #potencial
+tierra:    0.0      #tierra
+tipoE:     1        #tipo de electrodo
+radios:    0.07,0.11,0.17,0.2   # radios de las 4 zonas cm
+alturas:   0.375,0.525,0.5        # dalturas de las 3 zonas cm
+
+end_data
+
+
+
+
+data_entrada
+
+
+

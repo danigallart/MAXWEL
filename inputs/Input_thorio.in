@@ -1,0 +1,14 @@
+Problema: thorio #cerebro/electro/Bergues/papa/papa2d/papa_new/thorio
+
+malla: 6         # 1 arma la malla generica. 2 la lee. 3 malla electrodo. 4 problema Bergues. 6. thorio
+
+archivo1:  mallacir.dat  #mallatoro.dat
+
+opcion: 2         # 1 construye el sistema. 2 lo lee
+
+archivo3:  sistema.dat
+
+potencial: 650.0     #potencial  
+tierra:    0.0     #tierra
+
+end_data
