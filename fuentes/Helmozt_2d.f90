@@ -59,7 +59,6 @@ do while(error>epsil .and. nconta< NCOTA )
 
            
         !campoxl = dsqrt(cplx_gradxel_x(jel)*cplx_gradxel_x(jel) +cplx_gradxel_y(jel)*cplx_gradxel_y(jel))
-        !New comment
 
         CALL ARMADOhelmozt(ncase,JEL,X,Y,ns,nodpel,nope,ESM_cplx,EF_cplx,sigma_el_cplx,ak_cplx,qe_cplx)
         
