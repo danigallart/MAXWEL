@@ -1,0 +1,266 @@
+SUBROUTINE assembly
+use def_io
+use def_variables
+use def_vectors
+
+implicit none
+
+!DOUBLE PRECISION :: rigidez_local(nodpel,nodpel),indep_local(nodpel),x(ndimension,nodpel),dx(ndimension), QT
+!INTEGER :: kk,ii,ipoin,inode,jnode,j,ij,numbergaus,ii,jj,jj2,IAUX,keje,ns(nodpel), vecFlujoElem(nodpel)
+!DOUBLE PRECISION :: adiag,fuente, funQT, solucion_local(nodpel), masa_local(nodpel,nodpel), cp, rho
+!DOUBLE PRECISION :: funfuente, funconductividad, funcp, funrho
+
+!integer :: kk,ii,i,j,jj,ns(nodpel)
+!double precision, dimension(NE) :: rel_permitivity
+!double precision :: pmlbin_coorx(n_pml_bin),pmlbin_coory(n_pml_bin), &
+!    pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout)
+!double precision :: x_rval, y_rval, x_cval, y_cval
+!complex :: coord_matrix(ndim,nodpel)
+
+integer :: kk, ii, i, j, jj
+integer, allocatable :: ns(:)
+double precision, allocatable :: rel_permitivity(:)
+double precision, allocatable :: pmlbin_coorx(:),pmlbin_coory(:), pmlbout_coorx(:), pmlbout_coory(:)
+complex, allocatable :: local_coords(:,:)
+
+double precision :: x_rval, y_rval, x_cval, y_cval
+
+complex, allocatable :: JACOB(:,:),INVJACOB(:,:)
+double precision, allocatable :: PHI(:,:),DPHI(:,:,:)
+
+
+allocate(rel_permitivity(NE))
+allocate(pmlbin_coorx(n_pml_bin),pmlbin_coory(n_pml_bin))
+allocate(pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout))
+allocate(ns(nodpel))
+allocate(local_coords(ndim,nodpel))
+
+Ngauss = 3
+
+allocate(u_inc(NP))
+allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
+allocate(PHI(Ngauss,nodpel), DPHI(ndim, Ngauss, nodpel))
+
+
+indep_vect=0.0
+AD=0.0
+AN=0.0
+rel_permitivity=1.0
+
+
+do ii=1,n_pml_bin
+    pmlbin_coorx(ii)=coorx(pml_bin_nodes(ii))
+    pmlbin_coory(ii)=coory(pml_bin_nodes(ii))
+end do
+
+
+do ii=1,n_pml_bout
+    pmlbout_coorx(ii)=coorx(pml_bout_nodes(ii))
+    pmlbout_coory(ii)=coory(pml_bout_nodes(ii))
+end do
+
+allocate(complex_coorx(NP), complex_coory(NP))
+
+do ii=1,NP
+    complex_coorx(ii)=cmplx(coorx(ii),0.0)
+    complex_coory(ii)=cmplx(coory(ii),0.0)
+end do
+
+do jj=1,n_pml
+    call lcpml(coorx(jj),coory(jj),k0,pmlbin_coorx,pmlbin_coory,pmlbout_coorx,pmlbout_coory,x_rval,y_rval,x_cval,y_cval)
+    complex_coorx(jj)=cmplx(x_rval,x_cval)
+    complex_coory(jj)=cmplx(y_rval,y_cval)
+end do
+
+u_inc = exp(ij*k0*(real(complex_coorx)+real(complex_coory))) !No need to use complex coordinates. We just need the real value at each node
+
+do ii=1,m_scatin
+    j=scatin_elements(ii)
+    rel_permitivity(j)=4.0
+end do
+
+do kk=1,NE
+    do i=1,nodpel
+        ns(i) = conectividad(kk,i)
+        local_coords(1,i) = complex_coorx(ns(i))
+        local_coords(2,i) = complex_coory(ns(i))
+    enddo
+    call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,Ngauss,nodpel,ndim)
+end do
+
+! Compute elements
+
+
+
+
+
+END SUBROUTINE assembly
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! LCPML function for Fortran 90
+subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, xc_im, yc_im)
+  use def_io
+  use def_variables
+  use def_vectors
+
+  implicit none
+
+  ! Input arguments
+  real(kind=8), intent(in) :: x, y, k
+  real(kind=8), dimension(n_pml_bin) :: pmlbin_x, pmlbin_y
+  real(kind=8), dimension(n_pml_bout) :: pmlbout_x, pmlbout_y
+  ! Output arguments
+  !complex(kind=8), intent(out) :: xc, yc
+  double precision, intent(out) :: xc_r, yc_r,xc_im, yc_im
+
+  ! LC-PML parameters
+  !real(kind=8) :: alpha
+  real(kind=8),dimension(n_pml_bin) :: dpml1
+  integer :: m, ind
+  !complex(kind=8) :: alphajk, term
+  double precision :: alphajk, term
+  real(kind=8) :: x0,y0
+  double precision :: vpx(n_pml_bout),vpy(n_pml_bout)
+  double precision :: npx(n_pml_bout),npy(n_pml_bout)
+  double precision :: lp(n_pml_bout)
+  double precision :: vx, vy, l, nx, ny, x1, y1,dpml2
+  double precision :: ksi
+  
+
+  ! Set LC-PML parameters
+  !alpha = 7.0 * k
+  !alphajk = (0,-7.0)
+  alphajk = -7.0
+  m = 3  ! PML decay rate (integer 2 or 3)
+
+  ! Find the point on the inner PML boundary nearest to point P
+  dpml1 = sqrt((pmlbin_x - x)**2 + (pmlbin_y - y)**2)
+  ksi = MINVAL(dpml1,1)
+  ind = MINLOC(dpml1,1)  ! Use minloc function for efficiency
+  x0 = pmlbin_x(ind)
+  y0 = pmlbin_y(ind)
+
+  ! Find the point on the outer PML boundary in the direction of the unit vector
+  vpx = pmlbout_x - x0
+  vpy = pmlbout_y - y0
+  lp = sqrt(vpx**2 + vpy**2)
+  npx = vpx / lp  ! Unit vector from r0 to r1 (x-comp)
+  npy = vpy / lp  ! Unit vector from r0 to r1 (y-comp)
+
+  vx = x - x0
+  vy = y - y0
+  l = sqrt(vx**2 + vy**2)
+  nx = vx / l  ! Unit vector from r0 to r (x-comp)
+  ny = vy / l  ! Unit vector from r0 to r (y-comp)
+
+  if (l < 1.0e-8) then
+    xc_r = x
+    yc_r = y
+    xc_im = 0.0
+    yc_im = 0.0
+  else
+    ! Find the angle between nx and npx using arccosine
+    ind = MINLOC(acos(nx * npx + ny * npy),1)
+
+    ! Find the point on the outer PML boundary closest in direction
+    !ind = MINLOC(abs(acos(npx * cos(ksi) + npy * sin(ksi))),1)
+    x1 = pmlbout_x(ind)
+    y1 = pmlbout_y(ind)
+
+    ! Calculate local PML thickness
+    dpml2 = sqrt((x1 - x0)**2 + (y1 - y0)**2)
+
+    ! Complex coordinate term
+    term = alphajk * ((dpml2**m) / (m * (dpml2**(m-1))))
+
+    ! Complex coordinates
+    xc_r = x
+    xc_im = term * nx
+    yc_r = y
+    yc_im =	term * ny
+  end if
+
+end subroutine lcpml
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!Function that computes PHI, DPHI, JACOB, INVJACOB at every element in the gaussian integration points
+subroutine shape_gauss(xcoord_e,ycoord_e,phi,dphi,jacob,invjacob,Ngauss,nodpel,ndim)
+
+
+implicit none
+
+!Input variables
+integer, intent(in) :: Ngauss,nodpel,ndim
+complex, intent(in) :: xcoord_e(nodpel),ycoord_e(nodpel)
+
+!Output variables
+double precision, intent(out) :: phi(Ngauss,nodpel), dphi(ndim,Ngauss,nodpel)
+complex, intent(out) :: jacob(ndim,ndim),invjacob(ndim,ndim)
+
+
+!Local variables
+integer :: kgauss
+double precision :: ksi, eta
+double precision, allocatable :: gauss_pt_ksi(:), gauss_pt_eta(:), gauss_wt(:)
+complex :: detjacob
+
+
+!Allocate local variables
+allocate(gauss_pt_ksi(Ngauss),gauss_pt_eta(Ngauss), gauss_wt(Ngauss))
+
+gauss_pt_ksi = (/0.5,0.0,0.5/)
+gauss_pt_eta = (/0.0,0.5,0.5/)
+gauss_wt = 1.0/6.0
+
+do kgauss=1, Ngauss
+ksi = gauss_pt_ksi(kgauss)
+eta = gauss_pt_eta(kgauss)
+
+phi(kgauss,1) = 1-ksi-eta
+phi(kgauss,2) = ksi
+phi(kgauss,3) = eta
+
+dphi(1,kgauss,1) = -1.0
+dphi(2,kgauss,1) = -1.0
+           
+dphi(1,kgauss, 2) = 1.0
+dphi(2,kgauss, 2) = 0.0
+           
+dphi(1,kgauss, 3) = 0.0
+dphi(2,kgauss, 3) = 1.0
+
+end do
+
+jacob(1,1) = xcoord_e(2)-xcoord_e(1)
+jacob(1,2) = ycoord_e(2)-ycoord_e(1)
+jacob(2,1) = xcoord_e(3)-xcoord_e(1)
+jacob(2,2) = ycoord_e(3)-ycoord_e(1)
+
+detjacob = jacob(1,1)*jacob(2,2)-jacob(1,2)*jacob(2,1)
+
+invjacob(1,1) = ycoord_e(3)-ycoord_e(1)
+invjacob(1,2) = -(ycoord_e(2)-ycoord_e(1))
+invjacob(2,1) = -(xcoord_e(3)-xcoord_e(1))
+invjacob(2,2) = xcoord_e(2)-xcoord_e(1)
+
+invjacob = invjacob/detjacob
+
+
+end subroutine shape_gauss
+
+!subroutine gauss_quadrature(Ngauss,gauss_pt_ksi,gauss_pt_eta, gauss_wt)
+!implicit none
+!double precision :: gauss_pt_ksi(Ngauss), gauss_pt_eta(Ngauss), gauss_wt(Ngauss)
+
+!Ngauss = 3
+
+!gauss_pt_ksi = (/0.5,0.0,0.5/)
+!gauss_pt_eta = (/0.0,0.5,0.5/)
+!gauss_wt = 1.0/6.0
+
+!end subroutine gauss_quadrature
+
+
