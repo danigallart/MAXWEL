@@ -19,33 +19,40 @@ implicit none
 
 integer :: kk, ii, i, j, jj
 integer, allocatable :: ns(:)
-double precision, allocatable :: rel_permitivity(:)
+double precision, allocatable :: rel_permitivity(:), rel_permeability(:)
+complex, allocatable :: complex_permitivity(:)
 double precision, allocatable :: pmlbin_coorx(:),pmlbin_coory(:), pmlbout_coorx(:), pmlbout_coory(:)
 complex, allocatable :: local_coords(:,:)
 
 double precision :: x_rval, y_rval, x_cval, y_cval
 
 complex, allocatable :: JACOB(:,:),INVJACOB(:,:)
-double precision, allocatable :: PHI(:,:),DPHI(:,:,:)
+double precision, allocatable :: PHI(:,:),DPHI(:,:)
+complex :: DETJACOB
+
+complex, allocatable :: AE(:,:)
+complex :: pxe,pye,qe
 
 
-allocate(rel_permitivity(NE))
+allocate(rel_permitivity(NE),rel_permeability(NE),complex_permitivity(NE))
 allocate(pmlbin_coorx(n_pml_bin),pmlbin_coory(n_pml_bin))
 allocate(pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout))
 allocate(ns(nodpel))
 allocate(local_coords(ndim,nodpel))
+allocate(AE(nodpel,nodpel))
 
 Ngauss = 3
 
 allocate(u_inc(NP))
 allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
-allocate(PHI(Ngauss,nodpel), DPHI(ndim, Ngauss, nodpel))
+allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
 
 
 indep_vect=0.0
 AD=0.0
 AN=0.0
 rel_permitivity=1.0
+rel_permeability=1.0
 
 
 do ii=1,n_pml_bin
@@ -72,12 +79,14 @@ do jj=1,n_pml
     complex_coory(jj)=cmplx(y_rval,y_cval)
 end do
 
-u_inc = exp(ij*k0*(real(complex_coorx)+real(complex_coory))) !No need to use complex coordinates. We just need the real value at each node
+u_inc = exp(ij*k0*(coorx+coory)) !No need to use complex coordinates. We just need the real value at each node
 
 do ii=1,m_scatin
     j=scatin_elements(ii)
     rel_permitivity(j)=4.0
 end do
+
+complex_permitivity = rel_permitivity - ij*cond/(omg*e0)
 
 do kk=1,NE
     do i=1,nodpel
@@ -85,7 +94,14 @@ do kk=1,NE
         local_coords(1,i) = complex_coorx(ns(i))
         local_coords(2,i) = complex_coory(ns(i))
     enddo
-    call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,Ngauss,nodpel,ndim)
+    call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,Ngauss,nodpel,ndim)
+    
+    pxe = cmplx(1./rel_permeability(kk),0)
+    pye = cmplx(1./rel_permeability(kk),0)
+    qe = -complex_permitivity(kk)*k0**2
+    call element_matrix(PHI,DPHI,INVJACOB,DETJACOB, &
+        pxe,pye,qe, &
+        AE,Ngauss,nodpel,ndim)
 end do
 
 ! Compute elements
@@ -107,7 +123,7 @@ subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, 
   implicit none
 
   ! Input arguments
-  real(kind=8), intent(in) :: x, y, k
+  real(kind=8) :: x, y, k
   real(kind=8), dimension(n_pml_bin) :: pmlbin_x, pmlbin_y
   real(kind=8), dimension(n_pml_bout) :: pmlbout_x, pmlbout_y
   ! Output arguments
@@ -187,25 +203,26 @@ end subroutine lcpml
 
 
 !Function that computes PHI, DPHI, JACOB, INVJACOB at every element in the gaussian integration points
-subroutine shape_gauss(xcoord_e,ycoord_e,phi,dphi,jacob,invjacob,Ngauss,nodpel,ndim)
+subroutine shape_gauss(xcoord_e,ycoord_e,phi,dphi,jacob,invjacob,detjacob,Ngauss,nodpel,ndim)
 
 
 implicit none
 
 !Input variables
-integer, intent(in) :: Ngauss,nodpel,ndim
-complex, intent(in) :: xcoord_e(nodpel),ycoord_e(nodpel)
+integer :: Ngauss,nodpel,ndim
+complex :: xcoord_e(nodpel),ycoord_e(nodpel)
 
 !Output variables
-double precision, intent(out) :: phi(Ngauss,nodpel), dphi(ndim,Ngauss,nodpel)
+double precision, intent(out) :: phi(Ngauss,nodpel), dphi(ndim,nodpel)
 complex, intent(out) :: jacob(ndim,ndim),invjacob(ndim,ndim)
+complex, intent(out) :: detjacob
+
 
 
 !Local variables
 integer :: kgauss
 double precision :: ksi, eta
 double precision, allocatable :: gauss_pt_ksi(:), gauss_pt_eta(:), gauss_wt(:)
-complex :: detjacob
 
 
 !Allocate local variables
@@ -223,16 +240,16 @@ phi(kgauss,1) = 1-ksi-eta
 phi(kgauss,2) = ksi
 phi(kgauss,3) = eta
 
-dphi(1,kgauss,1) = -1.0
-dphi(2,kgauss,1) = -1.0
-           
-dphi(1,kgauss, 2) = 1.0
-dphi(2,kgauss, 2) = 0.0
-           
-dphi(1,kgauss, 3) = 0.0
-dphi(2,kgauss, 3) = 1.0
-
 end do
+
+dphi(1,1) = -1.0
+dphi(2,1) = -1.0
+           
+dphi(1,2) = 1.0
+dphi(2,2) = 0.0
+           
+dphi(1,3) = 0.0
+dphi(2,3) = 1.0
 
 jacob(1,1) = xcoord_e(2)-xcoord_e(1)
 jacob(1,2) = ycoord_e(2)-ycoord_e(1)
@@ -249,7 +266,53 @@ invjacob(2,2) = xcoord_e(2)-xcoord_e(1)
 invjacob = invjacob/detjacob
 
 
-end subroutine shape_gauss
+    end subroutine shape_gauss
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    !Function that computes PHI and DPHI in the absolute coordinates
+    
+subroutine element_matrix(PHI,DPHI,INVJACOB,DETJACOB,pxe,pye,qe,AE,Ngauss,nodpel,ndim)
+    
+
+!Input variables
+double precision :: PHI(Ngauss,nodpel), DPHI(ndim,nodpel)
+complex :: INVJACOB(ndim,ndim)
+complex :: pxe,pye,qe
+complex :: DETJACOB
+
+!Output varaibles
+complex :: AE(nodpel,nodpel)
+
+!Local variables
+complex :: AE1(nodpel,nodpel), AE2(nodpel,nodpel)
+integer :: i,j,k
+double precision :: gauss_wt(Ngauss)
+
+gauss_wt = 1.0/6.0
+AE2 = (0,0)
+
+do i=1,nodpel
+    do j=1,nodpel
+        
+        
+        AE1(i,j)=(pxe*(INVJACOB(1,1)*dphi(1,i)+INVJACOB(1,2)*dphi(2,i)) * (INVJACOB(1,1)*dphi(1,j)+INVJACOB(1,2)*dphi(2,j)) + &
+            pye*(INVJACOB(2,1)*dphi(1,i)+INVJACOB(2,2)*dphi(2,i)) * (INVJACOB(2,1)*dphi(1,j)+INVJACOB(2,2)*dphi(2,j)))*DETJACOB/2
+        
+        AE1(j,i) = AE1(i,j)
+        
+        do k=1,Ngauss
+            
+        AE2(i,j) = AE2(i,j) + gauss_wt(k)*qe*PHI(k,i)*PHI(k,j)*DETJACOB
+        AE2(j,i) = AE2(i,j)
+        
+        end do
+    end do
+end do
+
+AE = AE1 + AE2
+    
+end subroutine element_matrix
 
 !subroutine gauss_quadrature(Ngauss,gauss_pt_ksi,gauss_pt_eta, gauss_wt)
 !implicit none
