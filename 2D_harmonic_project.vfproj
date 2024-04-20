@@ -59,8 +59,10 @@
 		<File RelativePath=".\def_io.f90"/>
 		<File RelativePath=".\def_variables.f90"/>
 		<File RelativePath=".\def_vectors.f90"/>
-		<File RelativePath=".\mesh_reader.f90"/>
+		<File RelativePath=".\exit_writer.f90"/>
 		<File RelativePath=".\initialise.f90"/>
+		<File RelativePath=".\mesh_reader.f90"/>
+		<File RelativePath=".\solver.f90"/>
 		<File RelativePath=".\sparse_system.f90"/></Filter>
 	</Files>
 	<Globals/>

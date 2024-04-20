@@ -3,7 +3,9 @@ module def_io
     character*(300) :: inputfile = 'EMWAVE.inp'
     character*(300) :: output_data = 'EMWAVE.out'
     character*(300) :: grid = 'grid_data.dat'
-    character*(300) :: results = 'wave_field_results.dat'
+    character*(300) :: result_scat = 'scat_field_results.csv'
+    character*(300) :: result_tot = 'total_field_results.csv'
+
     character*(300) :: control = 'tolerance_control.dat'
     
     character*(300) :: nodes_file = 'test_circle_nodes.txt'
@@ -29,7 +31,8 @@ module def_io
         input_unit = 1, &
         data_unit = 2, &
         grid_unit = 3, &
-        results_unit = 4, &
+        result_scat_unit = 4, &
+        result_tot_unit = 5, &
         control_unit = 7, &
         nodes_unit = 8, &
         elements_unit = 9, &

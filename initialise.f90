@@ -20,7 +20,8 @@ character*30 :: time_date
    open(unit=input_unit,file=inputfile,status='old',err=100)
    open(unit=data_unit,file=output_data,status='unknown')
    open(unit=grid_unit,file=grid,status='unknown')
-   open(unit=results_unit,file=results,status='unknown')
+   open(unit=result_scat_unit,file=result_scat,status='unknown')
+   open(unit=result_tot_unit,file=result_tot,status='unknown')
    open(unit=control_unit,file=control,status='unknown')
    
    open(unit=nodes_unit,file=nodes_file,status='old')

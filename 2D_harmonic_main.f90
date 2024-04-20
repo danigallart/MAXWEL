@@ -39,8 +39,9 @@
         
         CALL assembly()
         
+        CALL solver()
         
-        
+        CALL exit_writer()
 
     end program $2D_harmonic_main
 

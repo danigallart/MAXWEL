@@ -17,7 +17,7 @@ implicit none
 !double precision :: x_rval, y_rval, x_cval, y_cval
 !complex :: coord_matrix(ndim,nodpel)
 
-integer :: kk, ii, i, j, jj
+integer :: kk, ii, i, j, jj, KEJE, IAUX
 integer, allocatable :: ns(:)
 double precision, allocatable :: rel_permitivity(:), rel_permeability(:)
 complex, allocatable :: complex_permitivity(:)
@@ -43,7 +43,6 @@ allocate(AE(nodpel,nodpel))
 
 Ngauss = 3
 
-allocate(u_inc(NP))
 allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
 allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
 
@@ -79,7 +78,6 @@ do jj=1,n_pml
     complex_coory(jj)=cmplx(y_rval,y_cval)
 end do
 
-u_inc = exp(ij*k0*(coorx+coory)) !No need to use complex coordinates. We just need the real value at each node
 
 do ii=1,m_scatin
     j=scatin_elements(ii)
@@ -102,6 +100,21 @@ do kk=1,NE
     call element_matrix(PHI,DPHI,INVJACOB,DETJACOB, &
         pxe,pye,qe, &
         AE,Ngauss,nodpel,ndim)
+    
+    
+    do i=1, nodpel
+    AD(ns(i)) = AD(ns(i)) + AE(i,i)
+    do j=1, nodpel
+        do IAUX = 1,ICX(ns(i))
+            KEJE = IA(ns(i))+IAUX-1
+            if (JA(KEJE) == ns(j)) then
+                AN(KEJE) = AN(KEJE) + AE(i,j)
+            endif
+        enddo
+        
+    end do
+    enddo
+    
 end do
 
 ! Compute elements
