@@ -23,7 +23,7 @@
     INTEGER :: itime
     DOUBLE PRECISION :: time
 
-        ! Convert frequency from MHz to Hz
+    ! Convert frequency from MHz to Hz
     freq_hz = freq * 1e6
 
     ! Calculate wavelength and other parameters
@@ -35,13 +35,15 @@
         
         CALL mesh_reader()
         
-        CALL arma_sistema()
+        CALL sparse_logic()
         
         CALL assembly()
         
         CALL solver()
         
         CALL exit_writer()
+        
+        CALL finalise()
 
     end program $2D_harmonic_main
 

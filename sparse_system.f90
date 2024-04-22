@@ -1,4 +1,4 @@
-subroutine arma_sistema
+subroutine sparse_logic
 use def_io
 use def_variables
 use def_vectors
@@ -85,9 +85,7 @@ write(control_unit,*) 'Nonulos del sistema: ',NONULL
 
 deallocate(consim)
 
-!IF ( problem_type == 2 ) CALL armoMasa()
-
-end subroutine arma_sistema
+end subroutine sparse_logic
 
 
 !SUBROUTINE armoMasa()

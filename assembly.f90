@@ -72,7 +72,8 @@ do ii=1,NP
     complex_coory(ii)=cmplx(coory(ii),0.0)
 end do
 
-do jj=1,n_pml
+do ii=1,n_pml
+    jj = pml_nodes(ii)
     call lcpml(coorx(jj),coory(jj),k0,pmlbin_coorx,pmlbin_coory,pmlbout_coorx,pmlbout_coory,x_rval,y_rval,x_cval,y_cval)
     complex_coorx(jj)=cmplx(x_rval,x_cval)
     complex_coory(jj)=cmplx(y_rval,y_cval)
@@ -298,16 +299,21 @@ complex :: DETJACOB
 complex :: AE(nodpel,nodpel)
 
 !Local variables
-complex :: AE1(nodpel,nodpel), AE2(nodpel,nodpel)
+complex, allocatable :: AE1(:,:), AE2(:,:)
 integer :: i,j,k
-double precision :: gauss_wt(Ngauss)
+double precision, allocatable :: gauss_wt(:)
+complex :: gauss_sum
+
+allocate(AE1(nodpel,nodpel), AE2(nodpel,nodpel),gauss_wt(Ngauss))
 
 gauss_wt = 1.0/6.0
-AE2 = (0,0)
+AE1 = cmplx(0.0,0.0)
+AE2 = cmplx(0.0,0.0)
+
 
 do i=1,nodpel
     do j=1,nodpel
-        
+        gauss_sum = cmplx(0.0,0.0)
         
         AE1(i,j)=(pxe*(INVJACOB(1,1)*dphi(1,i)+INVJACOB(1,2)*dphi(2,i)) * (INVJACOB(1,1)*dphi(1,j)+INVJACOB(1,2)*dphi(2,j)) + &
             pye*(INVJACOB(2,1)*dphi(1,i)+INVJACOB(2,2)*dphi(2,i)) * (INVJACOB(2,1)*dphi(1,j)+INVJACOB(2,2)*dphi(2,j)))*DETJACOB/2
@@ -316,10 +322,13 @@ do i=1,nodpel
         
         do k=1,Ngauss
             
-        AE2(i,j) = AE2(i,j) + gauss_wt(k)*qe*PHI(k,i)*PHI(k,j)*DETJACOB
-        AE2(j,i) = AE2(i,j)
+        gauss_sum = gauss_sum + gauss_wt(k)*qe*PHI(k,i)*PHI(k,j)*DETJACOB
         
         end do
+        
+        AE2(i,j) = gauss_sum
+        AE2(j,i) = AE2(i,j)
+        
     end do
 end do
 

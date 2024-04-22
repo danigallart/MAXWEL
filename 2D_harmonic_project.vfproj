@@ -60,6 +60,7 @@
 		<File RelativePath=".\def_variables.f90"/>
 		<File RelativePath=".\def_vectors.f90"/>
 		<File RelativePath=".\exit_writer.f90"/>
+		<File RelativePath=".\finalise_close.f90"/>
 		<File RelativePath=".\initialise.f90"/>
 		<File RelativePath=".\mesh_reader.f90"/>
 		<File RelativePath=".\solver.f90"/>

@@ -38,7 +38,7 @@ module def_variables
 	! Constants
     real(kind=8), parameter :: c0 = 3.0d8 ! m/sec, velocity of light in free space
 	real(kind=8), parameter :: pi = 4*ATAN(1.) ! m/sec, velocity of light in free space
-	complex, parameter :: ij = (0, 1)   ! sqrt(-1)   
+	complex, parameter :: ij = cmplx(0, 1)   ! sqrt(-1)   
 
 
     real(kind=8), parameter :: nu0 = 120.0 * pi ! ohm, intrinsic impedance of free space
@@ -53,6 +53,7 @@ module def_variables
     real(kind=8) :: lambda0 ! meter, wavelength
     real(kind=8) :: k0 ! 1/meter, wavenumber
     real(kind=8) :: omg ! rad/sec, radial frequency
+    real(kind=8) :: phii = 0 !rad, angle of incident field
     
 
     
