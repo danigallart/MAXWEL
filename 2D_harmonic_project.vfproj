@@ -59,6 +59,7 @@
 		<File RelativePath=".\def_io.f90"/>
 		<File RelativePath=".\def_variables.f90"/>
 		<File RelativePath=".\def_vectors.f90"/>
+		<File RelativePath=".\exit_nosolver.f90"/>
 		<File RelativePath=".\exit_writer.f90"/>
 		<File RelativePath=".\finalise_close.f90"/>
 		<File RelativePath=".\initialise.f90"/>

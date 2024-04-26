@@ -41,8 +41,12 @@
         
         CALL solver()
         
-        CALL exit_writer()
-        
+        if (.TRUE.) then
+            CALL exit_nosolver()
+        else
+            CALL exit_writer() 
+        endif
+    
         CALL finalise()
 
     end program $2D_harmonic_main

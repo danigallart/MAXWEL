@@ -38,7 +38,7 @@ module def_variables
 	! Constants
     real(kind=8), parameter :: c0 = 3.0d8 ! m/sec, velocity of light in free space
 	real(kind=8), parameter :: pi = 4*ATAN(1.) ! m/sec, velocity of light in free space
-	complex, parameter :: ij = cmplx(0, 1)   ! sqrt(-1)   
+	complex*16, parameter :: ij = cmplx(0, 1)   ! sqrt(-1)   
 
 
     real(kind=8), parameter :: nu0 = 120.0 * pi ! ohm, intrinsic impedance of free space

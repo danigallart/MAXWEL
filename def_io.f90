@@ -24,6 +24,9 @@ module def_io
 
     character*(300) ::  huygb_nodes_file = 'test_circle_huygb_nodes.txt'
     character*(300) ::  huygb_elements_file = 'test_circle_huygb_elements.txt'
+    
+    character*(300) ::  stiff_matrix_file = 'stiff_matrix.txt'
+    character*(300) ::  connectivity_file = 'connectivity.txt'
 
 
     
@@ -44,6 +47,8 @@ module def_io
         scatin_elements_unit = 15, &
         scatb_elements_unit = 16, &
         huygb_nodes_unit = 17, &
-        huygb_elements_unit = 18
+        huygb_elements_unit = 18, &
+        stiff_matrix_unit = 19, &
+        connectivity_unit = 20
     
 end module def_io

@@ -20,5 +20,8 @@ implicit none
     close(huygb_nodes_unit)
     close(huygb_elements_unit)
     
+    close(stiff_matrix_unit)
+    close(connectivity_unit)
+    
 
 end subroutine finalise

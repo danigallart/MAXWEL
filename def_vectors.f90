@@ -4,9 +4,9 @@ module def_vectors
     integer, allocatable :: condiciones_fijas(:,:)
     
     double precision, allocatable :: coorx(:), coory(:)
-    complex, allocatable :: complex_coorx(:), complex_coory(:)
+    complex*16, allocatable :: complex_coorx(:), complex_coory(:)
     
-    COMPLEX, allocatable :: u_scat(:), u_inc(:), &
+    complex*16, allocatable :: u_scat(:), u_inc(:), &
         indep_vect(:), &
         grad(:,:), gradxel(:,:), &
         AD(:), AN(:)

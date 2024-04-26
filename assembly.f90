@@ -15,23 +15,23 @@ implicit none
 !double precision :: pmlbin_coorx(n_pml_bin),pmlbin_coory(n_pml_bin), &
 !    pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout)
 !double precision :: x_rval, y_rval, x_cval, y_cval
-!complex :: coord_matrix(ndim,nodpel)
+!complex*16 :: coord_matrix(ndim,nodpel)
 
 integer :: kk, ii, i, j, jj, KEJE, IAUX
 integer, allocatable :: ns(:)
 double precision, allocatable :: rel_permitivity(:), rel_permeability(:)
-complex, allocatable :: complex_permitivity(:)
+complex*16, allocatable :: complex_permitivity(:)
 double precision, allocatable :: pmlbin_coorx(:),pmlbin_coory(:), pmlbout_coorx(:), pmlbout_coory(:)
-complex, allocatable :: local_coords(:,:)
+complex*16, allocatable :: local_coords(:,:)
 
 double precision :: x_rval, y_rval, x_cval, y_cval
 
-complex, allocatable :: JACOB(:,:),INVJACOB(:,:)
+complex*16, allocatable :: JACOB(:,:),INVJACOB(:,:)
 double precision, allocatable :: PHI(:,:),DPHI(:,:)
-complex :: DETJACOB
+complex*16 :: DETJACOB
 
-complex, allocatable :: AE(:,:)
-complex :: pxe,pye,qe
+complex*16, allocatable :: AE(:,:)
+complex*16 :: pxe,pye,qe
 
 
 allocate(rel_permitivity(NE),rel_permeability(NE),complex_permitivity(NE))
@@ -74,9 +74,9 @@ end do
 
 do ii=1,n_pml
     jj = pml_nodes(ii)
-    call lcpml(coorx(jj),coory(jj),k0,pmlbin_coorx,pmlbin_coory,pmlbout_coorx,pmlbout_coory,x_rval,y_rval,x_cval,y_cval)
-    complex_coorx(jj)=cmplx(x_rval,x_cval)
-    complex_coory(jj)=cmplx(y_rval,y_cval)
+    call lcpml(coorx(jj),coory(jj),k0,pmlbin_coorx,pmlbin_coory,pmlbout_coorx,pmlbout_coory,complex_coorx(jj),complex_coory(jj))
+    !complex_coorx(jj)=cmplx(x_rval,x_cval)
+    !complex_coory(jj)=cmplx(y_rval,y_cval)
 end do
 
 
@@ -129,7 +129,7 @@ END SUBROUTINE assembly
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! LCPML function for Fortran 90
-subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, xc_im, yc_im)
+subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc, yc)
   use def_io
   use def_variables
   use def_vectors
@@ -141,15 +141,14 @@ subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, 
   real(kind=8), dimension(n_pml_bin) :: pmlbin_x, pmlbin_y
   real(kind=8), dimension(n_pml_bout) :: pmlbout_x, pmlbout_y
   ! Output arguments
-  !complex(kind=8), intent(out) :: xc, yc
-  double precision, intent(out) :: xc_r, yc_r,xc_im, yc_im
+  complex*16 :: xc, yc
+  !double precision, intent(out) :: xc_r, yc_r,xc_im, yc_im
 
   ! LC-PML parameters
   !real(kind=8) :: alpha
   real(kind=8),dimension(n_pml_bin) :: dpml1
   integer :: m, ind
-  !complex(kind=8) :: alphajk, term
-  double precision :: alphajk, term
+  complex*16 :: alphajk, term
   real(kind=8) :: x0,y0
   double precision :: vpx(n_pml_bout),vpy(n_pml_bout)
   double precision :: npx(n_pml_bout),npy(n_pml_bout)
@@ -160,8 +159,8 @@ subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, 
 
   ! Set LC-PML parameters
   !alpha = 7.0 * k
-  !alphajk = (0,-7.0)
-  alphajk = -7.0
+  !alphajk = -7.0
+  alphajk = cmplx(0,-7.0)
   m = 3  ! PML decay rate (integer 2 or 3)
 
   ! Find the point on the inner PML boundary nearest to point P
@@ -185,10 +184,8 @@ subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, 
   ny = vy / l  ! Unit vector from r0 to r (y-comp)
 
   if (l < 1.0e-8) then
-    xc_r = x
-    yc_r = y
-    xc_im = 0.0
-    yc_im = 0.0
+    xc = cmplx(x,0.0)
+    yc = cmplx(y,0.0)
   else
     ! Find the angle between nx and npx using arccosine
     ind = MINLOC(acos(nx * npx + ny * npy),1)
@@ -202,13 +199,11 @@ subroutine lcpml(x, y, k, pmlbin_x, pmlbin_y, pmlbout_x, pmlbout_y, xc_r, yc_r, 
     dpml2 = sqrt((x1 - x0)**2 + (y1 - y0)**2)
 
     ! Complex coordinate term
-    term = alphajk * ((dpml2**m) / (m * (dpml2**(m-1))))
+    term = alphajk * ((ksi**m) / (m * (dpml2**(m-1))))
 
     ! Complex coordinates
-    xc_r = x
-    xc_im = term * nx
-    yc_r = y
-    yc_im =	term * ny
+    xc = cmplx(x,0.0) + term * nx
+    yc = cmplx(y, 0.0) + term * ny
   end if
 
 end subroutine lcpml
@@ -224,12 +219,12 @@ implicit none
 
 !Input variables
 integer :: Ngauss,nodpel,ndim
-complex :: xcoord_e(nodpel),ycoord_e(nodpel)
+complex*16 :: xcoord_e(nodpel),ycoord_e(nodpel)
 
 !Output variables
 double precision, intent(out) :: phi(Ngauss,nodpel), dphi(ndim,nodpel)
-complex, intent(out) :: jacob(ndim,ndim),invjacob(ndim,ndim)
-complex, intent(out) :: detjacob
+complex*16, intent(out) :: jacob(ndim,ndim),invjacob(ndim,ndim)
+complex*16, intent(out) :: detjacob
 
 
 
@@ -291,18 +286,18 @@ subroutine element_matrix(PHI,DPHI,INVJACOB,DETJACOB,pxe,pye,qe,AE,Ngauss,nodpel
 
 !Input variables
 double precision :: PHI(Ngauss,nodpel), DPHI(ndim,nodpel)
-complex :: INVJACOB(ndim,ndim)
-complex :: pxe,pye,qe
-complex :: DETJACOB
+complex*16 :: INVJACOB(ndim,ndim)
+complex*16 :: pxe,pye,qe
+complex*16 :: DETJACOB
 
 !Output varaibles
-complex :: AE(nodpel,nodpel)
+complex*16 :: AE(nodpel,nodpel)
 
 !Local variables
-complex, allocatable :: AE1(:,:), AE2(:,:)
+complex*16, allocatable :: AE1(:,:), AE2(:,:)
 integer :: i,j,k
 double precision, allocatable :: gauss_wt(:)
-complex :: gauss_sum
+complex*16 :: gauss_sum
 
 allocate(AE1(nodpel,nodpel), AE2(nodpel,nodpel),gauss_wt(Ngauss))
 
