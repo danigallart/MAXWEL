@@ -19,8 +19,16 @@ implicit none
 
 integer :: kk, ii, i, j, jj, KEJE, IAUX
 integer, allocatable :: ns(:)
-double precision, allocatable :: rel_permitivity(:), rel_permeability(:)
-complex*16, allocatable :: complex_permitivity(:)
+double precision, allocatable :: rel_permitivity_xx(:), rel_permitivity_xy(:), &
+                                 rel_permitivity_yx(:), rel_permitivity_yy(:), &
+                                 rel_permitivity_zz(:)
+
+double precision, allocatable :: rel_permeability_xx(:), rel_permeability_xy(:), &
+                                 rel_permeability_yx(:), rel_permeability_yy(:), &
+                                 rel_permeability_zz(:)
+
+double precision, allocatable :: cond(:)
+
 double precision, allocatable :: pmlbin_coorx(:),pmlbin_coory(:), pmlbout_coorx(:), pmlbout_coory(:)
 complex*16, allocatable :: local_coords(:,:)
 
@@ -28,18 +36,28 @@ double precision :: x_rval, y_rval, x_cval, y_cval
 
 complex*16, allocatable :: JACOB(:,:),INVJACOB(:,:)
 double precision, allocatable :: PHI(:,:),DPHI(:,:)
-complex*16 :: DETJACOB
+complex*16 :: DETJACOB, determinant
 
 complex*16, allocatable :: AE(:,:)
-complex*16 :: pxe,pye,qe
+complex*16 :: pxxe,pxye,pyxe,pyye,qe
+complex*16, allocatable :: pe(:,:)
 
 
-allocate(rel_permitivity(NE),rel_permeability(NE),complex_permitivity(NE))
-allocate(pmlbin_coorx(n_pml_bin),pmlbin_coory(n_pml_bin))
+allocate(rel_permitivity_xx(NE), rel_permitivity_xy(NE), &
+         rel_permitivity_yx(NE), rel_permitivity_yy(NE), &
+         rel_permitivity_zz(NE))
+
+allocate(rel_permeability_xx(NE), rel_permeability_xy(NE), &
+         rel_permeability_yx(NE), rel_permeability_yy(NE), &
+         rel_permeability_zz(NE))
+
+allocate(cond(NE))
+allocate(pmlbin_coorx(n_pml_bin), pmlbin_coory(n_pml_bin))
 allocate(pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout))
 allocate(ns(nodpel))
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
+allocate(pe(ndim,ndim))
 
 Ngauss = 3
 
@@ -50,8 +68,21 @@ allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
 indep_vect=0.0
 AD=0.0
 AN=0.0
-rel_permitivity=1.0
-rel_permeability=1.0
+
+rel_permeability_xx = 1.0
+rel_permeability_xy = 0.0
+rel_permeability_yx = 0.0
+rel_permeability_yy = 1.0
+rel_permeability_zz = 1.0
+
+rel_permitivity_xx = 1.0
+rel_permitivity_yy = 1.0
+rel_permitivity_zz = 1.0
+rel_permitivity_xy = 0.0
+rel_permitivity_yx = 0.0
+
+cond = 0.0
+
 
 
 do ii=1,n_pml_bin
@@ -82,10 +113,13 @@ end do
 
 do ii=1,m_scatin
     j=scatin_elements(ii)
-    rel_permitivity(j)=4.0
+    rel_permitivity_xx(j)=9.0
+    rel_permitivity_yy(j)=4.0
+    rel_permitivity_zz(j)=2.0
+    rel_permitivity_xy(j)=0.0
+    rel_permitivity_yx(j)=0.0
 end do
 
-complex_permitivity = rel_permitivity - ij*cond/(omg*e0)
 
 do kk=1,NE
     do i=1,nodpel
@@ -95,11 +129,25 @@ do kk=1,NE
     enddo
     call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,Ngauss,nodpel,ndim)
     
-    pxe = cmplx(1./rel_permeability(kk),0)
-    pye = cmplx(1./rel_permeability(kk),0)
-    qe = -complex_permitivity(kk)*k0**2
+    if (pol == 'TM') then
+        determinant = cmplx(rel_permeability_xx(kk),0.0) * cmplx(rel_permeability_yy(kk),0.0) - cmplx(rel_permeability_xy(kk),0.0) * cmplx(rel_permeability_yx(kk),0.0)
+        pxxe = cmplx(rel_permeability_xx(kk),0.0)/determinant
+        pyye = cmplx(rel_permeability_yy(kk),0.0)/determinant
+        pyxe = cmplx(rel_permeability_xy(kk),0.0)/determinant
+        pxye = cmplx(rel_permeability_yx(kk),0.0)/determinant
+        qe = -(rel_permitivity_zz(kk)-ij*cond(kk)/(omg*e0))*k0**2
+    else if (pol == 'TE') then
+        determinant = cmplx(rel_permitivity_xx(kk),-cond(kk)/(omg*e0)) * cmplx(rel_permitivity_yy(kk),-cond(kk)/(omg*e0)) - cmplx(rel_permitivity_xy(kk),-cond(kk)/(omg*e0)) * cmplx(rel_permitivity_yx(kk),-cond(kk)/(omg*e0))
+        pxxe = cmplx(rel_permitivity_xx(kk),-cond(kk)/(omg*e0))/determinant
+        pyye = cmplx(rel_permitivity_yy(kk),-cond(kk)/(omg*e0))/determinant
+        pyxe = cmplx(rel_permitivity_xy(kk),-cond(kk)/(omg*e0))/determinant
+        pxye = cmplx(rel_permitivity_yx(kk),-cond(kk)/(omg*e0))/determinant
+        qe = -cmplx(rel_permeability_zz(kk),0.0)*k0**2
+    endif
+    
+    
     call element_matrix(PHI,DPHI,INVJACOB,DETJACOB, &
-        pxe,pye,qe, &
+        pxxe,pyye,pxye,pyxe,qe, &
         AE,Ngauss,nodpel,ndim)
     
     
@@ -281,13 +329,13 @@ invjacob = invjacob/detjacob
     
     !Function that computes PHI and DPHI in the absolute coordinates
     
-subroutine element_matrix(PHI,DPHI,INVJACOB,DETJACOB,pxe,pye,qe,AE,Ngauss,nodpel,ndim)
+subroutine element_matrix(PHI,DPHI,INVJACOB,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel,ndim)
     
 
 !Input variables
 double precision :: PHI(Ngauss,nodpel), DPHI(ndim,nodpel)
 complex*16 :: INVJACOB(ndim,ndim)
-complex*16 :: pxe,pye,qe
+complex*16 :: pxxe,pyye,pxye,pyxe,qe
 complex*16 :: DETJACOB
 
 !Output varaibles
@@ -309,9 +357,16 @@ AE2 = cmplx(0.0,0.0)
 do i=1,nodpel
     do j=1,nodpel
         gauss_sum = cmplx(0.0,0.0)
-        
-        AE1(i,j)=(pxe*(INVJACOB(1,1)*dphi(1,i)+INVJACOB(1,2)*dphi(2,i)) * (INVJACOB(1,1)*dphi(1,j)+INVJACOB(1,2)*dphi(2,j)) + &
-            pye*(INVJACOB(2,1)*dphi(1,i)+INVJACOB(2,2)*dphi(2,i)) * (INVJACOB(2,1)*dphi(1,j)+INVJACOB(2,2)*dphi(2,j)))*DETJACOB/2
+
+        AE1(i,j) = (((INVJACOB(1,1) * dphi(1,i) + INVJACOB(1,2) * dphi(2,i))*pxxe + &
+                     (INVJACOB(2,1) * dphi(1,i) + INVJACOB(2,2) * dphi(2,i))*pxye) * &
+                     (INVJACOB(1,1) * dphi(1,j) + INVJACOB(1,2) * dphi(2,j)) + &
+                    ((INVJACOB(1,1) * dphi(1,i) + INVJACOB(1,2) * dphi(2,i))*pyxe + &
+                     (INVJACOB(2,1) * dphi(1,i) + INVJACOB(2,2) * dphi(2,i))*pyye * &
+                     (INVJACOB(2,1) * dphi(1,j) + INVJACOB(2,2) * dphi(2,j))))*DETJACOB/2
+            
+!        AE1(i,j)=(pxe*(INVJACOB(1,1)*dphi(1,i)+INVJACOB(1,2)*dphi(2,i)) * (INVJACOB(1,1)*dphi(1,j)+INVJACOB(1,2)*dphi(2,j)) + &
+!            pye*(INVJACOB(2,1)*dphi(1,i)+INVJACOB(2,2)*dphi(2,i)) * (INVJACOB(2,1)*dphi(1,j)+INVJACOB(2,2)*dphi(2,j)))*DETJACOB/2
         
         AE1(j,i) = AE1(i,j)
         

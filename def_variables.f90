@@ -48,12 +48,12 @@ module def_variables
 
     ! Input parameters
     real(kind=8) :: freq = 300.0  ! MHz, frequency
-    real(kind=8) :: cond = 0.0 ! conductivity
     real(kind=8) :: freq_hz ! Hz, frequency (converted from MHz)
     real(kind=8) :: lambda0 ! meter, wavelength
     real(kind=8) :: k0 ! 1/meter, wavenumber
     real(kind=8) :: omg ! rad/sec, radial frequency
     real(kind=8) :: phii = 0 !rad, angle of incident field
+    character(len=6) :: pol = 'TE' 
     
 
     
