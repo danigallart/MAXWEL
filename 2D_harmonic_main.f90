@@ -42,9 +42,9 @@
         CALL solver()
         
         if (.TRUE.) then
-            CALL exit_nosolver()
+            CALL exit_writer()
         else
-            CALL exit_writer() 
+            CALL exit_nosolver() 
         endif
     
         CALL finalise()

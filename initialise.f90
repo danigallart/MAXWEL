@@ -12,7 +12,7 @@ character*30 :: time_date
    print*, 'Time & date ',time_date
    print*, 'This program is protected by me, myself and I,'
    print*, 'for any kind of problems, bug report or suggestions'
-   print*, 'contact my parents.'
+   print*, 'contact my dear supervisor Alejandro Soba :)'
    
     
 ! apertura de archivo de entrada generico

@@ -15,7 +15,7 @@ module def_variables
     integer :: NONULL
         
     double precision :: tol_solver = 1e-9
-    integer :: iter_solver = 100000
+    integer :: iter_solver = 300000
     
     INTEGER, parameter :: problem_type = 2 ! 1. stationary 2. time_implicit
     
