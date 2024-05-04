@@ -4,7 +4,6 @@ implicit none
 
     close(input_unit)
     close(data_unit)
-    close(grid_unit)
     close(result_scat_unit)
     close(result_tot_unit)
     close(control_unit)

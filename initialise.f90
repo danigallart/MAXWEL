@@ -19,7 +19,6 @@ character*30 :: time_date
       
    open(unit=input_unit,file=inputfile,status='old',err=100)
    open(unit=data_unit,file=output_data,status='unknown')
-   open(unit=grid_unit,file=grid,status='unknown')
    open(unit=result_scat_unit,file=result_scat,status='unknown')
    open(unit=result_tot_unit,file=result_tot,status='unknown')
    open(unit=control_unit,file=control,status='unknown')
@@ -43,10 +42,6 @@ character*30 :: time_date
    open(unit=huygb_nodes_unit, file=huygb_nodes_file, status='old')
    open(unit=huygb_elements_unit,file=huygb_elements_file,status='old')
    
-
-   ! 
-
-
     return
 
 100 write(6,*) 'error in' // inputfile // 'opening'

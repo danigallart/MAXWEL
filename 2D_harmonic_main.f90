@@ -22,6 +22,10 @@
     
     INTEGER :: itime
     DOUBLE PRECISION :: time
+    
+        CALL initialise()
+        
+        CALL reader()
 
     ! Convert frequency from MHz to Hz
     freq_hz = freq * 1e6
@@ -30,8 +34,6 @@
     lambda0 = c0 / freq_hz
     k0 = 2.0 * pi / lambda0
     omg = 2.0 * pi * freq_hz
-    
-        CALL initialise()
         
         CALL mesh_reader()
         
@@ -42,9 +44,9 @@
         CALL solver()
         
         if (.TRUE.) then
-            CALL exit_writer()
+            CALL exit_writer() !Exit data file with solution and coordinates
         else
-            CALL exit_nosolver() 
+            CALL exit_nosolver() !Exit data file with linear equation system
         endif
     
         CALL finalise()

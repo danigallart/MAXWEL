@@ -9,7 +9,7 @@ integer :: kk,iter
 double precision :: err
 complex*16, allocatable :: Au_inc(:)
 
-allocate(u_inc(NP),u_scat(NP),Au_inc(NP))
+allocate(u_inc(NP),u_scat(NP),u_tot(NP),Au_inc(NP))
 
 u_inc = exp(ij*k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii))) !No need to use complex coordinates. We just need the real value at each node
 
@@ -30,7 +30,15 @@ iter=1
 err=10.0
 
 !call CG(NP,IA,JA,AN,AD,indep_vect,u_scat,tol_solver,iter_solver,iter,ERR)
-call LIN_CG_cplx(NP, IA, JA, AN, AD, indep_vect, u_scat, tol_solver, err, iter_solver, iter) 
+call LIN_CG_cplx(NP, IA, JA, AN, AD, indep_vect, u_scat, tol_solver, err, iter_solver, iter)
+
+u_tot = u_scat+u_inc
+
+do ii=1,n_pml
+    i = pml_nodes(ii)
+    u_tot(i) = cmplx(0.0,0.0)
+enddo
+
 
 write(control_unit,*) 'CG it.   ',iter, '/ ', iter_solver
 write(control_unit,*) 'CG err.  ',ERR
