@@ -92,6 +92,14 @@ do while(textinput /= 'end_data')
 				read(option(last+1:leng),'(a2)') pol
 				last=leng+1
 			endif
+       enddo
+        last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='r_scat') then
+				read(option(last+1:leng),'(f1.0)') r_scat
+				last=leng+1
+			endif
         enddo
     enddo
 close(input_unit)

@@ -7,8 +7,8 @@ module def_io
 
     character*(300) :: control = 'tolerance_control.dat'
     
-    character*(300) :: nodes_file = 'test_circle_nodes.txt'
-    character*(300) :: elements_file = 'test_circle_elements.txt'
+    character*(300) :: nodes_file = 'circle_mesh_nodes.dat'
+    character*(300) :: elements_file = 'circle_mesh_elements.dat'
 
     character*(300) ::  pml_bin_nodes_file = 'test_circle_pmlbin_nodes.txt'
     character*(300) ::  pml_bout_nodes_file = 'test_circle_pmlbout_nodes.txt'

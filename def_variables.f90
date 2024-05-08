@@ -10,6 +10,7 @@ module def_variables
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
     integer :: Nodpel                                                                               !Nodes per element
     integer :: Ngauss                                                                               !Number of gaussian integration points
+    integer :: num_mat
     
     !INTEGER, parameter :: element_type = 1                                                         !1. triangle 2.quadrilateral
     !INTEGER, parameter :: pol_order = 1                                                            !1. linear 2. quadratic 3. cubic
@@ -38,6 +39,8 @@ module def_variables
     integer :: n_huygb
     integer :: m_huygb
     
+    double precision :: delh
+    
 	! Constants
     real(kind=8), parameter :: c0 = 3.0d8                                                           ! m/sec, velocity of light in free space
 	real(kind=8), parameter :: pi = 4*ATAN(1.)                                                      ! pi is pi, constant of nature
@@ -50,13 +53,14 @@ module def_variables
     
 
     ! Input parameters
-    real(kind=8) :: freq = 300.0                                                                    ! MHz, frequency
+    real(kind=8) :: freq                                                                            ! MHz, frequency
     real(kind=8) :: freq_hz                                                                         ! Hz, frequency (converted from MHz)
     real(kind=8) :: lambda0                                                                         ! meter, wavelength
     real(kind=8) :: k0                                                                              ! 1/meter, wavenumber
     real(kind=8) :: omg                                                                             ! rad/sec, radial frequency
-    real(kind=8) :: phii = 0.0                                                                      !rad, angle of incident field
-    character(len=2) :: pol = 'TE'                                                                  !TE: Transversal electric, TM: Transversal magnetic
+    real(kind=8) :: phii                                                                            ! rad, angle of incident field
+    real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
+    character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
     
 
     

@@ -19,15 +19,15 @@ implicit none
 
 integer :: kk, ii, i, j, jj, KEJE, IAUX
 integer, allocatable :: ns(:)
-double precision, allocatable :: rel_permitivity_xx(:), rel_permitivity_xy(:), &
-                                 rel_permitivity_yx(:), rel_permitivity_yy(:), &
-                                 rel_permitivity_zz(:)
+double precision :: rel_permitivity_xx, rel_permitivity_xy, &
+                                 rel_permitivity_yx, rel_permitivity_yy, &
+                                 rel_permitivity_zz
 
-double precision, allocatable :: rel_permeability_xx(:), rel_permeability_xy(:), &
-                                 rel_permeability_yx(:), rel_permeability_yy(:), &
-                                 rel_permeability_zz(:)
+double precision :: rel_permeability_xx, rel_permeability_xy, &
+                                 rel_permeability_yx, rel_permeability_yy, &
+                                 rel_permeability_zz
 
-double precision, allocatable :: cond(:)
+double precision, allocatable :: cond
 
 double precision, allocatable :: pmlbin_coorx(:),pmlbin_coory(:), pmlbout_coorx(:), pmlbout_coory(:)
 complex*16, allocatable :: local_coords(:,:)
@@ -43,15 +43,6 @@ complex*16 :: pxxe,pxye,pyxe,pyye,qe
 complex*16, allocatable :: pe(:,:)
 
 
-allocate(rel_permitivity_xx(NE), rel_permitivity_xy(NE), &
-         rel_permitivity_yx(NE), rel_permitivity_yy(NE), &
-         rel_permitivity_zz(NE))
-
-allocate(rel_permeability_xx(NE), rel_permeability_xy(NE), &
-         rel_permeability_yx(NE), rel_permeability_yy(NE), &
-         rel_permeability_zz(NE))
-
-allocate(cond(NE))
 allocate(pmlbin_coorx(n_pml_bin), pmlbin_coory(n_pml_bin))
 allocate(pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout))
 allocate(ns(nodpel))
@@ -59,30 +50,14 @@ allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 allocate(pe(ndim,ndim))
 
-Ngauss = 3
-
 allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
 allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
 
+Ngauss = 3
 
 indep_vect=0.0
 AD=0.0
 AN=0.0
-
-rel_permeability_xx = 1.0
-rel_permeability_xy = 0.0
-rel_permeability_yx = 0.0
-rel_permeability_yy = 1.0
-rel_permeability_zz = 1.0
-
-rel_permitivity_xx = 1.0
-rel_permitivity_yy = 1.0
-rel_permitivity_zz = 1.0
-rel_permitivity_xy = 0.0
-rel_permitivity_yx = 0.0
-
-cond = 0.0
-
 
 
 do ii=1,n_pml_bin
@@ -110,39 +85,57 @@ do ii=1,n_pml
     !complex_coory(jj)=cmplx(y_rval,y_cval)
 end do
 
-
-do ii=1,m_scatin
-    j=scatin_elements(ii)
-    rel_permitivity_xx(j)=9.0
-    rel_permitivity_yy(j)=4.0
-    rel_permitivity_zz(j)=2.0
-    rel_permitivity_xy(j)=0.0
-    rel_permitivity_yx(j)=0.0
-end do
-
-
 do kk=1,NE
+    
+    rel_permeability_xx = 1.0
+    rel_permeability_xy = 0.0
+    rel_permeability_yx = 0.0
+    rel_permeability_yy = 1.0
+    rel_permeability_zz = 1.0
+    
+    
+    if (material(kk) == 1) then
+            rel_permitivity_xx=9.0
+            rel_permitivity_yy=4.0
+            rel_permitivity_zz=2.0
+            rel_permitivity_xy=0.0
+            rel_permitivity_yx=0.0
+            
+            cond = 0.0
+            
+    else
+        
+            rel_permitivity_xx=1.0
+            rel_permitivity_yy=1.0
+            rel_permitivity_zz=1.0
+            rel_permitivity_xy=0.0
+            rel_permitivity_yx=0.0
+            
+            cond = 0.0
+    endif
+    
+    
     do i=1,nodpel
-        ns(i) = conectividad(kk,i)
+        ns(i) = conn(kk,i)
         local_coords(1,i) = complex_coorx(ns(i))
         local_coords(2,i) = complex_coory(ns(i))
     enddo
     call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,Ngauss,nodpel,ndim)
     
     if (pol == 'TM') then
-        determinant = cmplx(rel_permeability_xx(kk),0.0) * cmplx(rel_permeability_yy(kk),0.0) - cmplx(rel_permeability_xy(kk),0.0) * cmplx(rel_permeability_yx(kk),0.0)
-        pxxe = cmplx(rel_permeability_xx(kk),0.0)/determinant
-        pyye = cmplx(rel_permeability_yy(kk),0.0)/determinant
-        pyxe = cmplx(rel_permeability_xy(kk),0.0)/determinant
-        pxye = cmplx(rel_permeability_yx(kk),0.0)/determinant
-        qe = -(rel_permitivity_zz(kk)-ij*cond(kk)/(omg*e0))*k0**2
+        determinant = cmplx(rel_permeability_xx,0.0) * cmplx(rel_permeability_yy,0.0) - cmplx(rel_permeability_xy,0.0) * cmplx(rel_permeability_yx,0.0)
+        pxxe = cmplx(rel_permeability_xx,0.0)/determinant
+        pyye = cmplx(rel_permeability_yy,0.0)/determinant
+        pyxe = cmplx(rel_permeability_xy,0.0)/determinant
+        pxye = cmplx(rel_permeability_yx,0.0)/determinant
+        qe = -(rel_permitivity_zz-ij*cond/(omg*e0))*k0**2
     else if (pol == 'TE') then
-        determinant = cmplx(rel_permitivity_xx(kk),-cond(kk)/(omg*e0)) * cmplx(rel_permitivity_yy(kk),-cond(kk)/(omg*e0)) - cmplx(rel_permitivity_xy(kk),-cond(kk)/(omg*e0)) * cmplx(rel_permitivity_yx(kk),-cond(kk)/(omg*e0))
-        pxxe = cmplx(rel_permitivity_xx(kk),-cond(kk)/(omg*e0))/determinant
-        pyye = cmplx(rel_permitivity_yy(kk),-cond(kk)/(omg*e0))/determinant
-        pyxe = cmplx(rel_permitivity_xy(kk),-cond(kk)/(omg*e0))/determinant
-        pxye = cmplx(rel_permitivity_yx(kk),-cond(kk)/(omg*e0))/determinant
-        qe = -cmplx(rel_permeability_zz(kk),0.0)*k0**2
+        determinant = cmplx(rel_permitivity_xx,-cond/(omg*e0)) * cmplx(rel_permitivity_yy,-cond/(omg*e0)) - cmplx(rel_permitivity_xy,-cond/(omg*e0)) * cmplx(rel_permitivity_yx,-cond/(omg*e0))
+        pxxe = cmplx(rel_permitivity_xx,-cond/(omg*e0))/determinant
+        pyye = cmplx(rel_permitivity_yy,-cond/(omg*e0))/determinant
+        pyxe = cmplx(rel_permitivity_xy,-cond/(omg*e0))/determinant
+        pxye = cmplx(rel_permitivity_yx,-cond/(omg*e0))/determinant
+        qe = -cmplx(rel_permeability_zz,0.0)*k0**2
     endif
     
     

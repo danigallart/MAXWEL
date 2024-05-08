@@ -38,7 +38,7 @@ write(stiff_matrix_unit,*) indep_vect(ii)
 enddo
 
 do ii=1,NE
-    write(connectivity_unit,*) conectividad(ii,1),tab,conectividad(ii,2),tab,conectividad(ii,3)
+    write(connectivity_unit,*) conn(ii,1),tab,conn(ii,2),tab,conn(ii,3)
 enddo
   
   

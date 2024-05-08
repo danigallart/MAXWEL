@@ -6,10 +6,14 @@ subroutine mesh_reader
     implicit none
     
     integer :: istat, ii
-    
+        
+    double precision :: plasma_radius, fsdim, pmldim, huygdim, &
+                        rpmlin, rpmlout, rhuyg
+    double precision :: r
+        
     ! Node's coordinates
     
-    READ(nodes_unit,*,IOSTAT=istat) NP
+    READ(nodes_unit,*,IOSTAT=istat) delh,NP
     
     allocate(coorx(NP), coory(NP))
     do ii=1,NP
@@ -24,9 +28,9 @@ subroutine mesh_reader
     
     read(elements_unit,*,iostat=istat) NE
     
-    allocate(conectividad(NE,nodpel))
+    allocate(conn(NE,nodpel))
     DO ii=1,NE
-        read(elements_unit,*,iostat=istat)  conectividad(ii,nodpel-2), conectividad(ii,nodpel-1), conectividad(ii,nodpel)
+        read(elements_unit,*,iostat=istat)  conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
     END DO
     
     CLOSE(elements_unit)
@@ -126,8 +130,56 @@ subroutine mesh_reader
         read(huygb_elements_unit,*,iostat=istat) huygb_elements(ii)
     end do
     
-    close(huygb_elements_unit)  
+    close(huygb_elements_unit) 
     
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    allocate(coorx_mid(NE),coory_mid(NE))
+    
+    do ii=1,NE
+    coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
+    coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
+    enddo
+    
+    allocate(material(NE), boundary(NP))
+    
+    plasma_radius = r_scat * lambda0
+    fsdim = lambda0/2
+    pmldim = lambda0/2
+    huygdim = delh
+    
+    rpmlin = plasma_radius + fsdim
+    rpmlout = rpmlin + pmldim
+    rhuyg = plasma_radius + huygdim
+        
+do ii=1,NP
+    r = sqrt(coorx(ii)**2 + coory(ii)**2)
+    if ((r < plasma_radius+1e-6) .and. (r > plasma_radius-1e-6)) then                       ! Boundary of scatterer
+        boundary(ii) = 1
+    elseif ((r < rhuyg+1e-6) .and. (r > rhuyg-1e-6)) then                                   ! Huygens surface
+        boundary(ii) = 2
+    elseif ((r < rpmlin+1e-6) .and. (r > rpmlin-1e-6)) then                                 ! Inner boundary of PML region
+        boundary(ii) = 3
+    elseif ((r < rpmlout+1e-6) .and. (r > rpmlout-1e-6)) then                               ! Outer boundary of PML region
+        boundary(ii) = 4
+    else                                                                                    ! No boundary node
+        boundary(ii) = 0
+    endif
+enddo
+    
+do ii=1,NE
+    r = sqrt(coorx_mid(ii)**2 + coory_mid(ii)**2)
+    if (r < plasma_radius) then                                                             ! Scatterer element
+        material(ii) = 1
+    elseif ((r < rpmlout) .and. (r > rpmlin)) then                                          ! PML element
+        material(ii) = 3
+    else                                                                                    ! Vacuum element
+        material(ii) = 2
+    endif
+enddo
 
-                
+        
+
+
 end subroutine mesh_reader

@@ -27,7 +27,7 @@ do nno=1,np
    npas=0
    
    DO I=1,nodpel
-      ns(I)=conectividad(KK,I)
+      ns(I)=conn(KK,I)
       if(nno==ns(i)) npas=1
    ENDDO
 
@@ -59,7 +59,7 @@ do nno=1,np
   DO KK=1,ne
      npas=0
      DO I=1,nodpel
-        NS(I)=conectividad(KK,I)
+        NS(I)=conn(KK,I)
         if(nno==ns(i)) npas=1
      ENDDO
      if(npas==1) then   
@@ -103,7 +103,7 @@ end subroutine sparse_logic
 !    DO i=1, ne
 !
 !        DO j=1,nodpel
-!            ns(j)=conectividad(i,j)
+!            ns(j)=conn(i,j)
 !
 !            x(1,j)=coorx(ns(j))
 !            x(2,j)=coory(ns(j))
