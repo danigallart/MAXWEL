@@ -1,18 +1,20 @@
 problem: helmholzt
 
-#malla: 1         # 1 arma la malla generica. 2 la lee. 3 malla electrodo. 4 problema Bergues
+#malla: 1							 # 1 arma la malla generica. 2 la lee. 3 malla electrodo. 4 problema Bergues
 
 #file mesh: cer_cada4.dat
 
-tol_solver = 1e-9
+tol_solver = 1e-3
 
-iter_solver = 100000
+iter_solver = 300000
 
 freq = 300.0
 
 phi = 0.0
 
 pol:TE
+
+r_scat = 1.0						#Ratio with lambda0
 
 
 end_data

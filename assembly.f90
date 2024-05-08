@@ -95,6 +95,7 @@ do kk=1,NE
     
     
     if (material(kk) == 1) then
+        
             rel_permitivity_xx=9.0
             rel_permitivity_yy=4.0
             rel_permitivity_zz=2.0

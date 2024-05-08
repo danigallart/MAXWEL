@@ -102,8 +102,6 @@ do while(textinput /= 'end_data')
 			endif
         enddo
     enddo
-close(input_unit)
-
 
 end subroutine reader
 
