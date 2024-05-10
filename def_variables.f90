@@ -20,6 +20,7 @@ module def_variables
         
     double precision :: tol_solver = 1e-9
     integer :: iter_solver = 300000
+    double precision :: boundary_tol
     
     !INTEGER, parameter :: problem_type = 2                                                         ! 1. stationary 2. time_implicit
     
