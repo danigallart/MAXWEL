@@ -26,21 +26,8 @@ character*30 :: time_date
    open(unit=stiff_matrix_unit,file=stiff_matrix_file,status='unknown')
    open(unit=connectivity_unit,file=connectivity_file,status='unknown')
 
-   
    open(unit=nodes_unit,file=nodes_file,status='old')
    open(unit=elements_unit, file=elements_file, status='old')
-   
-   open(unit=pml_bin_nodes_unit,file=pml_bin_nodes_file,status='old')
-   open(unit=pml_bout_nodes_unit, file=pml_bout_nodes_file, status='old')
-   open(unit=pml_nodes_unit,file=pml_nodes_file,status='old')
-   
-   open(unit=scatb_nodes_unit, file=scatb_nodes_file, status='old')
-   open(unit=scatin_nodes_unit,file=scatin_nodes_file,status='old')
-   open(unit=scatin_elements_unit, file=scatin_elements_file, status='old')
-   open(unit=scatb_elements_unit,file=scatb_elements_file,status='old')
-   
-   open(unit=huygb_nodes_unit, file=huygb_nodes_file, status='old')
-   open(unit=huygb_elements_unit,file=huygb_elements_file,status='old')
    
     return
 

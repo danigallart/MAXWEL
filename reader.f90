@@ -37,14 +37,6 @@ do while(textinput /= 'end_data')
 			endif
         enddo
        last=0	 
-!	   do while(last<leng)
-!			last=last+1
-!			if(option(1:last)=='MALLA') then
-!				read(option(last+1:leng),'(i3)') nop_malla
-!				last=leng+1
-!			endif
-!        enddo
-!	 last=0	 
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='file mesh') then
@@ -98,6 +90,15 @@ do while(textinput /= 'end_data')
 			last=last+1
 			if(option(1:last)=='r_scat') then
 				read(option(last+1:leng),'(f1.0)') r_scat
+				last=leng+1
+			endif
+       enddo
+       
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='boundary_tol') then
+				read(option(last+1:leng),'(e5.0)') boundary_tol
 				last=leng+1
 			endif
         enddo

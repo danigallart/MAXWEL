@@ -19,9 +19,13 @@ call MATXVECSIM_cplx(NP,IA,JA,AN,AD,u_inc,Au_inc)
 
 indep_vect=cmplx(0.0,0.0)
 
-do ii=1,n_scatin
-    i = scatin_nodes(ii)
-    indep_vect(i) = -Au_inc(i)
+do kk=1,NE
+    if (material(kk) == 1) then
+        do ii = 1, nodpel 
+            i = conn(kk,ii)
+            indep_vect(i) = -Au_inc(i)
+        enddo
+    endif
 enddo
 
 u_scat = cmplx(0.0,0.0)
@@ -34,9 +38,13 @@ call LIN_CG_cplx(NP, IA, JA, AN, AD, indep_vect, u_scat, tol_solver, err, iter_s
 
 u_tot = u_scat+u_inc
 
-do ii=1,n_pml
-    i = pml_nodes(ii)
-    u_tot(i) = cmplx(0.0,0.0)
+do kk=1,NE
+    if (material(kk) == 3) then
+        do ii = 1, nodpel
+            i = conn(kk,ii)
+            u_tot(i) = cmplx(0.0,0.0)
+        enddo
+    endif
 enddo
 
 

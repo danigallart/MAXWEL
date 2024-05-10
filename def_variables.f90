@@ -10,7 +10,6 @@ module def_variables
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
     integer :: Nodpel                                                                               !Nodes per element
     integer :: Ngauss                                                                               !Number of gaussian integration points
-    integer :: num_mat
     
     !INTEGER, parameter :: element_type = 1                                                         !1. triangle 2.quadrilateral
     !INTEGER, parameter :: pol_order = 1                                                            !1. linear 2. quadratic 3. cubic
@@ -20,6 +19,7 @@ module def_variables
         
     double precision :: tol_solver = 1e-9
     integer :: iter_solver = 300000
+    double precision :: boundary_tol
     
     !INTEGER, parameter :: problem_type = 2                                                         ! 1. stationary 2. time_implicit
     
@@ -30,14 +30,8 @@ module def_variables
     integer :: n_pml_bin                                                                            !PML inside boundary nodes
     integer :: n_pml_bout                                                                           !PML outside boundary nodes
     integer :: n_pml                                                                                !PML nodes
-    
     integer :: n_scatb                                                                              !Scatering boundary nodes
-    integer :: n_scatin                                                                             !Inner scatering nodes
-    integer :: m_scatin                                                                             !Inner scatering elements
-    integer :: m_scatb                                                                              !Scattering boundary elements
-    
     integer :: n_huygb
-    integer :: m_huygb
     
     double precision :: delh
     
