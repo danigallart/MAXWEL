@@ -37,14 +37,6 @@ do while(textinput /= 'end_data')
 			endif
         enddo
        last=0	 
-!	   do while(last<leng)
-!			last=last+1
-!			if(option(1:last)=='MALLA') then
-!				read(option(last+1:leng),'(i3)') nop_malla
-!				last=leng+1
-!			endif
-!        enddo
-!	 last=0	 
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='file mesh') then
