@@ -6,12 +6,14 @@ iter_solver = 300000
 
 freq = 300.0
 
-phi = 0.0
+phii = 0.0
 
-pol:TE
+pol:TM
 
 r_scat = 1.0						#Ratio with lambda0
 
 boundary_tol = 1e-6
+
+plasma:1
 
 end_data

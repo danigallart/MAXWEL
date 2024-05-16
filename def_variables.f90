@@ -35,6 +35,20 @@ module def_variables
     
     double precision :: delh
     
+    complex*16 :: DETJACOB
+    
+    complex*16 :: rel_permitivity_xx, rel_permitivity_xy, &
+                  rel_permitivity_yx, rel_permitivity_yy, &
+                  rel_permitivity_zz
+
+    complex*16 :: rel_permeability_xx, rel_permeability_xy, &
+                  rel_permeability_yx, rel_permeability_yy, &
+                  rel_permeability_zz
+
+    double precision :: cond, im_rel
+    
+    complex*16 :: pxxe,pxye,pyxe,pyye,qe
+    
 	! Constants
     real(kind=8), parameter :: c0 = 3.0d8                                                           ! m/sec, velocity of light in free space
 	real(kind=8), parameter :: pi = 4*ATAN(1.)                                                      ! pi is pi, constant of nature
@@ -56,6 +70,17 @@ module def_variables
     real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
     character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
     
-
+    integer :: plasma
+    double precision :: plasma_freq1, plasma_freq2, plasma_freq3
+    double precision :: cyclo_freq1, cyclo_freq2, cyclo_freq3
+    double precision :: mass1, mass2, mass3
+    double precision :: charge1, charge2, charge3
+    
+    double precision, parameter :: mag_field0 = 5.3                                                 ! Axial magnetic field
+    double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
+    
+    double precision :: plasma_radius, free_space_dim, pmldim, huygdim, &
+                        rpmlin, rpmlout, rhuyg
+    
     
     end module def_variables

@@ -72,7 +72,7 @@ do while(textinput /= 'end_data')
         last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='phi') then
+			if(option(1:last)=='phii') then
 				read(option(last+1:leng),'(f5.0)') phii
 				last=leng+1
 			endif
@@ -94,11 +94,19 @@ do while(textinput /= 'end_data')
 			endif
        enddo
        
-               last=0	 
+            last=0	 
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='boundary_tol') then
 				read(option(last+1:leng),'(e5.0)') boundary_tol
+				last=leng+1
+			endif
+       enddo
+                      last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='plasma') then
+				read(option(last+1:leng),'(i1)') plasma
 				last=leng+1
 			endif
         enddo

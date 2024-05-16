@@ -7,8 +7,6 @@ subroutine mesh_reader
     
     integer :: istat, ii, jj
         
-    double precision :: plasma_radius, fsdim, pmldim, huygdim, &
-                        rpmlin, rpmlout, rhuyg
     double precision :: r
     
     double precision :: min_tol, max_tol
@@ -21,9 +19,7 @@ subroutine mesh_reader
     do ii=1,NP
         read(nodes_unit,*,iostat=istat) coorx(ii),coory(ii)
     end do
-    
-    CLOSE(nodes_unit)
-        
+            
     ! Conectivity matrix
     
     nodpel = 3
@@ -34,9 +30,7 @@ subroutine mesh_reader
     DO ii=1,NE
         read(elements_unit,*,iostat=istat)  conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
     END DO
-    
-    CLOSE(elements_unit)
-    
+        
     allocate(coorx_mid(NE),coory_mid(NE))
     allocate(material(NE), boundary(NP))
     
@@ -46,11 +40,11 @@ subroutine mesh_reader
     enddo
     
     plasma_radius = r_scat * lambda0
-    fsdim = lambda0/2
+    free_space_dim = lambda0/2
     pmldim = lambda0/2
     huygdim = delh
     
-    rpmlin = plasma_radius + fsdim
+    rpmlin = plasma_radius + free_space_dim
     rpmlout = rpmlin + pmldim
     rhuyg = plasma_radius + huygdim
     

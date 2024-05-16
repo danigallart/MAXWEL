@@ -10,11 +10,22 @@ module def_vectors
                                indep_vect(:), &                                                                             !Independent vector of the linear equation system
                                grad(:,:), gradxel(:,:), &                                                                   !Gradients of solutions
                                AD(:), AN(:)                                                                                 !Diagonal and non-diagonal elements of stiff matrix
-   
+    
+    complex*16, allocatable :: u_inc_mid(:)
+    
+    complex*16, allocatable :: plane_field_x(:), plane_field_y(:)
+
     integer, allocatable :: IA(:), JA(:), ncount(:), icx(:)                                                                 !IA: rows of non-zero elements in a CSR format, JA: columns of non-zero elements in a CSR format
 
     integer, allocatable :: material(:)
     integer, allocatable :: boundary(:)
+    
+    complex*16, allocatable :: JACOB(:,:),INVJACOB(:,:)
+    double precision, allocatable :: PHI(:,:),DPHI(:,:)
+    complex*16, allocatable :: DPHIX(:),DPHIY(:)
+    
+    integer, allocatable :: ns(:)
+    complex*16, allocatable :: local_coords(:,:)
     
     
 end module def_vectors

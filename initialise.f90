@@ -21,6 +21,8 @@ character*30 :: time_date
    open(unit=data_unit,file=output_data,status='unknown')
    open(unit=result_scat_unit,file=result_scat,status='unknown')
    open(unit=result_tot_unit,file=result_tot,status='unknown')
+   open(unit=result_inc_unit,file=result_inc,status='unknown')
+   open(unit=result_plane_unit,file=result_plane,status='unknown')
    open(unit=control_unit,file=control,status='unknown')
    
    open(unit=stiff_matrix_unit,file=stiff_matrix_file,status='unknown')

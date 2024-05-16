@@ -35,13 +35,31 @@
     k0 = 2.0 * pi / lambda0
     omg = 2.0 * pi * freq_hz
         
+        print*, "Mesh reader"
+    
         CALL mesh_reader()
+        
+        print*, "Sparse logic"
         
         CALL sparse_logic()
         
+        print*, 'Assembly'
+        
         CALL assembly()
         
-        CALL solver()
+        print*, 'Solver'
+        
+        if (.TRUE.) then
+            CALL solver()
+        else
+            CALL read_solution()
+        endif
+        
+        print*, 'Derivatives'
+        
+        CALL derivatives()
+        
+        print*, 'Exit'
         
         if (.TRUE.) then
             CALL exit_writer() !Exit data file with solution and coordinates

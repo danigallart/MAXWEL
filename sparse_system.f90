@@ -3,7 +3,7 @@ use def_io
 use def_variables
 use def_vectors
 ! local
-integer, allocatable :: consim(:), ns(:)
+integer, allocatable :: consim(:)
 integer :: nno,kk,npas
 
 

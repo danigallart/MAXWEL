@@ -5,50 +5,21 @@ use def_vectors
 
 implicit none
 
-!DOUBLE PRECISION :: rigidez_local(nodpel,nodpel),indep_local(nodpel),x(ndimension,nodpel),dx(ndimension), QT
-!INTEGER :: kk,ii,ipoin,inode,jnode,j,ij,numbergaus,ii,jj,jj2,IAUX,keje,ns(nodpel), vecFlujoElem(nodpel)
-!DOUBLE PRECISION :: adiag,fuente, funQT, solucion_local(nodpel), masa_local(nodpel,nodpel), cp, rho
-!DOUBLE PRECISION :: funfuente, funconductividad, funcp, funrho
-
-!integer :: kk,ii,i,j,jj,ns(nodpel)
-!double precision, dimension(NE) :: rel_permitivity
-!double precision :: pmlbin_coorx(n_pml_bin),pmlbin_coory(n_pml_bin), &
-!    pmlbout_coorx(n_pml_bout), pmlbout_coory(n_pml_bout)
-!double precision :: x_rval, y_rval, x_cval, y_cval
-!complex*16 :: coord_matrix(ndim,nodpel)
-
 integer :: kk, ii, i, j, jj, KEJE, IAUX
-integer, allocatable :: ns(:)
-double precision :: rel_permitivity_xx, rel_permitivity_xy, &
-                    rel_permitivity_yx, rel_permitivity_yy, &
-                    rel_permitivity_zz
 
-double precision :: rel_permeability_xx, rel_permeability_xy, &
-                    rel_permeability_yx, rel_permeability_yy, &
-                    rel_permeability_zz
-
-double precision :: cond
-
-complex*16, allocatable :: local_coords(:,:)
-
-complex*16, allocatable :: JACOB(:,:),INVJACOB(:,:)
-double precision, allocatable :: PHI(:,:),DPHI(:,:)
-complex*16 :: DETJACOB, determinant
+complex*16 :: determinant
 
 complex*16, allocatable :: AE(:,:)
-complex*16 :: pxxe,pxye,pyxe,pyye,qe
-complex*16, allocatable :: pe(:,:)
 
-
-allocate(ns(nodpel))
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
-allocate(pe(ndim,ndim))
+
+Ngauss = 3
+
 
 allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
 allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
-
-Ngauss = 3
+allocate(DPHIX(nodpel),DPHIY(nodpel))
 
 indep_vect=0.0
 AD=0.0
@@ -57,32 +28,51 @@ AN=0.0
 
 do kk=1,NE
     
-    rel_permeability_xx = 1.0
-    rel_permeability_xy = 0.0
-    rel_permeability_yx = 0.0
-    rel_permeability_yy = 1.0
-    rel_permeability_zz = 1.0
+    rel_permeability_xx = cmplx(1.0,0.0)
+    rel_permeability_xy = cmplx(0.0,0.0)
+    rel_permeability_yx = cmplx(0.0,0.0)
+    rel_permeability_yy = cmplx(1.0,0.0)
+    rel_permeability_zz = cmplx(1.0,0.0)
     
     
     if (material(kk) == 1) then
         
-            rel_permitivity_xx=9.0
-            rel_permitivity_yy=4.0
-            rel_permitivity_zz=2.0
-            rel_permitivity_xy=0.0
-            rel_permitivity_yx=0.0
+        if (plasma == 1) then
             
             cond = 0.0
             
-    else
+            im_rel = -cond/(omg*e0)
         
-            rel_permitivity_xx=1.0
-            rel_permitivity_yy=1.0
-            rel_permitivity_zz=1.0
-            rel_permitivity_xy=0.0
-            rel_permitivity_yx=0.0
+            rel_permitivity_xx = cmplx(9.0,0.0)
+            rel_permitivity_yy = cmplx(4.0,0.0)
+            rel_permitivity_zz = cmplx(2.0,0.0)
+            rel_permitivity_xy = cmplx(0.0,0.0)
+            rel_permitivity_yx = cmplx(0.0,0.0)
+            
+            
+        else
             
             cond = 0.0
+            
+            im_rel = -cond/(omg*e0)
+        
+            rel_permitivity_xx = cmplx(9.0,im_rel)
+            rel_permitivity_yy = cmplx(4.0,im_rel)
+            rel_permitivity_zz = cmplx(2.0,im_rel)
+            rel_permitivity_xy = cmplx(0.0,im_rel)
+            rel_permitivity_yx = cmplx(0.0,im_rel)
+            
+        endif
+        
+              
+    else
+                
+            rel_permitivity_xx = cmplx(1.0,0.0)
+            rel_permitivity_yy = cmplx(1.0,0.0)
+            rel_permitivity_zz = cmplx(1.0,0.0)
+            rel_permitivity_xy = cmplx(0.0,0.0)
+            rel_permitivity_yx = cmplx(0.0,0.0)
+            
     endif
     
     
@@ -91,22 +81,23 @@ do kk=1,NE
         local_coords(1,i) = complex_coorx(ns(i))
         local_coords(2,i) = complex_coory(ns(i))
     enddo
-    call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,Ngauss,nodpel,ndim)
+    
+    call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,DPHIX,DPHIY,Ngauss,nodpel,ndim)
     
     if (pol == 'TM') then
-        determinant = cmplx(rel_permeability_xx,0.0) * cmplx(rel_permeability_yy,0.0) - cmplx(rel_permeability_xy,0.0) * cmplx(rel_permeability_yx,0.0)
-        pxxe = cmplx(rel_permeability_xx,0.0)/determinant
-        pyye = cmplx(rel_permeability_yy,0.0)/determinant
-        pyxe = cmplx(rel_permeability_xy,0.0)/determinant
-        pxye = cmplx(rel_permeability_yx,0.0)/determinant
-        qe = -(rel_permitivity_zz-ij*cond/(omg*e0))*k0**2
+        determinant = rel_permeability_xx * rel_permeability_yy - rel_permeability_xy * rel_permeability_yx
+        pxxe = rel_permeability_xx/determinant
+        pyye = rel_permeability_yy/determinant
+        pyxe = rel_permeability_xy/determinant
+        pxye = rel_permeability_yx/determinant
+        qe = -rel_permitivity_zz*k0**2
     else if (pol == 'TE') then
-        determinant = cmplx(rel_permitivity_xx,-cond/(omg*e0)) * cmplx(rel_permitivity_yy,-cond/(omg*e0)) - cmplx(rel_permitivity_xy,-cond/(omg*e0)) * cmplx(rel_permitivity_yx,-cond/(omg*e0))
-        pxxe = cmplx(rel_permitivity_xx,-cond/(omg*e0))/determinant
-        pyye = cmplx(rel_permitivity_yy,-cond/(omg*e0))/determinant
-        pyxe = cmplx(rel_permitivity_xy,-cond/(omg*e0))/determinant
-        pxye = cmplx(rel_permitivity_yx,-cond/(omg*e0))/determinant
-        qe = -cmplx(rel_permeability_zz,0.0)*k0**2
+        determinant = rel_permitivity_xx * rel_permitivity_yy - rel_permitivity_xy * rel_permitivity_yx
+        pxxe = rel_permitivity_xx/determinant
+        pyye = rel_permitivity_yy/determinant
+        pyxe = rel_permitivity_xy/determinant
+        pxye = rel_permitivity_yx/determinant
+        qe = -rel_permeability_zz*k0**2
     endif
     
     
@@ -143,7 +134,7 @@ END SUBROUTINE assembly
 
 
 !Function that computes PHI, DPHI, JACOB, INVJACOB at every element in the gaussian integration points
-subroutine shape_gauss(xcoord_e,ycoord_e,phi,dphi,jacob,invjacob,detjacob,Ngauss,nodpel,ndim)
+subroutine shape_gauss(xcoord_e,ycoord_e,phi,dphi,jacob,invjacob,detjacob,dphix,dphiy,Ngauss,nodpel,ndim)
 
 
 implicit none
@@ -156,6 +147,7 @@ complex*16 :: xcoord_e(nodpel),ycoord_e(nodpel)
 double precision, intent(out) :: phi(Ngauss,nodpel), dphi(ndim,nodpel)
 complex*16, intent(out) :: jacob(ndim,ndim),invjacob(ndim,ndim)
 complex*16, intent(out) :: detjacob
+complex*16, intent(out) :: dphix(nodpel),dphiy(nodpel)
 
 
 
@@ -205,6 +197,14 @@ invjacob(2,2) = xcoord_e(2)-xcoord_e(1)
 
 invjacob = invjacob/detjacob
 
+dphix(1) = INVJACOB(1,1) * dphi(1,1) + INVJACOB(1,2) * dphi(2,1)
+dphix(2) = INVJACOB(1,1) * dphi(1,2) + INVJACOB(1,2) * dphi(2,2)
+dphix(3) = INVJACOB(1,1) * dphi(1,3) + INVJACOB(1,2) * dphi(2,3)
+
+dphiy(1) = INVJACOB(2,1) * dphi(1,1) + INVJACOB(2,2) * dphi(2,1)
+dphiy(2) = INVJACOB(2,1) * dphi(1,2) + INVJACOB(2,2) * dphi(2,2)
+dphiy(3) = INVJACOB(2,1) * dphi(1,3) + INVJACOB(2,2) * dphi(2,3)
+
 
     end subroutine shape_gauss
     
@@ -247,9 +247,6 @@ do i=1,nodpel
                     ((INVJACOB(1,1) * dphi(1,i) + INVJACOB(1,2) * dphi(2,i))*pyxe + &
                      (INVJACOB(2,1) * dphi(1,i) + INVJACOB(2,2) * dphi(2,i))*pyye * &
                      (INVJACOB(2,1) * dphi(1,j) + INVJACOB(2,2) * dphi(2,j))))*DETJACOB/2
-            
-!        AE1(i,j)=(pxe*(INVJACOB(1,1)*dphi(1,i)+INVJACOB(1,2)*dphi(2,i)) * (INVJACOB(1,1)*dphi(1,j)+INVJACOB(1,2)*dphi(2,j)) + &
-!            pye*(INVJACOB(2,1)*dphi(1,i)+INVJACOB(2,2)*dphi(2,i)) * (INVJACOB(2,1)*dphi(1,j)+INVJACOB(2,2)*dphi(2,j)))*DETJACOB/2
         
         AE1(j,i) = AE1(i,j)
         
@@ -268,17 +265,4 @@ end do
 AE = AE1 + AE2
     
 end subroutine element_matrix
-
-!subroutine gauss_quadrature(Ngauss,gauss_pt_ksi,gauss_pt_eta, gauss_wt)
-!implicit none
-!double precision :: gauss_pt_ksi(Ngauss), gauss_pt_eta(Ngauss), gauss_wt(Ngauss)
-
-!Ngauss = 3
-
-!gauss_pt_ksi = (/0.5,0.0,0.5/)
-!gauss_pt_eta = (/0.0,0.5,0.5/)
-!gauss_wt = 1.0/6.0
-
-!end subroutine gauss_quadrature
-
 

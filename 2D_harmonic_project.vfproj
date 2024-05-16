@@ -64,6 +64,8 @@
 		<File RelativePath=".\finalise_close.f90"/>
 		<File RelativePath=".\initialise.f90"/>
 		<File RelativePath=".\mesh_reader.f90"/>
+		<File RelativePath=".\postprocessing.f90"/>
+		<File RelativePath=".\read_solution.f90"/>
 		<File RelativePath=".\reader.f90"/>
 		<File RelativePath=".\solver.f90"/>
 		<File RelativePath=".\sparse_system.f90"/></Filter>
