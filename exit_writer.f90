@@ -69,18 +69,18 @@ enddo
 
 if (pol == 'TM') then
 
-    write(result_plane_unit,*) 'X,Y,Htot_x,Htot_y'
+    write(result_plane_unit,*) 'X,Y,Hre_x,Hre_y,Him_x,Him_y'
     
 else if (pol == 'TE') then
     
-    write(result_plane_unit,*) 'X,Y,Etot_x,Etot_y'
+    write(result_plane_unit,*) 'X,Y,Ere_x,Ere_y,Eim_x,Eim_y'
 
 endif
 
   
 do jj=1,NE
     
-    write(result_plane_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx_mid(jj),coma,coory_mid(jj),coma,abs(plane_field_x(jj)),coma,abs(plane_field_y(jj))
+    write(result_plane_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx_mid(jj),coma,coory_mid(jj),coma,real(plane_field_x(jj)),coma,real(plane_field_y(jj)),coma,imag(plane_field_x(jj)),coma,imag(plane_field_y(jj))
     
 enddo
   
