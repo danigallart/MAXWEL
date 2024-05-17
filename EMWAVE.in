@@ -8,7 +8,7 @@ freq = 300.0
 
 phii = 0.0
 
-pol:TM
+pol:TE
 
 r_scat = 1.0						#Ratio with lambda0
 

@@ -8,11 +8,10 @@ character*30 :: time_date
   call fdate(time_date) 
 
 ! mensaje de bienvenida
-   print*, 'Welcome to Wave Popagation code.'
+   print*, 'Welcome to MAXWEL code.'
    print*, 'Time & date ',time_date
-   print*, 'This program is protected by me, myself and I,'
-   print*, 'for any kind of problems, bug report or suggestions'
-   print*, 'contact my dear supervisor Alejandro Soba :)'
+   print*, 'For any kind of problems, bug report or suggestions'
+   print*, 'contact hdomingo@bsc.es'
    
     
 ! apertura de archivo de entrada generico

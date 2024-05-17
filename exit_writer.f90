@@ -6,6 +6,10 @@ implicit none
 ! local
 integer :: jj
 character(1) :: coma=','
+double precision :: x_val,y_val
+double precision :: x_real,x_imag
+double precision :: y_real,y_imag
+double precision :: angle_x,angle_y
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -69,18 +73,49 @@ enddo
 
 if (pol == 'TM') then
 
-    write(result_plane_unit,*) 'X,Y,Hre_x,Hre_y,Him_x,Him_y'
+    write(result_plane_unit,*) 'X,Y,Htot_x,Htot_y'
     
 else if (pol == 'TE') then
     
-    write(result_plane_unit,*) 'X,Y,Ere_x,Ere_y,Eim_x,Eim_y'
+    write(result_plane_unit,*) 'X,Y,Etot_x,Etot_y'
 
 endif
 
   
 do jj=1,NE
     
-    write(result_plane_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx_mid(jj),coma,coory_mid(jj),coma,real(plane_field_x(jj)),coma,real(plane_field_y(jj)),coma,imag(plane_field_x(jj)),coma,imag(plane_field_y(jj))
+    x_real = real(plane_field_x(jj))
+    x_imag = imag(plane_field_x(jj))
+    y_real = real(plane_field_y(jj))
+    y_imag = imag(plane_field_y(jj))
+    
+    angle_x = atan2(x_imag,x_real)
+    angle_y = atan2(y_imag,y_real)
+    
+    
+    if ((angle_x >= 0.0) .and. (angle_x < pi)) then
+        
+        x_val = abs(plane_field_x(jj))
+        
+    else
+        
+        x_val = -abs(plane_field_x(jj))
+        
+    endif
+    
+    if ((angle_y >= 0.0) .and. (angle_y < pi)) then
+        
+        y_val = abs(plane_field_y(jj))
+        
+    else
+        
+        y_val = -abs(plane_field_y(jj))
+        
+    endif
+    
+    
+    
+    write(result_plane_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx_mid(jj),coma,coory_mid(jj),coma,x_val,coma,y_val
     
 enddo
   
