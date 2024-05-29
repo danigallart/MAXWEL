@@ -15,18 +15,38 @@ allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 
 Ngauss = 3
+n_species = 3
 
 
 allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
 allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
 allocate(DPHIX(nodpel),DPHIY(nodpel))
+allocate(omg_plasma_species(n_species),omg_cyclotron_species(n_species), &
+         mass_species(n_species), charge_species(n_species))
+allocate(density_species(n_species,NE), mag_field(NE))
 
 indep_vect=0.0
 AD=0.0
 AN=0.0
 
+charge_species = (/ -1., 1., 1./)
+
+mass1 = 0.511    !MeV
+mass2 = 1875.613 !MeV
+mass3 = 2808.921 !MeV
+
+mass_species = (/mass1, mass2, mass3 /)
+mass_species = mass_species*1.7827E-30 !kg
+
 
 do kk=1,NE
+    
+    !Extract local coordinates of nodes
+    do i=1,nodpel
+        ns(i) = conn(kk,i)
+        local_coords(1,i) = complex_coorx(ns(i))
+        local_coords(2,i) = complex_coory(ns(i))
+    enddo
     
     rel_permeability_xx = cmplx(1.0,0.0)
     rel_permeability_xy = cmplx(0.0,0.0)
@@ -39,15 +59,34 @@ do kk=1,NE
         
         if (plasma == 1) then
             
-            cond = 0.0
-            
-            im_rel = -cond/(omg*e0)
-        
-            rel_permitivity_xx = cmplx(9.0,0.0)
-            rel_permitivity_yy = cmplx(4.0,0.0)
-            rel_permitivity_zz = cmplx(2.0,0.0)
+            rel_permitivity_xx = cmplx(0.0,0.0)
+            rel_permitivity_yy = cmplx(0.0,0.0)
+            rel_permitivity_zz = cmplx(0.0,0.0)
             rel_permitivity_xy = cmplx(0.0,0.0)
             rel_permitivity_yx = cmplx(0.0,0.0)
+            
+            call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),density_species(:,kk),nodpel,n_species)
+            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),mag_field(kk),mag_field0,major_radius,nodpel)
+            
+            do j = 1,n_species
+                
+                omg_plasma_species(j) = ( density_species(j,kk) * (charge_species(j) * e_charge)**2 ) / ( e0 * mass_species(j) )
+                
+                omg_cyclotron_species(j) = ( mag_field(kk) * charge_species(j) * e_charge ) / mass_species(j)
+                
+                rel_permitivity_xx = rel_permitivity_xx + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
+                rel_permitivity_yy = rel_permitivity_yy + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
+                rel_permitivity_xy = rel_permitivity_xy + ( omg_cyclotron_species(j) * omg_plasma_species(j)**2)/(omg * (omg**2 - omg_cyclotron_species(j)**2))
+                rel_permitivity_yx = -rel_permitivity_xy
+                rel_permitivity_zz = rel_permitivity_zz + ( omg_plasma_species(j)**2 ) / (omg**2)
+                
+            enddo
+
+            rel_permitivity_xx = 1 - rel_permitivity_xx
+            rel_permitivity_yy = 1 - rel_permitivity_yy
+            rel_permitivity_zz = 1 - rel_permitivity_zz
+            rel_permitivity_xy = -ij * rel_permitivity_xy
+            rel_permitivity_yx = -ij * rel_permitivity_yx
             
             
         else
@@ -74,13 +113,6 @@ do kk=1,NE
             rel_permitivity_yx = cmplx(0.0,0.0)
             
     endif
-    
-    
-    do i=1,nodpel
-        ns(i) = conn(kk,i)
-        local_coords(1,i) = complex_coorx(ns(i))
-        local_coords(2,i) = complex_coory(ns(i))
-    enddo
     
     call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,DPHIX,DPHIY,Ngauss,nodpel,ndim)
     
@@ -264,5 +296,49 @@ end do
 
 AE = AE1 + AE2
     
-end subroutine element_matrix
+    end subroutine element_matrix
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+subroutine density_calculation(fraction,complx_coorx,complx_coory,density,nodpel,n_species)
+
+implicit none
+
+integer :: nodpel,n_species
+complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
+double precision :: density(n_species)
+double precision :: radius_element, xmid, ymid
+double precision :: fraction
+
+xmid = sum(real(complx_coorx))/size(complx_coorx)
+ymid = sum(real(complx_coory))/size(complx_coory)
+
+radius_element = sqrt(xmid**2 + ymid**2)
+    
+density(n_species-2) = (1-0.8*(radius_element)**2)**1.5
+density(n_species-1) = fraction * density(n_species-2)
+density(n_species) = (1-fraction) * density(n_species-2)
+
+density = density * 1e20
+    
+end subroutine density_calculation
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_field,max_mag_field,displacement,nodpel)
+
+implicit none
+
+integer :: nodpel
+complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
+double precision :: magnetic_field, max_mag_field
+double precision :: radius_element, xmid, ymid
+double precision :: displacement
+
+xmid = sum(real(complx_coorx))/size(complx_coorx) + displacement
+ymid = sum(real(complx_coory))/size(complx_coory)
+    
+magnetic_field = max_mag_field/xmid
+    
+end subroutine magnetic_field_calculation
 

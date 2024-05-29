@@ -27,6 +27,13 @@ module def_vectors
     integer, allocatable :: ns(:)
     complex*16, allocatable :: local_coords(:,:)
     
+    double precision, allocatable :: mass_species(:)
+    double precision, allocatable :: charge_species(:)
+    double precision, allocatable :: omg_plasma_species(:)
+    double precision, allocatable :: omg_cyclotron_species(:)
+    double precision, allocatable :: mag_field(:)
+    double precision, allocatable :: density_species(:,:)
+    
     
 end module def_vectors
 

@@ -16,4 +16,6 @@ boundary_tol = 1e-6
 
 plasma:1
 
+deuterium_frac = 0.5
+
 end_data
