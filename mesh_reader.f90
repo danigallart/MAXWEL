@@ -39,9 +39,9 @@ subroutine mesh_reader
     coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
     enddo
     
-    plasma_radius = r_scat * lambda0
-    free_space_dim = lambda0/2
-    pmldim = lambda0/2
+    plasma_radius = r_scat
+    free_space_dim = plasma_radius/2
+    pmldim = plasma_radius/2
     huygdim = delh
     
     rpmlin = plasma_radius + free_space_dim
@@ -134,7 +134,7 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   real(kind=8),dimension(pml_bin_dim) :: dpml1
   integer :: m, ind, ii
   complex*16 :: alphajk, term
-  real(kind=8) :: x0,y0
+  real(kind=8) :: x0,y0, alpha
   double precision :: vpx(pml_bout_dim),vpy(pml_bout_dim)
   double precision :: npx(pml_bout_dim),npy(pml_bout_dim)
   double precision :: lp(pml_bout_dim)
@@ -144,8 +144,8 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   double precision, dimension(pml_bout_dim) :: pmlbout_x, pmlbout_y
   integer :: loc_ini_bin, loc_ini_bout
 
-  loc_ini_bin = FINDLOC(boundary,3,DIM=1)
-  loc_ini_bout = FINDLOC(boundary,4,DIM=1)
+  loc_ini_bin = FINDLOC(boundary_array,3,DIM=1)
+  loc_ini_bout = FINDLOC(boundary_array,4,DIM=1)
   
   do ii=1,pml_bin_dim
     pmlbin_x(ii)=coorx(loc_ini_bin+ii-1)
@@ -160,11 +160,11 @@ end do
   
   
 do ii=1,n
-    if ((boundary(ii) == 4) .or. (boundary(ii) == 5)) then
+    if ((boundary_array(ii) == 4) .or. (boundary_array(ii) == 5)) then
         !Set LC-PML parameters
-        !alpha = 7.0 * k
+        alpha = 7.0 * k
         !alphajk = -7.0
-        alphajk = cmplx(0,-7.0)
+        alphajk = alpha/cmplx(0.0,k)
         m = 3  ! PML decay rate (integer 2 or 3)
 
         ! Find the point on the inner PML boundary nearest to point P

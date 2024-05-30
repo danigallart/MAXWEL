@@ -65,7 +65,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='freq') then
-				read(option(last+1:leng),'(f5.0)') freq
+				read(option(last+1:leng),'(e6.3)') freq
 				last=leng+1
 			endif
        enddo

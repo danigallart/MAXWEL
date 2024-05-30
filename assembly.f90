@@ -315,7 +315,7 @@ ymid = sum(real(complx_coory))/size(complx_coory)
 
 radius_element = sqrt(xmid**2 + ymid**2)
     
-density(n_species-2) = (1-0.8*(radius_element)**2)**1.5
+density(n_species-2) = (1-0.8*(1.1*radius_element)**2)**1.5
 density(n_species-1) = fraction * density(n_species-2)
 density(n_species) = (1-fraction) * density(n_species-2)
 

@@ -4,7 +4,7 @@ tol_solver = 1e-9
 
 iter_solver = 300000
 
-freq = 300.0
+freq = 2.0e3
 
 phii = 0.0
 
