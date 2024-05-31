@@ -142,23 +142,23 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   double precision :: ksi
   double precision, dimension(pml_bin_dim) :: pmlbin_x, pmlbin_y
   double precision, dimension(pml_bout_dim) :: pmlbout_x, pmlbout_y
-  integer :: loc_ini_bin, loc_ini_bout
+  integer :: count1, count2
 
-  loc_ini_bin = FINDLOC(boundary_array,3,DIM=1)
-  loc_ini_bout = FINDLOC(boundary_array,4,DIM=1)
-  
-  do ii=1,pml_bin_dim
-    pmlbin_x(ii)=coorx(loc_ini_bin+ii-1)
-    pmlbin_y(ii)=coory(loc_ini_bin+ii-1)
-end do
+count1 = 0
+count2 = 0
 
+do ii=1,n
+    if (boundary_array(ii) == 3) then
+        count1 = count1 + 1
+        pmlbin_x(count1)=coorx(ii)
+        pmlbin_y(count1)=coory(ii)
+    else if (boundary_array(ii) == 4) then
+        count2 = count2 + 1
+        pmlbout_x(count2)=coorx(ii)
+        pmlbout_y(count2)=coory(ii)
+    endif
+enddo
 
-do ii=1,pml_bout_dim
-    pmlbout_x(ii)=coorx(loc_ini_bout+ii-1)
-    pmlbout_y(ii)=coory(loc_ini_bout+ii-1)
-end do
-  
-  
 do ii=1,n
     if ((boundary_array(ii) == 4) .or. (boundary_array(ii) == 5)) then
         !Set LC-PML parameters
