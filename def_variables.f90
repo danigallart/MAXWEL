@@ -77,7 +77,7 @@ module def_variables
     double precision :: mass1, mass2, mass3                                                         !Mass for electrons, deuterons and tritons
     double precision :: deu_tri_frac                                                                !Fraction of deuterium, n_d/(n_d+n_t)
     
-    double precision, parameter :: mag_field0 = 11.8                                                ! Axial magnetic field
+    double precision, parameter :: mag_field0 = 0.00005                                                ! Axial magnetic field
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
     double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     

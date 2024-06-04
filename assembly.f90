@@ -55,7 +55,7 @@ do kk=1,NE
     rel_permeability_zz = cmplx(1.0,0.0)
     
     
-    if (material(kk) == 1) then
+    if ((material(kk) == 1) .or. (material(kk) == 2)) then
         
         if (plasma == 1) then
             
@@ -315,11 +315,11 @@ ymid = sum(real(complx_coory))/size(complx_coory)
 
 radius_element = sqrt(xmid**2 + ymid**2)
     
-density(n_species-2) = (1-0.8*(1.1*radius_element)**2)**1.5
+density(n_species-2) = (1-0.4*radius_element**2)**1.5
 density(n_species-1) = fraction * density(n_species-2)
 density(n_species) = (1-fraction) * density(n_species-2)
 
-density = density * 1e20
+density = density * 2e6
     
 end subroutine density_calculation
 
