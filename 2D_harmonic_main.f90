@@ -36,8 +36,12 @@
     omg = 2.0 * pi * freq_hz
         
         print*, "Mesh reader"
-    
-        CALL mesh_reader()
+        
+        if (.TRUE.) then
+            CALL mesh_reader()
+        else
+            CALL mesh_reader_tokamak()
+        endif
         
         print*, "Sparse logic"
         

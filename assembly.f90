@@ -55,7 +55,7 @@ do kk=1,NE
     rel_permeability_zz = cmplx(1.0,0.0)
     
     
-    if ((material(kk) == 1) .or. (material(kk) == 2)) then
+    if (material(kk) == 1) then
         
         if (plasma == 1) then
             

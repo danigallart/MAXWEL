@@ -15,5 +15,10 @@ implicit none
     close(stiff_matrix_unit)
     close(connectivity_unit)
     
+    close(mesh_geo_unit)
+    close(mesh_param_unit)
+    close(mesh_element_unit)
+    close(mesh_boundary_unit)
+    
 
 end subroutine finalise

@@ -16,6 +16,11 @@ module def_io
     
     character*(300) ::  stiff_matrix_file = 'stiff_matrix.txt'
     character*(300) ::  connectivity_file = 'connectivity.txt'
+    
+    character*(300) :: mesh_geometry = 'data/EquilibiumMesh.geo.dat'
+    character*(300) :: mesh_param = 'data/EquilibiumMesh.dom.dat'
+    character*(300) :: mesh_element = 'data/EquilibiumMesh.set.dat'
+    character*(300) :: mesh_boundary = 'data/EquilibiumMesh.fix.dat'
 
 
     
@@ -30,6 +35,10 @@ module def_io
         nodes_unit = 8, &
         elements_unit = 9, &
         stiff_matrix_unit = 10, &
-        connectivity_unit = 11
+        connectivity_unit = 11, &
+        mesh_geo_unit = 12, &
+        mesh_param_unit = 13, &
+        mesh_element_unit = 14, &
+        mesh_boundary_unit = 15
     
 end module def_io

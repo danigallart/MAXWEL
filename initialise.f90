@@ -30,6 +30,11 @@ character*30 :: time_date
    open(unit=nodes_unit,file=nodes_file,status='old')
    open(unit=elements_unit, file=elements_file, status='old')
    
+   open(unit=mesh_geo_unit, file=mesh_geometry, status='old')
+   open(unit=mesh_param_unit, file=mesh_param, status='old')
+   open(unit=mesh_element_unit, file=mesh_element, status='old')
+   open(unit=mesh_boundary_unit, file=mesh_boundary, status='old')
+   
     return
 
 100 write(6,*) 'error in' // inputfile // 'opening'

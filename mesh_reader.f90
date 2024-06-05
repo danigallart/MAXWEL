@@ -10,6 +10,7 @@ subroutine mesh_reader
     double precision :: r
     
     double precision :: min_tol, max_tol
+    logical, allocatable :: pml_flag(:)
         
     ! Node's coordinates
     
@@ -33,6 +34,7 @@ subroutine mesh_reader
         
     allocate(coorx_mid(NE),coory_mid(NE))
     allocate(material(NE), boundary(NP))
+    allocate(pml_flag(NP))
     
     do ii=1,NE
     coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
@@ -56,6 +58,8 @@ subroutine mesh_reader
     n_pml_bout = 0
     n_huygb = 0
     n_pml = 0
+    
+    pml_flag = .FALSE.
         
 do ii=1,NP
     r = sqrt(coorx(ii)**2 + coory(ii)**2)
@@ -84,6 +88,7 @@ do ii=1,NP
     elseif ((r < rpmlout) .and. (r > rpmlin)) then                                                   ! PML node
         
         boundary(ii) = 5
+        pml_flag(ii) = .TRUE.
         n_pml = n_pml + 1
     else                                                                                    ! No boundary node
         boundary(ii) = 0
@@ -106,14 +111,14 @@ allocate(complex_coorx(NP), complex_coory(NP))
 complex_coorx = cmplx(0.0,0.0)
 complex_coory = cmplx(0.0,0.0)
 
-call lcpml(coorx,coory,k0,boundary,n_pml_bin,n_pml_bout,NP,complex_coorx,complex_coory)
+call lcpml(coorx,coory,k0,boundary,pml_flag,n_pml_bin,n_pml_bout,NP,complex_coorx,complex_coory)
 
 
     end subroutine mesh_reader
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! LCPML function for Fortran 90
-subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
+subroutine lcpml(x, y, k, boundary_array, flag_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   use def_io
   use def_variables
   use def_vectors
@@ -125,6 +130,7 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   real(kind=8) :: k
   real(kind=8), dimension(n) :: x, y
   integer, dimension(n) :: boundary_array
+  logical, dimension(n) :: flag_array
   ! Output arguments
   complex*16, dimension(n) :: xc, yc
   !double precision, intent(out) :: xc_r, yc_r,xc_im, yc_im
@@ -134,7 +140,7 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   real(kind=8),dimension(pml_bin_dim) :: dpml1
   integer :: m, ind, ii
   complex*16 :: alphajk, term
-  real(kind=8) :: x0,y0, alpha
+  real(kind=8) :: x0,y0
   double precision :: vpx(pml_bout_dim),vpy(pml_bout_dim)
   double precision :: npx(pml_bout_dim),npy(pml_bout_dim)
   double precision :: lp(pml_bout_dim)
@@ -160,11 +166,11 @@ do ii=1,n
 enddo
 
 do ii=1,n
-    if ((boundary_array(ii) == 4) .or. (boundary_array(ii) == 5)) then
+    if ((boundary_array(ii) == 4) .or. flag_array(ii)) then
         !Set LC-PML parameters
-        alpha = 7.0 * k
-        !alphajk = -7.0
-        alphajk = alpha/cmplx(0.0,k)
+        !alpha = 7.0 * k
+        alphajk = cmplx(0.0,-7.0)
+        !alphajk = alpha/cmplx(0.0,k)
         m = 3  ! PML decay rate (integer 2 or 3)
 
         ! Find the point on the inner PML boundary nearest to point P
