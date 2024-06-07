@@ -55,7 +55,7 @@ do kk=1,NE
     rel_permeability_zz = cmplx(1.0,0.0)
     
     
-    if (material(kk) == 1) then
+    if ((material(kk) == 1) .or. (material(kk) == 2)) then
         
         if (plasma == 1) then
             
@@ -66,7 +66,7 @@ do kk=1,NE
             rel_permitivity_yx = cmplx(0.0,0.0)
             
             call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),density_species(:,kk),nodpel,n_species)
-            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),mag_field(kk),mag_field0,major_radius,nodpel)
+            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),mag_field(kk),mag_field0,nodpel)
             
             do j = 1,n_species
                 
@@ -95,9 +95,9 @@ do kk=1,NE
             
             im_rel = -cond/(omg*e0)
         
-            rel_permitivity_xx = cmplx(9.0,im_rel)
-            rel_permitivity_yy = cmplx(4.0,im_rel)
-            rel_permitivity_zz = cmplx(2.0,im_rel)
+            rel_permitivity_xx = cmplx(1.0,im_rel)
+            rel_permitivity_yy = cmplx(1.0,im_rel)
+            rel_permitivity_zz = cmplx(1.0,im_rel)
             rel_permitivity_xy = cmplx(0.0,im_rel)
             rel_permitivity_yx = cmplx(0.0,im_rel)
             
@@ -315,7 +315,7 @@ ymid = sum(real(complx_coory))/size(complx_coory)
 
 radius_element = sqrt(xmid**2 + ymid**2)
     
-density(n_species-2) = (1-0.4*radius_element**2)**1.5
+density(n_species-2) = (1-0.01*radius_element**2)**1.5
 density(n_species-1) = fraction * density(n_species-2)
 density(n_species) = (1-fraction) * density(n_species-2)
 
@@ -325,7 +325,7 @@ end subroutine density_calculation
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_field,max_mag_field,displacement,nodpel)
+    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_field,max_mag_field,nodpel)
 
 implicit none
 
@@ -335,7 +335,7 @@ double precision :: magnetic_field, max_mag_field
 double precision :: radius_element, xmid, ymid
 double precision :: displacement
 
-xmid = sum(real(complx_coorx))/size(complx_coorx) + displacement
+xmid = sum(real(complx_coorx))/size(complx_coorx)
 ymid = sum(real(complx_coory))/size(complx_coory)
     
 magnetic_field = max_mag_field/xmid

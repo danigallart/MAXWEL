@@ -5,7 +5,7 @@ subroutine mesh_reader
     
     implicit none
     
-    integer :: istat, ii, jj
+    integer :: istat, ii, jj, node
         
     double precision :: r
     
@@ -35,11 +35,6 @@ subroutine mesh_reader
     allocate(coorx_mid(NE),coory_mid(NE))
     allocate(material(NE), boundary(NP))
     allocate(pml_flag(NP))
-    
-    do ii=1,NE
-    coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
-    coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
-    enddo
     
     plasma_radius = r_scat
     free_space_dim = plasma_radius/2
@@ -88,7 +83,6 @@ do ii=1,NP
     elseif ((r < rpmlout) .and. (r > rpmlin)) then                                                   ! PML node
         
         boundary(ii) = 5
-        pml_flag(ii) = .TRUE.
         n_pml = n_pml + 1
     else                                                                                    ! No boundary node
         boundary(ii) = 0
@@ -96,11 +90,19 @@ do ii=1,NP
 enddo
     
 do ii=1,NE
+    coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
+    coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
+
     r = sqrt(coorx_mid(ii)**2 + coory_mid(ii)**2)
+    
     if (r < plasma_radius) then                                                             ! Scatterer element
         material(ii) = 1
     elseif ((r < rpmlout) .and. (r > rpmlin)) then                                          ! PML element
         material(ii) = 3
+        do jj = 1, nodpel
+            node = conn(ii,jj)
+            pml_flag(node) = (boundary(node) /= 4) .and. (boundary(node) /=3)
+        enddo
     else                                                                                    ! Vacuum element
         material(ii) = 2
     endif
@@ -111,7 +113,13 @@ allocate(complex_coorx(NP), complex_coory(NP))
 complex_coorx = cmplx(0.0,0.0)
 complex_coory = cmplx(0.0,0.0)
 
+coorx = coorx + major_radius
+coory = coory
+coorx_mid = coorx_mid + major_radius
+coory_mid = coory_mid
+
 call lcpml(coorx,coory,k0,boundary,pml_flag,n_pml_bin,n_pml_bout,NP,complex_coorx,complex_coory)
+
 
 
     end subroutine mesh_reader

@@ -136,7 +136,7 @@ call lcpml_tokamak(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, 
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! LCPML function for Fortran 90
-subroutine lcpml_tokamak(x, y, k, boundary_array, flag_array, pml_bin_dim, pml_bout_dim, n_nod, xc, yc)
+subroutine lcpml_tokamak(x, y, k, boundary_array, flag_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   use def_io
   use def_variables
   use def_vectors
@@ -144,13 +144,13 @@ subroutine lcpml_tokamak(x, y, k, boundary_array, flag_array, pml_bin_dim, pml_b
   implicit none
 
   ! Input arguments
-  integer :: pml_bin_dim, pml_bout_dim, n_nod
+  integer :: pml_bin_dim, pml_bout_dim, n
   real(kind=8) :: k
-  real(kind=8), dimension(n_nod) :: x, y
-  integer, dimension(n_nod) :: boundary_array
-  logical, dimension(n_nod) :: flag_array
+  real(kind=8), dimension(n) :: x, y
+  integer, dimension(n) :: boundary_array
+  logical, dimension(n) :: flag_array
   ! Output arguments
-  complex*16, dimension(n_nod) :: xc, yc
+  complex*16, dimension(n) :: xc, yc
   !double precision, intent(out) :: xc_r, yc_r,xc_im, yc_im
 
   ! LC-PML parameters
@@ -171,7 +171,7 @@ subroutine lcpml_tokamak(x, y, k, boundary_array, flag_array, pml_bin_dim, pml_b
 count1 = 0
 count2 = 0
   
-do ii=1,n_nod
+do ii=1,n
     if (boundary_array(ii) == 2) then
         count1 = count1 + 1
         pmlbin_x(count1)=coorx(ii)
@@ -179,11 +179,11 @@ do ii=1,n_nod
     else if (boundary_array(ii) == 3) then
         count2 = count2 + 1
         pmlbout_x(count2)=coorx(ii)
-        pmlbout_x(count2)=coory(ii)
+        pmlbout_y(count2)=coory(ii)
     endif
 enddo
   
-do ii=1,n_nod
+do ii=1,n
     if ((boundary_array(ii) == 3) .or. flag_array(ii)) then
         !Set LC-PML parameters
         !alpha = 7.0 * k
