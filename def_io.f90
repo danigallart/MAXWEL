@@ -11,8 +11,7 @@ module def_io
 
     character*(300) :: control = 'tolerance_control.dat'
     
-    character*(300) :: nodes_file = 'circle_mesh_nodes.dat'
-    character*(300) :: elements_file = 'circle_mesh_elements.dat'
+    character*(300) :: mesh_file = 'mesh_file.dat'
     
     character*(300) ::  stiff_matrix_file = 'stiff_matrix.txt'
     character*(300) ::  connectivity_file = 'connectivity.txt'
@@ -32,13 +31,12 @@ module def_io
         result_inc_unit = 5, &
         result_plane_unit = 6, &
         control_unit = 7, &
-        nodes_unit = 8, &
-        elements_unit = 9, &
-        stiff_matrix_unit = 10, &
-        connectivity_unit = 11, &
-        mesh_geo_unit = 12, &
-        mesh_param_unit = 13, &
-        mesh_element_unit = 14, &
-        mesh_boundary_unit = 15
+        mesh_unit = 8, &
+        stiff_matrix_unit = 9, &
+        connectivity_unit = 10, &
+        mesh_geo_unit = 11, &
+        mesh_param_unit = 12, &
+        mesh_element_unit = 13, &
+        mesh_boundary_unit = 14
     
 end module def_io

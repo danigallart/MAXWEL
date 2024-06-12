@@ -5,16 +5,11 @@ subroutine mesh_reader_tokamak
     
     implicit none
     
-    integer :: istat, ii, jj
+    integer :: istat, ii, jj, node
         
     double precision :: r
     
     double precision :: min_tol, max_tol
-    
-    integer :: out_bound1, out_bound2, out_elem
-    integer :: ini_1, fini_1, ini_2, fini_2, ini_3, fini_3
-    integer :: nod1, nod2, node
-    integer :: i, j, n, m
     logical, allocatable :: pml_flag(:)
     
     character*(120) :: text_line
@@ -174,12 +169,12 @@ count2 = 0
 do ii=1,n
     if (boundary_array(ii) == 2) then
         count1 = count1 + 1
-        pmlbin_x(count1)=coorx(ii)
-        pmlbin_y(count1)=coory(ii)
+        pmlbin_x(count1) = x(ii)
+        pmlbin_y(count1) = y(ii)
     else if (boundary_array(ii) == 3) then
         count2 = count2 + 1
-        pmlbout_x(count2)=coorx(ii)
-        pmlbout_y(count2)=coory(ii)
+        pmlbout_x(count2) = x(ii)
+        pmlbout_y(count2) = y(ii)
     endif
 enddo
   

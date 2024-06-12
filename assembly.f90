@@ -116,6 +116,10 @@ do kk=1,NE
     
     call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,DPHIX,DPHIY,Ngauss,nodpel,ndim)
     
+    if (abs(DETJACOB) <= 0.0) then
+       print*, 'WARNING: |J| <= 0 for element number ', kk
+    endif
+    
     if (pol == 'TM') then
         determinant = rel_permeability_xx * rel_permeability_yy - rel_permeability_xy * rel_permeability_yx
         pxxe = rel_permeability_xx/determinant
@@ -221,6 +225,10 @@ jacob(2,1) = xcoord_e(3)-xcoord_e(1)
 jacob(2,2) = ycoord_e(3)-ycoord_e(1)
 
 detjacob = jacob(1,1)*jacob(2,2)-jacob(1,2)*jacob(2,1)
+
+if (abs(detjacob) <= 0.0) then
+       print*, 'WARNING: |J| <= 0'
+endif
 
 invjacob(1,1) = ycoord_e(3)-ycoord_e(1)
 invjacob(1,2) = -(ycoord_e(2)-ycoord_e(1))
