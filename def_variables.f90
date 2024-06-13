@@ -6,7 +6,7 @@ module def_variables
     character(20) :: file_mesh = ''                                                                 !Name of the file where the mesh is stored
     
     !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
-    integer, parameter :: ndim = 2                                                                  !Number of physical dimensions
+    integer :: ndim = 2                                                                             !Number of physical dimensions
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
     integer :: Nodpel                                                                               !Nodes per element
     integer :: Ngauss                                                                               !Number of gaussian integration points
@@ -70,14 +70,16 @@ module def_variables
     real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
     character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
     
-    integer :: plasma
-    double precision :: plasma_freq1, plasma_freq2, plasma_freq3
-    double precision :: cyclo_freq1, cyclo_freq2, cyclo_freq3
-    double precision :: mass1, mass2, mass3
-    double precision :: charge1, charge2, charge3
+    integer :: plasma                                                                               !Plasma flag
+    integer :: n_species
+    double precision :: plasma_freq1, plasma_freq2, plasma_freq3                                    !Plasma frequency for electrons, deuterons and tritons
+    double precision :: cyclo_freq1, cyclo_freq2, cyclo_freq3                                       !Cyclotron frequency for electrons, deuterons and tritons
+    double precision :: mass1, mass2, mass3                                                         !Mass for electrons, deuterons and tritons
+    double precision :: deu_tri_frac                                                                !Fraction of deuterium, n_d/(n_d+n_t)
     
-    double precision, parameter :: mag_field0 = 5.3                                                 ! Axial magnetic field
+    double precision, parameter :: mag_field0 = 0.00005                                                ! Axial magnetic field
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
+    double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     
     double precision :: plasma_radius, free_space_dim, pmldim, huygdim, &
                         rpmlin, rpmlout, rhuyg

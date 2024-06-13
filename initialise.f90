@@ -27,8 +27,12 @@ character*30 :: time_date
    open(unit=stiff_matrix_unit,file=stiff_matrix_file,status='unknown')
    open(unit=connectivity_unit,file=connectivity_file,status='unknown')
 
-   open(unit=nodes_unit,file=nodes_file,status='old')
-   open(unit=elements_unit, file=elements_file, status='old')
+   open(unit=mesh_unit,file=mesh_file,status='old')
+   
+   open(unit=mesh_geo_unit, file=mesh_geometry, status='old')
+   open(unit=mesh_param_unit, file=mesh_param, status='old')
+   open(unit=mesh_element_unit, file=mesh_element, status='old')
+   open(unit=mesh_boundary_unit, file=mesh_boundary, status='old')
    
     return
 

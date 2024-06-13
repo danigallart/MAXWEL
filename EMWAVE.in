@@ -1,10 +1,10 @@
 problem: helmholzt
 
-tol_solver = 1e-9
+tol_solver = 1e-12
 
-iter_solver = 300000
+iter_solver = 30000000
 
-freq = 300.0
+freq = 3.0e2
 
 phii = 0.0
 
@@ -14,6 +14,8 @@ r_scat = 1.0						#Ratio with lambda0
 
 boundary_tol = 1e-6
 
-plasma:1
+plasma:0
+
+deuterium_frac = 0.5
 
 end_data

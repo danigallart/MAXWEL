@@ -5,115 +5,131 @@ subroutine mesh_reader
     
     implicit none
     
-    integer :: istat, ii, jj
+    integer :: istat, ii, jj, node
         
     double precision :: r
     
     double precision :: min_tol, max_tol
-        
-    ! Node's coordinates
+    logical, allocatable :: pml_flag(:)
     
-    READ(nodes_unit,*,IOSTAT=istat) delh,NP
+    character*(120) :: text_line
+
+    nodpel = 3 !Nodpel could be read from files (element-wise) but it's not necessary since all elements have the same number of nodes
     
-    allocate(coorx(NP), coory(NP))
-    do ii=1,NP
-        read(nodes_unit,*,iostat=istat) coorx(ii),coory(ii)
-    end do
-            
-    ! Conectivity matrix
-    
-    nodpel = 3
-    
-    read(elements_unit,*,iostat=istat) NE
-    
-    allocate(conn(NE,nodpel))
-    DO ii=1,NE
-        read(elements_unit,*,iostat=istat)  conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
-    END DO
-        
-    allocate(coorx_mid(NE),coory_mid(NE))
-    allocate(material(NE), boundary(NP))
-    
-    do ii=1,NE
-    coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
-    coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
+    !Extracting parameters (NE,NP) from mesh file
+
+    do while(text_line /= 'END_DIMENSIONS') 
+        read(mesh_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+        if (text_line == 'NODAL_POINTS') then
+            read(mesh_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+            read(text_line, '(i10)') NP
+        elseif (text_line == 'NUM_ELEMENTS') then
+            read(mesh_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+            read(text_line, '(i10)') NE
+        endif
     enddo
     
-    plasma_radius = r_scat * lambda0
-    free_space_dim = lambda0/2
-    pmldim = lambda0/2
-    huygdim = delh
+    !Allocate vectors once the parameters are stored
     
-    rpmlin = plasma_radius + free_space_dim
-    rpmlout = rpmlin + pmldim
-    rhuyg = plasma_radius + huygdim
+    allocate(coorx(NP), coory(NP))
+    allocate(conn(NE,nodpel))
+    allocate(coorx_mid(NE),coory_mid(NE))
+    allocate(material(NE), boundary(NP))
+    allocate(pml_flag(NP))
     
-    min_tol = 1 - boundary_tol
-    max_tol = 1 + boundary_tol
+    boundary = 0
+    pml_flag = .FALSE.
     
-    n_scatb = 0
-    n_pml_bin = 0
-    n_pml_bout = 0
-    n_huygb = 0
-    n_pml = 0
-        
-do ii=1,NP
-    r = sqrt(coorx(ii)**2 + coory(ii)**2)
+    read(mesh_unit, '(a120)') text_line
     
-    if ((r < plasma_radius * max_tol) .and. (r > plasma_radius * min_tol)) then                       ! Boundary of scatterer
-        
-        boundary(ii) = 1
-        n_scatb = n_scatb + 1
-        
-    elseif ((r < rhuyg * max_tol) .and. (r > rhuyg * min_tol)) then                                   ! Huygens surface
-        
-        boundary(ii) = 2
-        n_huygb = n_huygb + 1
-        
-    elseif ((r < rpmlin * max_tol) .and. (r > rpmlin * min_tol)) then                                 ! Inner boundary of PML region
-        
-        boundary(ii) = 3
-        n_pml_bin = n_pml_bin + 1
-        
-    elseif ((r < rpmlout * max_tol) .and. (r > rpmlout * min_tol)) then                               ! Outer boundary of PML region
-        
-        boundary(ii) = 4
-        n_pml_bout = n_pml_bout + 1
-        n_pml = n_pml + 1
-        
-    elseif ((r < rpmlout) .and. (r > rpmlin)) then                                                   ! PML node
-        
-        boundary(ii) = 5
-        n_pml = n_pml + 1
-    else                                                                                    ! No boundary node
-        boundary(ii) = 0
+    !Store connectivity matrix
+    
+    if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+        read(mesh_unit,'(A120)') text_line
+        do while(text_line /= 'END_ELEMENTS')
+            read(text_line,*) ii, conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+            read(mesh_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+        enddo
     endif
-enddo
+        
+    !Store coordinates array
+   
+    read(mesh_unit, '(a120)') text_line
     
-do ii=1,NE
-    r = sqrt(coorx_mid(ii)**2 + coory_mid(ii)**2)
-    if (r < plasma_radius) then                                                             ! Scatterer element
-        material(ii) = 1
-    elseif ((r < rpmlout) .and. (r > rpmlin)) then                                          ! PML element
-        material(ii) = 3
-    else                                                                                    ! Vacuum element
-        material(ii) = 2
+    if ( trim(adjustl(text_line)) == 'COORDINATES') then
+    read(mesh_unit,'(A120)') text_line
+        do while(text_line /= 'END_COORDINATES')
+            read(text_line,*) ii, coorx(ii), coory(ii)
+            read(mesh_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+        enddo
     endif
-enddo
+    
+    ! Store material array
+    
+    read(mesh_unit,'(A120)') text_line
+    
+    if ( trim(adjustl(text_line)) == 'MATERIALS') then
+        read(mesh_unit,'(A120)') text_line
+        do while(text_line /= 'END_MATERIALS')
+            read(text_line,*) ii, material(ii)
+            read(mesh_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+        enddo
+    endif
+    
+    ! Store boundary array
+    
+    read(mesh_unit,'(A120)') text_line
+
+    if ( trim(adjustl(text_line)) == 'ON_NODES') then
+    read(mesh_unit,'(A120)') text_line
+    do while(text_line /= 'END_ON_NODES')
+        read(text_line,*) ii, boundary(ii)
+        read(mesh_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    enddo
+    endif
+    
+    
+    do ii=1,NE
+        coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
+        coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
+        if (material(ii) == 3) then
+            do jj = 1, nodpel
+                node = conn(ii,jj)
+                pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
+            enddo
+        endif
+    enddo
+    
+    n_scatb = count(boundary == 1, dim=1)
+    n_pml_bin = count(boundary == 2, dim=1)
+    n_pml_bout = count(boundary == 3, dim=1)
 
 allocate(complex_coorx(NP), complex_coory(NP))
 
 complex_coorx = cmplx(0.0,0.0)
 complex_coory = cmplx(0.0,0.0)
 
-call lcpml(coorx,coory,k0,boundary,n_pml_bin,n_pml_bout,NP,complex_coorx,complex_coory)
+coorx = coorx + major_radius
+coory = coory
+coorx_mid = coorx_mid + major_radius
+coory_mid = coory_mid
+
+call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
+
 
 
     end subroutine mesh_reader
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! LCPML function for Fortran 90
-subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
+subroutine lcpml(x, y, k, boundary_array, flag_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   use def_io
   use def_variables
   use def_vectors
@@ -125,6 +141,7 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   real(kind=8) :: k
   real(kind=8), dimension(n) :: x, y
   integer, dimension(n) :: boundary_array
+  logical, dimension(n) :: flag_array
   ! Output arguments
   complex*16, dimension(n) :: xc, yc
   !double precision, intent(out) :: xc_r, yc_r,xc_im, yc_im
@@ -134,7 +151,7 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   real(kind=8),dimension(pml_bin_dim) :: dpml1
   integer :: m, ind, ii
   complex*16 :: alphajk, term
-  real(kind=8) :: x0,y0
+  real(kind=8) :: x0, y0
   double precision :: vpx(pml_bout_dim),vpy(pml_bout_dim)
   double precision :: npx(pml_bout_dim),npy(pml_bout_dim)
   double precision :: lp(pml_bout_dim)
@@ -142,29 +159,29 @@ subroutine lcpml(x, y, k, boundary_array, pml_bin_dim, pml_bout_dim, n, xc, yc)
   double precision :: ksi
   double precision, dimension(pml_bin_dim) :: pmlbin_x, pmlbin_y
   double precision, dimension(pml_bout_dim) :: pmlbout_x, pmlbout_y
-  integer :: loc_ini_bin, loc_ini_bout
+  integer :: count1, count2
 
-  loc_ini_bin = FINDLOC(boundary,3,DIM=1)
-  loc_ini_bout = FINDLOC(boundary,4,DIM=1)
-  
-  do ii=1,pml_bin_dim
-    pmlbin_x(ii)=coorx(loc_ini_bin+ii-1)
-    pmlbin_y(ii)=coory(loc_ini_bin+ii-1)
-end do
+count1 = 0
+count2 = 0
 
-
-do ii=1,pml_bout_dim
-    pmlbout_x(ii)=coorx(loc_ini_bout+ii-1)
-    pmlbout_y(ii)=coory(loc_ini_bout+ii-1)
-end do
-  
-  
 do ii=1,n
-    if ((boundary(ii) == 4) .or. (boundary(ii) == 5)) then
+    if (boundary_array(ii) == 2) then
+        count1 = count1 + 1
+        pmlbin_x(count1) = x(ii)
+        pmlbin_y(count1) = y(ii)
+    else if (boundary_array(ii) == 3) then
+        count2 = count2 + 1
+        pmlbout_x(count2) = x(ii)
+        pmlbout_y(count2) = y(ii)
+    endif
+enddo
+
+do ii=1,n
+    if ((boundary_array(ii) == 4) .or. flag_array(ii)) then
         !Set LC-PML parameters
         !alpha = 7.0 * k
-        !alphajk = -7.0
-        alphajk = cmplx(0,-7.0)
+        alphajk = cmplx(0.0,-7.0)
+        !alphajk = alpha/cmplx(0.0,k)
         m = 3  ! PML decay rate (integer 2 or 3)
 
         ! Find the point on the inner PML boundary nearest to point P

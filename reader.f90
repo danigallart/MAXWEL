@@ -65,7 +65,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='freq') then
-				read(option(last+1:leng),'(f5.0)') freq
+				read(option(last+1:leng),'(e6.3)') freq
 				last=leng+1
 			endif
        enddo
@@ -102,11 +102,20 @@ do while(textinput /= 'end_data')
 				last=leng+1
 			endif
        enddo
-                      last=0	 
+           last=0	 
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='plasma') then
 				read(option(last+1:leng),'(i1)') plasma
+				last=leng+1
+			endif
+       enddo
+       
+                  last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='deuterium_frac') then
+				read(option(last+1:leng),'(f5.0)') deu_tri_frac
 				last=leng+1
 			endif
         enddo
