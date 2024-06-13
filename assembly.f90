@@ -95,9 +95,9 @@ do kk=1,NE
             
             im_rel = -cond/(omg*e0)
         
-            rel_permitivity_xx = cmplx(1.0,im_rel)
-            rel_permitivity_yy = cmplx(1.0,im_rel)
-            rel_permitivity_zz = cmplx(1.0,im_rel)
+            rel_permitivity_xx = cmplx(9.0,im_rel)
+            rel_permitivity_yy = cmplx(4.0,im_rel)
+            rel_permitivity_zz = cmplx(2.0,im_rel)
             rel_permitivity_xy = cmplx(0.0,im_rel)
             rel_permitivity_yx = cmplx(0.0,im_rel)
             
