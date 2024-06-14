@@ -111,11 +111,19 @@ do while(textinput /= 'end_data')
 			endif
        enddo
        
-                  last=0	 
+        last=0	 
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='deuterium_frac') then
 				read(option(last+1:leng),'(f5.0)') deu_tri_frac
+				last=leng+1
+			endif
+       enddo
+        last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='read_logic') then
+				read(option(last+1:leng),'(a1)') read_logic
 				last=leng+1
 			endif
         enddo

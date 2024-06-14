@@ -34,6 +34,8 @@ character*30 :: time_date
    open(unit=mesh_element_unit, file=mesh_element, status='old')
    open(unit=mesh_boundary_unit, file=mesh_boundary, status='old')
    
+   open(unit=logic_unit, file=logic_file, status='unknown')
+   
     return
 
 100 write(6,*) 'error in' // inputfile // 'opening'

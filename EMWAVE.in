@@ -8,7 +8,7 @@ freq = 3.0e2
 
 phii = 0.0
 
-pol:TE
+pol:TM
 
 r_scat = 1.0						#Ratio with lambda0
 
@@ -17,5 +17,7 @@ boundary_tol = 1e-6
 plasma:0
 
 deuterium_frac = 0.5
+
+read_logic:Y
 
 end_data
