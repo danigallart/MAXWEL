@@ -69,6 +69,7 @@ module def_variables
     real(kind=8) :: phii                                                                            ! rad, angle of incident field
     real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
     character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
+    character(len=1) :: read_logic
     
     integer :: plasma                                                                               !Plasma flag
     integer :: n_species

@@ -19,5 +19,7 @@ implicit none
     close(mesh_element_unit)
     close(mesh_boundary_unit)
     
+    close(logic_unit)
+    
 
 end subroutine finalise

@@ -5,19 +5,24 @@ use def_vectors
 ! local
 integer, allocatable :: consim(:)
 integer :: nno,kk,npas
-
+character*(120) :: text_line
 
 
 allocate( AD(NP),IA(NP+1),ncount(NP),indep_vect(NP))
 allocate( ICX(NP+1),consim(NP) )
 allocate(ns(nodpel))
 
+
+
 ad=0.0
 indep_vect=0.0
+
+if (read_logic == 'N') then
 
 ia=0
 ncount=0
 icx=0
+
 
 IA(1)=1
 
@@ -80,60 +85,88 @@ do nno=1,np
    enddo
 enddo
 
+write(logic_unit,*) 'CSR FORMAT'
+write(logic_unit,*) 'NONULL = ', NONULL
+write(logic_unit,*) 'ROWS (IA)'
+
+do i=1,NP+1
+    write(logic_unit,*) i, IA(i)
+enddo
+write(logic_unit,*) 'END_ROWS'
+
+
+write(logic_unit,*) 'COLUMNS (JA)'
+
+do i=1,NONULL
+    write(logic_unit,*) i, JA(i)
+enddo
+write(logic_unit,*) 'END_COLUMNS'
+
+write(logic_unit,*) 'COUNTER (ICX)'
+
+do i=1,NP+1
+    write(logic_unit,*) i, ICX(i)
+enddo
+write(logic_unit,*) 'END_COUNTER'
+
+
+else if (read_logic == 'Y') then
+        
+    do while(text_line /= 'ROWS (IA)') 
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+        if (index(text_line, 'NONULL =') /= 0) then
+            read(text_line, '(a12,i10)') label,NONULL
+        endif
+    enddo
+    
+    allocate (an(NONULL),ja(NONULL))
+    An=0.0
+
+    if (text_line == 'ROWS (IA)') then
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    do while(text_line /= 'END_ROWS')
+        read(text_line, '(i10,i10)') i,IA(i)
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    enddo
+    endif
+    
+    read(logic_unit,'(A120)') text_line
+    text_line = trim(adjustl(text_line))
+
+    
+    if (text_line == 'COLUMNS (JA)') then
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    do while(text_line /= 'END_COLUMNS')
+        read(text_line, '(i10,i10)') i,JA(i)
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    enddo
+    endif
+    
+    read(logic_unit,'(A120)') text_line
+    text_line = trim(adjustl(text_line))
+    
+    if (text_line == 'COUNTER (ICX)') then
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    do while(text_line /= 'END_COUNTER') 
+        read(text_line, '(i10,i10)') i,icx(i)
+        read(logic_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    enddo
+    endif
+
+    
+end if
+    
+
 
 write(control_unit,*) 'Nonulos del sistema: ',NONULL
 
 deallocate(consim)
 
 end subroutine sparse_logic
-
-
-!SUBROUTINE armoMasa()
-!USE def_variables
-!USE def_vectors
-!IMPLICIT NONE
-!
-!local
-!INTEGER :: i, j, k, ns(nodpel)
-!DOUBLE PRECISION :: x(ndim,nodpel), dphi(ndim, nodpel, nodpel), weight(nodpel), AJACO(2,2), DETER, rho
-!DOUBLE PRECISION :: funrho
-!    
-!    masa = 0.0
-!
-!    DO i=1, ne
-!
-!        DO j=1,nodpel
-!            ns(j)=conn(i,j)
-!
-!            x(1,j)=coorx(ns(j))
-!            x(2,j)=coory(ns(j))
-!        END DO
-!
-!        CALL shape_nodos(ndim, nodpel, dphi, weight)
-!
-!        DO j=1,nodpel 
-!            AJACO = 0.0
-!            DO k = 1,nodpel
-!                AJACO(1,1) = AJACO(1,1) + x(1,k) * dphi(1,j,k)
-!                AJACO(1,2) = AJACO(1,2) + x(1,k) * dphi(2,j,k)
-!                AJACO(2,1) = AJACO(2,1) + x(2,k) * dphi(1,j,k)
-!                AJACO(2,2) = AJACO(2,2) + x(2,k) * dphi(2,j,k)
-!            END DO
-! 
-!            DETER = AJACO(1,1) * AJACO(2,2) - AJACO(2,1) * AJACO(1,2)
-!         
-!            masa(ns(j)) = masa(ns(j)) + weight(j)*DETER
-!            masa(ns(j)) = masa(ns(j)) !* 0.0001 !Correccion de unidades
-!
-!        END DO
-!    END DO
-!    
-!
-!    DO i=1,np
-!        IF ( masa(i)<1E-8 ) THEN
-!            PAUSE 'NODO CON MASA CERO'
-!            STOP
-!        END IF
-!   END DO
-
-!END SUBROUTINE armoMasa
