@@ -36,7 +36,7 @@
     omg = 2.0 * pi * freq_hz
         
         print*, "Mesh reader"
-        if (.FALSE.) then
+        if (.TRUE.) then
             CALL mesh_reader()
         else
             CALL mesh_reader_tokamak()

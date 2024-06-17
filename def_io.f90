@@ -21,7 +21,7 @@ module def_io
     character*(300) :: mesh_element = 'data/EquilibiumMesh.set.dat'
     character*(300) :: mesh_boundary = 'data/EquilibiumMesh.fix.dat'
 
-    character*(300) :: logic_file = 'data/sparse_logic.dat'
+    character*(300) :: logic_file = 'sparse_logic.dat'
 
     
     integer, parameter :: &

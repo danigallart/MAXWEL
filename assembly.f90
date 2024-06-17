@@ -137,7 +137,7 @@ do kk=1,NE
     endif
     
     
-    call element_matrix(PHI,DPHI,INVJACOB,DETJACOB, &
+    call element_matrix(PHI,DPHIX,DPHIY,DETJACOB, &
         pxxe,pyye,pxye,pyxe,qe, &
         AE,Ngauss,nodpel,ndim)
     
@@ -252,14 +252,13 @@ dphiy(3) = INVJACOB(2,1) * dphi(1,3) + INVJACOB(2,2) * dphi(2,3)
     
     !Function that computes PHI and DPHI in the absolute coordinates
     
-subroutine element_matrix(PHI,DPHI,INVJACOB,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel,ndim)
+subroutine element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel,ndim)
     
 
 !Input variables
-double precision :: PHI(Ngauss,nodpel), DPHI(ndim,nodpel)
-complex*16 :: INVJACOB(ndim,ndim)
+double precision :: PHI(Ngauss,nodpel)
 complex*16 :: pxxe,pyye,pxye,pyxe,qe
-complex*16 :: DETJACOB
+complex*16 :: DETJACOB, dphix(nodpel), dphiy(nodpel)
 
 !Output varaibles
 complex*16 :: AE(nodpel,nodpel)
@@ -281,12 +280,7 @@ do i=1,nodpel
     do j=1,nodpel
         gauss_sum = cmplx(0.0,0.0)
 
-        AE1(i,j) = (((INVJACOB(1,1) * dphi(1,i) + INVJACOB(1,2) * dphi(2,i))*pxxe + &
-                     (INVJACOB(2,1) * dphi(1,i) + INVJACOB(2,2) * dphi(2,i))*pxye) * &
-                     (INVJACOB(1,1) * dphi(1,j) + INVJACOB(1,2) * dphi(2,j)) + &
-                    ((INVJACOB(1,1) * dphi(1,i) + INVJACOB(1,2) * dphi(2,i))*pyxe + &
-                     (INVJACOB(2,1) * dphi(1,i) + INVJACOB(2,2) * dphi(2,i))*pyye * &
-                     (INVJACOB(2,1) * dphi(1,j) + INVJACOB(2,2) * dphi(2,j))))*DETJACOB/2
+        AE1(i,j) = ((dphix(i)*pxxe + dphiy(i)*pxye) * dphix(j) + (dphix(i)*pyxe + dphiy(i)*pyye) * dphiy(j))*DETJACOB/2
         
         AE1(j,i) = AE1(i,j)
         
