@@ -46,15 +46,27 @@ subroutine mesh_reader
     read(mesh_unit, '(a120)') text_line
     
     !Store connectivity matrix
-    
-    if ( trim(adjustl(text_line)) == 'ELEMENTS') then
-        read(mesh_unit,'(A120)') text_line
-        do while(text_line /= 'END_ELEMENTS')
-            read(text_line,*) ii, conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+    if (nodpel == 3) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
             read(mesh_unit,'(A120)') text_line
-            text_line = trim(adjustl(text_line))
-        enddo
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
+        
+    else if (nodpel == 6) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+            read(mesh_unit,'(A120)') text_line
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-5), conn(ii,nodpel-4), conn(ii,nodpel-3), conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
     endif
+        
         
     !Store coordinates array
    
@@ -116,9 +128,9 @@ allocate(complex_coorx(NP), complex_coory(NP))
 complex_coorx = cmplx(0.0,0.0)
 complex_coory = cmplx(0.0,0.0)
 
-coorx = coorx + major_radius
+coorx = coorx !+ major_radius
 coory = coory
-coorx_mid = coorx_mid + major_radius
+coorx_mid = coorx_mid !+ major_radius
 coory_mid = coory_mid
 
 call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
@@ -177,7 +189,7 @@ do ii=1,n
 enddo
 
 do ii=1,n
-    if ((boundary_array(ii) == 4) .or. flag_array(ii)) then
+    if ((boundary_array(ii) == 3) .or. flag_array(ii)) then
         !Set LC-PML parameters
         !alpha = 7.0 * k
         alphajk = cmplx(0.0,-7.0)

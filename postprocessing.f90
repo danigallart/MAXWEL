@@ -6,7 +6,7 @@ subroutine derivatives
     
     implicit none
     
-    integer :: ii,kk,i
+    integer :: ii,kk,i,k
     complex*16 :: DSOLX, DSOLY
     complex*16 :: inv_tensor_xx,inv_tensor_xy, &
                   inv_tensor_yx,inv_tensor_yy
@@ -42,8 +42,10 @@ subroutine derivatives
             
             i = conn(kk,ii)                   
             
-            DSOLX = DSOLX + u_tot(i)*DPHIX(ii)
-            DSOLY = DSOLY + u_tot(i)*DPHIY(ii)
+            do k = 1, Ngauss
+            DSOLX = DSOLX + u_tot(i)*DPHIX(ii,k)/(Ngauss*Ngauss)
+            DSOLY = DSOLY + u_tot(i)*DPHIY(ii,k)/(Ngauss*Ngauss)
+            enddo
             
             !DSOLX = DSOLX + u_scat(i)*DPHIX(ii)/(nodpel*nodpel)
             !DSOLY = DSOLY + u_scat(i)*DPHIY(ii)/(nodpel*nodpel)

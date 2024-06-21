@@ -1,8 +1,8 @@
 problem: helmholzt
 
-tol_solver = 1e-12
+tol_solver = 1e-10
 
-iter_solver = 30000000
+iter_solver = 3000000
 
 freq = 3.0e2
 

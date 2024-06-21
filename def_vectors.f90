@@ -20,9 +20,10 @@ module def_vectors
     integer, allocatable :: material(:)
     integer, allocatable :: boundary(:)
     
-    complex*16, allocatable :: JACOB(:,:),INVJACOB(:,:)
-    double precision, allocatable :: PHI(:,:),DPHI(:,:)
-    complex*16, allocatable :: DPHIX(:),DPHIY(:)
+    complex*16, allocatable :: JACOB(:,:,:),INVJACOB(:,:,:)
+    double precision, allocatable :: PHI(:,:),DPHI(:,:,:)
+    complex*16, allocatable :: DPHIX(:,:),DPHIY(:,:)
+    complex*16, allocatable :: DETJACOB(:)
     
     integer, allocatable :: ns(:)
     complex*16, allocatable :: local_coords(:,:)
