@@ -12,6 +12,7 @@ allocate( AD(NP),IA(NP+1),ncount(NP),indep_vect(NP))
 allocate( ICX(NP+1),consim(NP) )
 allocate(ns(nodpel))
 
+open(unit=logic_unit, file=logic_file, status='unknown')
 
 
 ad=0.0
@@ -163,7 +164,7 @@ else if (read_logic == 'Y') then
     
 end if
     
-
+close(logic_unit) 
 
 write(control_unit,*) 'Nonulos del sistema: ',NONULL
 

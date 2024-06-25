@@ -38,16 +38,6 @@ call LIN_CG_cplx(NP, IA, JA, AN, AD, indep_vect, u_scat, tol_solver, err, iter_s
 
 u_tot = u_scat+u_inc
 
-do kk=1,NE
-    if (material(kk) == 3) then
-        do ii = 1, nodpel
-            i = conn(kk,ii)
-            u_tot(i) = cmplx(0.0,0.0)
-        enddo
-    endif
-enddo
-
-
 write(control_unit,*) 'CG it.   ',iter, '/ ', iter_solver
 write(control_unit,*) 'CG err.  ',ERR
 

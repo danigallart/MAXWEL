@@ -4,7 +4,8 @@ module def_variables
     
     character(10) :: problem                                                                        !For future implementations where there are more than one available problem to solve
     character(20) :: file_mesh = ''                                                                 !Name of the file where the mesh is stored
-    
+    character(4)  :: reader_type = 'read'
+
     !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
     integer :: ndim = 2                                                                             !Number of physical dimensions
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
@@ -42,6 +43,14 @@ module def_variables
     complex*16 :: rel_permeability_xx, rel_permeability_xy, &
                   rel_permeability_yx, rel_permeability_yy, &
                   rel_permeability_zz
+    
+    complex*16 :: epsilon_scat_xx, epsilon_scat_xy, &
+                  epsilon_scat_yx, epsilon_scat_yy, &
+                  epsilon_scat_zz
+
+    complex*16 :: mu_scat_xx, mu_scat_xy, &
+                  mu_scat_yx, mu_scat_yy, &
+                  mu_scat_zz
 
     double precision :: cond, im_rel
     
@@ -76,7 +85,7 @@ module def_variables
     double precision :: mass1, mass2, mass3                                                         !Mass for electrons, deuterons and tritons
     double precision :: deu_tri_frac                                                                !Fraction of deuterium, n_d/(n_d+n_t)
     
-    double precision, parameter :: mag_field0 = 0.00005                                             ! Axial magnetic field
+    double precision, parameter :: mag_field0 = 0.5                                                 ! Axial magnetic field
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
     double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     

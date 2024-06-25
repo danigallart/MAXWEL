@@ -14,7 +14,7 @@ subroutine mesh_reader
     
     character*(120) :: text_line
 
-    nodpel = 3 !Nodpel could be read from files (element-wise) but it's not necessary since all elements have the same number of nodes
+    open(unit=mesh_unit,file=mesh_file,status='old')
     
     !Extracting parameters (NE,NP) from mesh file
 
@@ -106,6 +106,9 @@ subroutine mesh_reader
         text_line = trim(adjustl(text_line))
     enddo
     endif
+    
+    
+    close(mesh_unit)
     
     
     do ii=1,NE

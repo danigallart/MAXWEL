@@ -49,14 +49,13 @@ do kk=1,NE
         local_coords(2,i) = complex_coory(ns(i))
     enddo
     
-    rel_permeability_xx = cmplx(1.0,0.0)
-    rel_permeability_xy = cmplx(0.0,0.0)
-    rel_permeability_yx = cmplx(0.0,0.0)
-    rel_permeability_yy = cmplx(1.0,0.0)
-    rel_permeability_zz = cmplx(1.0,0.0)
-    
-    
     if (material(kk) == 1) then
+        
+        rel_permitivity_xx = mu_scat_xx
+        rel_permitivity_yy = mu_scat_yy
+        rel_permitivity_zz = mu_scat_zz
+        rel_permitivity_xy = mu_scat_xy
+        rel_permitivity_yx = mu_scat_yx
         
         if (plasma == 1) then
             
@@ -91,16 +90,14 @@ do kk=1,NE
             
             
         else
-            
-            cond = 0.0
-            
+                                    
             im_rel = -cond/(omg*e0)
         
-            rel_permitivity_xx = cmplx(4.0,im_rel)
-            rel_permitivity_yy = cmplx(4.0,im_rel)
-            rel_permitivity_zz = cmplx(4.0,im_rel)
-            rel_permitivity_xy = cmplx(0.0,im_rel)
-            rel_permitivity_yx = cmplx(0.0,im_rel)
+            rel_permitivity_xx = epsilon_scat_xx + ij * im_rel
+            rel_permitivity_yy = epsilon_scat_yy + ij * im_rel
+            rel_permitivity_zz = epsilon_scat_zz + ij * im_rel
+            rel_permitivity_xy = epsilon_scat_xy + ij * im_rel
+            rel_permitivity_yx = epsilon_scat_yx + ij * im_rel
             
         endif
         
@@ -112,6 +109,12 @@ do kk=1,NE
             rel_permitivity_zz = cmplx(1.0,0.0)
             rel_permitivity_xy = cmplx(0.0,0.0)
             rel_permitivity_yx = cmplx(0.0,0.0)
+            
+            rel_permeability_xx = cmplx(1.0,0.0)
+            rel_permeability_yy = cmplx(1.0,0.0)
+            rel_permeability_zz = cmplx(1.0,0.0)
+            rel_permeability_xy = cmplx(0.0,0.0)
+            rel_permeability_yx = cmplx(0.0,0.0)
             
     endif
     
@@ -294,16 +297,13 @@ else if (nodpel == 6) then
         
         invjacob(1,1,kgauss) = jacob(2,2,kgauss)/detjacob(kgauss)      
         invjacob(1,2,kgauss) = -jacob(2,1,kgauss)/detjacob(kgauss)      
-        invjacob(2,1,kgauss) = -jacob(2,2,kgauss)/detjacob(kgauss)      
+        invjacob(2,1,kgauss) = -jacob(1,2,kgauss)/detjacob(kgauss)      
         invjacob(2,2,kgauss) = jacob(1,1,kgauss)/detjacob(kgauss)
         
-        dphix(1,kgauss) = invjacob(1,1,kgauss) * dphi(1,1,kgauss) + invjacob(1,2,kgauss) * dphi(2,1,kgauss)
-        dphix(2,kgauss) = invjacob(1,1,kgauss) * dphi(1,2,kgauss) + invjacob(1,2,kgauss) * dphi(2,2,kgauss)
-        dphix(3,kgauss) = invjacob(1,1,kgauss) * dphi(1,3,kgauss) + invjacob(1,2,kgauss) * dphi(2,3,kgauss)
-
-        dphiy(1,kgauss) = invjacob(2,1,kgauss) * dphi(1,1,kgauss) + invjacob(2,2,kgauss) * dphi(2,1,kgauss)
-        dphiy(2,kgauss) = invjacob(2,1,kgauss) * dphi(1,2,kgauss) + invjacob(2,2,kgauss) * dphi(2,2,kgauss)
-        dphiy(3,kgauss) = invjacob(2,1,kgauss) * dphi(1,3,kgauss) + invjacob(2,2,kgauss) * dphi(2,3,kgauss)
+        do ii = 1,nodpel
+            dphix(ii,kgauss) = invjacob(1,1,kgauss) * dphi(1,ii,kgauss) + invjacob(1,2,kgauss) * dphi(2,ii,kgauss)
+            dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
+        enddo
             
         if (abs(detjacob(kgauss)) <= 0.0) then
             print*, 'WARNING: |J| <= 0'
@@ -396,7 +396,7 @@ density(n_species-2) = (1-0.01*radius_element**2)**1.5
 density(n_species-1) = fraction * density(n_species-2)
 density(n_species) = (1-fraction) * density(n_species-2)
 
-density = density * 1e2
+density = density * 5e5
     
 end subroutine density_calculation
 
