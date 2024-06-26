@@ -244,8 +244,8 @@ if (nodpel == 3) then
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
         
-        if (abs(detjacob(kgauss)) <= 0.0) then
-            print*, 'WARNING: |J| <= 0'
+        if (detjacob(kgauss)%re <= 0.0) then
+            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
         endif
     
     end do
@@ -296,17 +296,17 @@ else if (nodpel == 6) then
         detjacob(kgauss) = jacob(1,1,kgauss)*jacob(2,2,kgauss)-jacob(1,2,kgauss)*jacob(2,1,kgauss)
         
         invjacob(1,1,kgauss) = jacob(2,2,kgauss)/detjacob(kgauss)      
-        invjacob(1,2,kgauss) = -jacob(2,1,kgauss)/detjacob(kgauss)      
-        invjacob(2,1,kgauss) = -jacob(1,2,kgauss)/detjacob(kgauss)      
+        invjacob(1,2,kgauss) = -jacob(1,2,kgauss)/detjacob(kgauss)      
+        invjacob(2,1,kgauss) = -jacob(2,1,kgauss)/detjacob(kgauss)      
         invjacob(2,2,kgauss) = jacob(1,1,kgauss)/detjacob(kgauss)
         
         do ii = 1,nodpel
             dphix(ii,kgauss) = invjacob(1,1,kgauss) * dphi(1,ii,kgauss) + invjacob(1,2,kgauss) * dphi(2,ii,kgauss)
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
-            
-        if (abs(detjacob(kgauss)) <= 0.0) then
-            print*, 'WARNING: |J| <= 0'
+        
+        if (detjacob(kgauss)%re <= 0.0) then
+            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
         endif
 
     end do

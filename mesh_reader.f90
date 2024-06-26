@@ -6,9 +6,7 @@ subroutine mesh_reader
     implicit none
     
     integer :: istat, ii, jj, node
-        
-    double precision :: r
-    
+            
     double precision :: min_tol, max_tol
     logical, allocatable :: pml_flag(:)
     
@@ -125,7 +123,7 @@ subroutine mesh_reader
     n_scatb = count(boundary == 1, dim=1)
     n_pml_bin = count(boundary == 2, dim=1)
     n_pml_bout = count(boundary == 3, dim=1)
-
+    
 allocate(complex_coorx(NP), complex_coory(NP))
 
 complex_coorx = cmplx(0.0,0.0)
@@ -219,7 +217,7 @@ do ii=1,n
         nx = vx / l  ! Unit vector from r0 to r (x-comp)
         ny = vy / l  ! Unit vector from r0 to r (y-comp)
 
-        if (l < 1.0e-8) then
+        if (l < 1.0e-7) then
             xc(ii) = cmplx(x(ii),0.0)
             yc(ii) = cmplx(y(ii),0.0)
         else

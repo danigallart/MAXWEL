@@ -2,7 +2,7 @@ subroutine reader()
 use def_io
 use def_variables
 implicit none
-character*(1)::Z 
+character*(1)::Z,coma 
 character*(4):: elem_type
 character*(120):: textinput,option,complex_val
 integer :: leng,last,suma,kk,pasos_aux,j,npas,naux
@@ -39,15 +39,7 @@ do while(textinput /= 'end_data')
 				last=leng+1
 			endif
         enddo
-       last=0	 
-	   do while(last<leng)
-			last=last+1
-			if(option(1:last)=='file mesh') then
-				read(option(last+1:leng),'(a20)') file_mesh
-				last=leng+1
-			endif
-       enddo
-        last=0	 
+       last=0	  
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='tol_solver') then
@@ -128,12 +120,12 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='elem_type') then
-				read(option(last+1:leng),'(a3)') elem_type
+				read(option(last+1:leng),'(a4)') elem_type
 				last=leng+1
             endif
-            if (elem_type=='lin ') then
+            if (elem_type=='line') then
                 nodpel=3
-            else if (elem_type=='quad ') then
+            else if (elem_type=='quad') then
                 nodpel=6
             endif
                 
@@ -181,7 +173,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='conductivity') then
-				read(option(last+1:leng),'(f2.0)') cond
+				read(option(last+1:leng),'(f3.0)') cond
 				last=leng+1
 			endif
        enddo
@@ -190,7 +182,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_xx') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') epsilon_scat_xx%re,epsilon_scat_xx%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_xx%re,coma,epsilon_scat_xx%im
 				last=leng+1
 			endif
        enddo
@@ -198,7 +190,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_yy') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') epsilon_scat_yy%re,epsilon_scat_yy%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_yy%re,coma,epsilon_scat_yy%im
 				last=leng+1
 			endif
        enddo
@@ -206,7 +198,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_zz') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') epsilon_scat_zz%re,epsilon_scat_zz%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_zz%re,coma,epsilon_scat_zz%im
 				last=leng+1
 			endif
        enddo
@@ -214,7 +206,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_xy') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') epsilon_scat_xy%re,epsilon_scat_xy%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_xy%re,coma,epsilon_scat_xy%im
 				last=leng+1
 			endif
        enddo
@@ -222,7 +214,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_yx') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') epsilon_scat_yx%re,epsilon_scat_yx%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_yx%re,coma,epsilon_scat_yx%im
 				last=leng+1
 			endif
        enddo
@@ -231,7 +223,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='mu_xx') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') mu_scat_xx%re,mu_scat_xx%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_xx%re,coma,mu_scat_xx%im
 				last=leng+1
 			endif
        enddo
@@ -239,7 +231,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='mu_yy') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') mu_scat_yy%re,mu_scat_yy%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_yy%re,coma,mu_scat_yy%im
 				last=leng+1
 			endif
        enddo
@@ -247,7 +239,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='mu_zz') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') mu_scat_zz%re,mu_scat_zz%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_zz%re,coma,mu_scat_zz%im
 				last=leng+1
 			endif
        enddo
@@ -255,7 +247,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='mu_xy') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') mu_scat_xy%re,mu_scat_xy%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_xy%re,coma,mu_scat_xy%im
 				last=leng+1
 			endif
        enddo
@@ -263,7 +255,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='mu_yx') then
-				read(option(last+2:leng-1),'(f2.0,f2.0)') mu_scat_yx%re,mu_scat_yx%im
+				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_yx%re,coma,mu_scat_yx%im
 				last=leng+1
 			endif
        enddo

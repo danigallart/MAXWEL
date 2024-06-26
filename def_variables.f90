@@ -3,7 +3,6 @@ module def_variables
 	implicit none
     
     character(10) :: problem                                                                        !For future implementations where there are more than one available problem to solve
-    character(20) :: file_mesh = ''                                                                 !Name of the file where the mesh is stored
     character(4)  :: reader_type = 'read'
 
     !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
