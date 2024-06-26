@@ -14,13 +14,14 @@ complex*16, allocatable :: AE(:,:)
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 
-Ngauss = 3
+Ngauss = 4
 n_species = 3
 
 
-allocate(JACOB(ndim,ndim),INVJACOB(ndim,ndim))
-allocate(PHI(Ngauss,nodpel), DPHI(ndim, nodpel))
-allocate(DPHIX(nodpel),DPHIY(nodpel))
+allocate(JACOB(ndim,ndim,Ngauss),INVJACOB(ndim,ndim,Ngauss))
+allocate(DETJACOB(Ngauss))
+allocate(PHI(nodpel,Ngauss), DPHI(ndim, nodpel, Ngauss))
+allocate(DPHIX(nodpel,Ngauss),DPHIY(nodpel,Ngauss))
 allocate(omg_plasma_species(n_species),omg_cyclotron_species(n_species), &
          mass_species(n_species), charge_species(n_species))
 allocate(density_species(n_species,NE), mag_field(NE))
@@ -48,14 +49,13 @@ do kk=1,NE
         local_coords(2,i) = complex_coory(ns(i))
     enddo
     
-    rel_permeability_xx = cmplx(1.0,0.0)
-    rel_permeability_xy = cmplx(0.0,0.0)
-    rel_permeability_yx = cmplx(0.0,0.0)
-    rel_permeability_yy = cmplx(1.0,0.0)
-    rel_permeability_zz = cmplx(1.0,0.0)
-    
-    
     if (material(kk) == 1) then
+        
+        rel_permitivity_xx = mu_scat_xx
+        rel_permitivity_yy = mu_scat_yy
+        rel_permitivity_zz = mu_scat_zz
+        rel_permitivity_xy = mu_scat_xy
+        rel_permitivity_yx = mu_scat_yx
         
         if (plasma == 1) then
             
@@ -90,16 +90,14 @@ do kk=1,NE
             
             
         else
-            
-            cond = 0.0
-            
+                                    
             im_rel = -cond/(omg*e0)
         
-            rel_permitivity_xx = cmplx(9.0,im_rel)
-            rel_permitivity_yy = cmplx(4.0,im_rel)
-            rel_permitivity_zz = cmplx(2.0,im_rel)
-            rel_permitivity_xy = cmplx(0.0,im_rel)
-            rel_permitivity_yx = cmplx(0.0,im_rel)
+            rel_permitivity_xx = epsilon_scat_xx + ij * im_rel
+            rel_permitivity_yy = epsilon_scat_yy + ij * im_rel
+            rel_permitivity_zz = epsilon_scat_zz + ij * im_rel
+            rel_permitivity_xy = epsilon_scat_xy + ij * im_rel
+            rel_permitivity_yx = epsilon_scat_yx + ij * im_rel
             
         endif
         
@@ -112,13 +110,15 @@ do kk=1,NE
             rel_permitivity_xy = cmplx(0.0,0.0)
             rel_permitivity_yx = cmplx(0.0,0.0)
             
+            rel_permeability_xx = cmplx(1.0,0.0)
+            rel_permeability_yy = cmplx(1.0,0.0)
+            rel_permeability_zz = cmplx(1.0,0.0)
+            rel_permeability_xy = cmplx(0.0,0.0)
+            rel_permeability_yx = cmplx(0.0,0.0)
+            
     endif
     
     call shape_gauss(local_coords(1,:),local_coords(2,:),PHI,DPHI,JACOB,INVJACOB,DETJACOB,DPHIX,DPHIY,Ngauss,nodpel,ndim)
-    
-    if (abs(DETJACOB) <= 0.0) then
-       print*, 'WARNING: |J| <= 0 for element number ', kk
-    endif
     
     if (pol == 'TM') then
         determinant = rel_permeability_xx * rel_permeability_yy - rel_permeability_xy * rel_permeability_yx
@@ -180,15 +180,15 @@ integer :: Ngauss,nodpel,ndim
 complex*16 :: xcoord_e(nodpel),ycoord_e(nodpel)
 
 !Output variables
-double precision, intent(out) :: phi(Ngauss,nodpel), dphi(ndim,nodpel)
-complex*16, intent(out) :: jacob(ndim,ndim),invjacob(ndim,ndim)
-complex*16, intent(out) :: detjacob
-complex*16, intent(out) :: dphix(nodpel),dphiy(nodpel)
+double precision, intent(out) :: phi(nodpel,Ngauss), dphi(ndim,nodpel,Ngauss)
+complex*16, intent(out) :: jacob(ndim,ndim,Ngauss),invjacob(ndim,ndim,Ngauss)
+complex*16, intent(out) :: detjacob(Ngauss)
+complex*16, intent(out) :: dphix(nodpel,Ngauss),dphiy(nodpel,Ngauss)
 
 
 
 !Local variables
-integer :: kgauss
+integer :: kgauss, ii
 double precision :: ksi, eta
 double precision, allocatable :: gauss_pt_ksi(:), gauss_pt_eta(:), gauss_wt(:)
 
@@ -196,55 +196,122 @@ double precision, allocatable :: gauss_pt_ksi(:), gauss_pt_eta(:), gauss_wt(:)
 !Allocate local variables
 allocate(gauss_pt_ksi(Ngauss),gauss_pt_eta(Ngauss), gauss_wt(Ngauss))
 
-gauss_pt_ksi = (/0.5,0.0,0.5/)
-gauss_pt_eta = (/0.0,0.5,0.5/)
-gauss_wt = 1.0/6.0
+if (Ngauss == 3) then
+    gauss_pt_ksi = (/0.5,0.0,0.5/)
+    gauss_pt_eta = (/0.0,0.5,0.5/)
+    gauss_wt = 1.0/6.0
 
-do kgauss=1, Ngauss
-ksi = gauss_pt_ksi(kgauss)
-eta = gauss_pt_eta(kgauss)
-
-phi(kgauss,1) = 1-ksi-eta
-phi(kgauss,2) = ksi
-phi(kgauss,3) = eta
-
-end do
-
-dphi(1,1) = -1.0
-dphi(2,1) = -1.0
-           
-dphi(1,2) = 1.0
-dphi(2,2) = 0.0
-           
-dphi(1,3) = 0.0
-dphi(2,3) = 1.0
-
-jacob(1,1) = xcoord_e(2)-xcoord_e(1)
-jacob(1,2) = ycoord_e(2)-ycoord_e(1)
-jacob(2,1) = xcoord_e(3)-xcoord_e(1)
-jacob(2,2) = ycoord_e(3)-ycoord_e(1)
-
-detjacob = jacob(1,1)*jacob(2,2)-jacob(1,2)*jacob(2,1)
-
-if (abs(detjacob) <= 0.0) then
-       print*, 'WARNING: |J| <= 0'
+else if (Ngauss == 4) then
+    gauss_pt_ksi = (/ (1./3.), 0.6, 0.2, 0.2/)
+    gauss_pt_eta = (/ (1./3.), 0.2, 0.6, 0.2/)
+    gauss_wt = (/ -(27./96.), (25./96.), (25./96.), (25./96.)/)
 endif
 
-invjacob(1,1) = ycoord_e(3)-ycoord_e(1)
-invjacob(1,2) = -(ycoord_e(2)-ycoord_e(1))
-invjacob(2,1) = -(xcoord_e(3)-xcoord_e(1))
-invjacob(2,2) = xcoord_e(2)-xcoord_e(1)
 
-invjacob = invjacob/detjacob
+if (nodpel == 3) then
 
-dphix(1) = INVJACOB(1,1) * dphi(1,1) + INVJACOB(1,2) * dphi(2,1)
-dphix(2) = INVJACOB(1,1) * dphi(1,2) + INVJACOB(1,2) * dphi(2,2)
-dphix(3) = INVJACOB(1,1) * dphi(1,3) + INVJACOB(1,2) * dphi(2,3)
+    do kgauss=1, Ngauss
+        ksi = gauss_pt_ksi(kgauss)
+        eta = gauss_pt_eta(kgauss)
 
-dphiy(1) = INVJACOB(2,1) * dphi(1,1) + INVJACOB(2,2) * dphi(2,1)
-dphiy(2) = INVJACOB(2,1) * dphi(1,2) + INVJACOB(2,2) * dphi(2,2)
-dphiy(3) = INVJACOB(2,1) * dphi(1,3) + INVJACOB(2,2) * dphi(2,3)
+        phi(1,kgauss) = 1-ksi-eta
+        phi(2,kgauss) = ksi
+        phi(3,kgauss) = eta
 
+        dphi(1,1,kgauss) = -1.0
+        dphi(2,1,kgauss) = -1.0
+           
+        dphi(1,2,kgauss) = 1.0
+        dphi(2,2,kgauss) = 0.0
+           
+        dphi(1,3,kgauss) = 0.0
+        dphi(2,3,kgauss) = 1.0
+
+        jacob(1,1,kgauss) = xcoord_e(2)-xcoord_e(1)
+        jacob(1,2,kgauss) = ycoord_e(2)-ycoord_e(1)
+        jacob(2,1,kgauss) = xcoord_e(3)-xcoord_e(1)
+        jacob(2,2,kgauss) = ycoord_e(3)-ycoord_e(1)
+
+        detjacob(kgauss) = jacob(1,1,kgauss)*jacob(2,2,kgauss)-jacob(1,2,kgauss)*jacob(2,1,kgauss)
+
+        invjacob(1,1,kgauss) = (ycoord_e(3)-ycoord_e(1))/detjacob(kgauss)
+        invjacob(1,2,kgauss) = -(ycoord_e(2)-ycoord_e(1))/detjacob(kgauss)
+        invjacob(2,1,kgauss) = -(xcoord_e(3)-xcoord_e(1))/detjacob(kgauss)
+        invjacob(2,2,kgauss) = (xcoord_e(2)-xcoord_e(1))/detjacob(kgauss)
+        
+        do ii=1,nodpel
+            dphix(ii,kgauss) = invjacob(1,1,kgauss) * dphi(1,ii,kgauss) + invjacob(1,2,kgauss) * dphi(2,ii,kgauss)
+            dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
+        enddo
+        
+        if (detjacob(kgauss)%re <= 0.0) then
+            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+        endif
+    
+    end do
+    
+else if (nodpel == 6) then
+    
+    do kgauss=1, Ngauss
+        ksi = gauss_pt_ksi(kgauss)
+        eta = gauss_pt_eta(kgauss)
+
+        phi(1,kgauss) = (1-ksi-eta)*(1-2*ksi-2*eta)
+        phi(2,kgauss) = ksi*(2*ksi-1)
+        phi(3,kgauss) = eta*(2*eta-1)
+        phi(4,kgauss) = (1-ksi-eta)*4*ksi
+        phi(5,kgauss) = 4*ksi*eta
+        phi(6,kgauss) = 4*eta*(1-ksi-eta)
+        
+        dphi(1,1,kgauss) = -3 + 4*ksi + 4*eta
+        dphi(2,1,kgauss) = -3 + 4*ksi + 4*eta
+        
+        dphi(1,2,kgauss) = 4*ksi - 1
+        dphi(2,2,kgauss) = 0.0
+                
+        dphi(1,3,kgauss) = 0.0
+        dphi(2,3,kgauss) = 4*eta - 1
+        
+        dphi(1,4,kgauss) = 4*(1-2*ksi-eta)
+        dphi(2,4,kgauss) = -4*ksi
+        
+        dphi(1,5,kgauss) = 4*eta
+        dphi(2,5,kgauss) = 4*ksi
+        
+        dphi(1,6,kgauss) = -4*eta
+        dphi(2,6,kgauss) = 4*(1-ksi-2*eta)
+
+        jacob(1,1,kgauss) = cmplx(0.0,0.0)      
+        jacob(1,2,kgauss) = cmplx(0.0,0.0)      
+        jacob(2,1,kgauss) = cmplx(0.0,0.0)      
+        jacob(2,2,kgauss) = cmplx(0.0,0.0)
+        
+        do ii = 1,nodpel
+            jacob(1,1,kgauss) = jacob(1,1,kgauss) + xcoord_e(ii)*dphi(1,ii,kgauss)
+            jacob(1,2,kgauss) = jacob(1,2,kgauss) + ycoord_e(ii)*dphi(1,ii,kgauss)
+            jacob(2,1,kgauss) = jacob(2,1,kgauss) + xcoord_e(ii)*dphi(2,ii,kgauss)
+            jacob(2,2,kgauss) = jacob(2,2,kgauss) + ycoord_e(ii)*dphi(2,ii,kgauss)
+        enddo
+        
+        detjacob(kgauss) = jacob(1,1,kgauss)*jacob(2,2,kgauss)-jacob(1,2,kgauss)*jacob(2,1,kgauss)
+        
+        invjacob(1,1,kgauss) = jacob(2,2,kgauss)/detjacob(kgauss)      
+        invjacob(1,2,kgauss) = -jacob(1,2,kgauss)/detjacob(kgauss)      
+        invjacob(2,1,kgauss) = -jacob(2,1,kgauss)/detjacob(kgauss)      
+        invjacob(2,2,kgauss) = jacob(1,1,kgauss)/detjacob(kgauss)
+        
+        do ii = 1,nodpel
+            dphix(ii,kgauss) = invjacob(1,1,kgauss) * dphi(1,ii,kgauss) + invjacob(1,2,kgauss) * dphi(2,ii,kgauss)
+            dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
+        enddo
+        
+        if (detjacob(kgauss)%re <= 0.0) then
+            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+        endif
+
+    end do
+
+endif
 
     end subroutine shape_gauss
     
@@ -256,9 +323,10 @@ subroutine element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Nga
     
 
 !Input variables
-double precision :: PHI(Ngauss,nodpel)
+double precision :: PHI(nodpel,Ngauss)
+complex*16 :: DPHIX(nodpel,Ngauss), DPHIY(nodpel,Ngauss)
 complex*16 :: pxxe,pyye,pxye,pyxe,qe
-complex*16 :: DETJACOB, dphix(nodpel), dphiy(nodpel)
+complex*16 :: DETJACOB(Ngauss)
 
 !Output varaibles
 complex*16 :: AE(nodpel,nodpel)
@@ -267,30 +335,37 @@ complex*16 :: AE(nodpel,nodpel)
 complex*16, allocatable :: AE1(:,:), AE2(:,:)
 integer :: i,j,k
 double precision, allocatable :: gauss_wt(:)
-complex*16 :: gauss_sum
+complex*16 :: gauss_sum1, gauss_sum2
 
 allocate(AE1(nodpel,nodpel), AE2(nodpel,nodpel),gauss_wt(Ngauss))
 
-gauss_wt = 1.0/6.0
+if (Ngauss == 3) then
+    gauss_wt = 1.0/6.0
+else if (Ngauss == 4) then
+    gauss_wt = (/ -(27./96.), (25./96.), (25./96.), (25./96.)/)
+endif
+
 AE1 = cmplx(0.0,0.0)
 AE2 = cmplx(0.0,0.0)
 
 
 do i=1,nodpel
     do j=1,nodpel
-        gauss_sum = cmplx(0.0,0.0)
-
-        AE1(i,j) = ((dphix(i)*pxxe + dphiy(i)*pxye) * dphix(j) + (dphix(i)*pyxe + dphiy(i)*pyye) * dphiy(j))*DETJACOB/2
-        
-        AE1(j,i) = AE1(i,j)
+        gauss_sum1 = cmplx(0.0,0.0)
+        gauss_sum2 = cmplx(0.0,0.0)
         
         do k=1,Ngauss
-            
-        gauss_sum = gauss_sum + gauss_wt(k)*qe*PHI(k,i)*PHI(k,j)*DETJACOB
+
+            gauss_sum1 = gauss_sum1 + gauss_wt(k)*((dphix(i,k)*pxxe + dphiy(i,k)*pxye) * dphix(j,k) + (dphix(i,k)*pyxe + dphiy(i,k)*pyye) * dphiy(j,k))*DETJACOB(k)
+        
+            gauss_sum2 = gauss_sum2 + gauss_wt(k)*qe*PHI(i,k)*PHI(j,k)*DETJACOB(k)
         
         end do
         
-        AE2(i,j) = gauss_sum
+        AE1(i,j) = gauss_sum1
+        AE1(j,i) = AE1(i,j)
+
+        AE2(i,j) = gauss_sum2
         AE2(j,i) = AE2(i,j)
         
     end do
@@ -321,7 +396,7 @@ density(n_species-2) = (1-0.01*radius_element**2)**1.5
 density(n_species-1) = fraction * density(n_species-2)
 density(n_species) = (1-fraction) * density(n_species-2)
 
-density = density * 2e6
+density = density * 5e5
     
 end subroutine density_calculation
 

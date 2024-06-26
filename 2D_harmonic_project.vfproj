@@ -65,6 +65,7 @@
 		<File RelativePath=".\initialise.f90"/>
 		<File RelativePath=".\mesh_reader.f90"/>
 		<File RelativePath=".\mesh_reader_tokamak.f90"/>
+		<File RelativePath=".\open_files.f90"/>
 		<File RelativePath=".\postprocessing.f90"/>
 		<File RelativePath=".\read_solution.f90"/>
 		<File RelativePath=".\reader.f90"/>

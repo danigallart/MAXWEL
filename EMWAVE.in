@@ -1,6 +1,6 @@
 problem: helmholzt
 
-tol_solver = 1e-12
+tol_solver = 1e-10
 
 iter_solver = 30000000
 
@@ -10,14 +10,36 @@ phii = 0.0
 
 pol:TE
 
-r_scat = 1.0						#Ratio with lambda0
+r_scat = 1.0						# Ratio with lambda0
 
 boundary_tol = 1e-6
 
-plasma:0
-
 deuterium_frac = 0.5
 
+mesh_reader: read					# toka
+
+elem_type: quad						# line	quad
+
+mesh_file = quad_mesh_file.dat				# mesh_file.dat		line_mesh_file.dat 	quad_mesh_file.dat 
+
 read_logic:Y
+
+logic_file = quad_sparse_logic.dat			# sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
+
+plasma:0
+
+conductivity = 0.0
+
+epsilon_xx = (9.0,0.0)
+epsilon_yy = (4.0,0.0)
+epsilon_zz = (2.0,0.0)
+epsilon_xy = (0.0,0.0)
+epsilon_yx = (0.0,0.0)
+
+mu_xx = (1.0,0.0)
+mu_yy = (1.0,0.0)
+mu_zz = (1.0,0.0)
+mu_xy = (0.0,0.0)
+mu_yx = (0.0,0.0)
 
 end_data

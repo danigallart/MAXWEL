@@ -26,6 +26,8 @@
         CALL initialise()
         
         CALL reader()
+        
+        CALL open_files()
 
     ! Convert frequency from MHz to Hz
     freq_hz = freq * 1e6
@@ -36,9 +38,9 @@
     omg = 2.0 * pi * freq_hz
         
         print*, "Mesh reader"
-        if (.TRUE.) then
+        if (reader_type == 'read') then
             CALL mesh_reader()
-        else
+        elseif (reader_type == 'toka') then
             CALL mesh_reader_tokamak()
         endif
         

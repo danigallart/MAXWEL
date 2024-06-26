@@ -6,7 +6,7 @@ subroutine derivatives
     
     implicit none
     
-    integer :: ii,kk,i
+    integer :: ii,kk,i,j,k
     complex*16 :: DSOLX, DSOLY
     complex*16 :: inv_tensor_xx,inv_tensor_xy, &
                   inv_tensor_yx,inv_tensor_yy
@@ -42,30 +42,65 @@ subroutine derivatives
             
             i = conn(kk,ii)                   
             
-            DSOLX = DSOLX + u_tot(i)*DPHIX(ii)
-            DSOLY = DSOLY + u_tot(i)*DPHIY(ii)
+            do k = 1, Ngauss
+            DSOLX = DSOLX + u_tot(i)*DPHIX(ii,k)/(Ngauss*Ngauss)
+            DSOLY = DSOLY + u_tot(i)*DPHIY(ii,k)/(Ngauss*Ngauss)
+            enddo
             
             !DSOLX = DSOLX + u_scat(i)*DPHIX(ii)/(nodpel*nodpel)
             !DSOLY = DSOLY + u_scat(i)*DPHIY(ii)/(nodpel*nodpel)
         enddo
         
-            rel_permeability_xx = cmplx(1.0,0.0)
-            rel_permeability_yy = cmplx(1.0,0.0)
-            rel_permeability_zz = cmplx(1.0,0.0)
-            rel_permeability_xy = cmplx(0.0,0.0)
-            rel_permeability_yx = cmplx(0.0,0.0)
-        
-        if (material(kk) == 1) then !Falta Plasma
+        if (material(kk) == 1) then
             
-            cond = 0.0
+            rel_permeability_xx = mu_scat_xx
+            rel_permeability_yy = mu_scat_yy
+            rel_permeability_zz = mu_scat_zz
+            rel_permeability_xy = mu_scat_xy
+            rel_permeability_yx = mu_scat_yx
             
+            if (plasma == 1) then
+              
+            rel_permitivity_xx = cmplx(0.0,0.0)
+            rel_permitivity_yy = cmplx(0.0,0.0)
+            rel_permitivity_zz = cmplx(0.0,0.0)
+            rel_permitivity_xy = cmplx(0.0,0.0)
+            rel_permitivity_yx = cmplx(0.0,0.0)
+            
+            call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),density_species(:,kk),nodpel,n_species)
+            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),mag_field(kk),mag_field0,nodpel)
+            
+            do j = 1,n_species
+                
+                omg_plasma_species(j) = ( density_species(j,kk) * (charge_species(j) * e_charge)**2 ) / ( e0 * mass_species(j) )
+                
+                omg_cyclotron_species(j) = ( mag_field(kk) * charge_species(j) * e_charge ) / mass_species(j)
+                
+                rel_permitivity_xx = rel_permitivity_xx + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
+                rel_permitivity_yy = rel_permitivity_yy + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
+                rel_permitivity_xy = rel_permitivity_xy + ( omg_cyclotron_species(j) * omg_plasma_species(j)**2)/(omg * (omg**2 - omg_cyclotron_species(j)**2))
+                rel_permitivity_yx = -rel_permitivity_xy
+                rel_permitivity_zz = rel_permitivity_zz + ( omg_plasma_species(j)**2 ) / (omg**2)
+                
+            enddo
+
+            rel_permitivity_xx = 1 - rel_permitivity_xx
+            rel_permitivity_yy = 1 - rel_permitivity_yy
+            rel_permitivity_zz = 1 - rel_permitivity_zz
+            rel_permitivity_xy = -ij * rel_permitivity_xy
+            rel_permitivity_yx = -ij * rel_permitivity_yx
+                
+            else
+                        
             im_rel = -cond/(omg*e0)
         
-            rel_permitivity_xx = cmplx(9.0,im_rel)
-            rel_permitivity_yy = cmplx(4.0,im_rel)
-            rel_permitivity_zz = cmplx(2.0,im_rel)
-            rel_permitivity_xy = cmplx(0.0,im_rel)
-            rel_permitivity_yx = cmplx(0.0,im_rel)
+            rel_permitivity_xx = epsilon_scat_xx + ij * im_rel
+            rel_permitivity_yy = epsilon_scat_yy + ij * im_rel
+            rel_permitivity_zz = epsilon_scat_zz + ij * im_rel
+            rel_permitivity_xy = epsilon_scat_xy + ij * im_rel
+            rel_permitivity_yx = epsilon_scat_yx + ij * im_rel
+
+            endif
             
         else
             
@@ -73,7 +108,13 @@ subroutine derivatives
             rel_permitivity_yy = cmplx(1.0,0.0)
             rel_permitivity_zz = cmplx(1.0,0.0)
             rel_permitivity_xy = cmplx(0.0,0.0)
-            rel_permitivity_yx = cmplx(0.0,0.0)  
+            rel_permitivity_yx = cmplx(0.0,0.0)
+            
+            rel_permeability_xx = cmplx(1.0,0.0)
+            rel_permeability_yy = cmplx(1.0,0.0)
+            rel_permeability_zz = cmplx(1.0,0.0)
+            rel_permeability_xy = cmplx(0.0,0.0)
+            rel_permeability_yx = cmplx(0.0,0.0)
             
         endif
         
@@ -102,24 +143,27 @@ subroutine derivatives
             plane_field_y(kk) = (inv_tensor_yx*DSOLY - inv_tensor_yy*DSOLX)/(ij*omg*e0)
     
         endif
-        
-        r = sqrt(coorx_mid(kk)**2 + coory_mid(kk)**2)
-         
-        if ((r < rpmlin * max_tol) .and. (r > rpmlin * min_tol)) then
-        
-            plane_field_x(kk) = cmplx(0.0,0.0)
-            plane_field_y(kk) = cmplx(0.0,0.0)
-        
-        endif
-        
-        !if (material(kk) == 3) then
-        !    
+    enddo
+        !r = sqrt(coorx_mid(kk)**2 + coory_mid(kk)**2)
+        ! 
+        !if ((r < rpmlin * max_tol) .and. (r > rpmlin * min_tol)) then
+        !
         !    plane_field_x(kk) = cmplx(0.0,0.0)
         !    plane_field_y(kk) = cmplx(0.0,0.0)
         !
         !endif
-        
-    enddo
+        !
+        do kk = 1,NE
+            if (material(kk) == 3) then
+                do ii = 1, nodpel
+                    i = conn(kk,ii)
+                    u_tot(i) = cmplx(0.0,0.0)
+                enddo
+                
+                plane_field_x(kk) = cmplx(0.0,0.0)
+                plane_field_y(kk) = cmplx(0.0,0.0)
+            endif
+        enddo
        
     
     end subroutine derivatives
