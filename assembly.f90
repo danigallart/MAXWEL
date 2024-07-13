@@ -51,11 +51,11 @@ do kk=1,NE
     
     if (material(kk) == 1) then
         
-        rel_permitivity_xx = mu_scat_xx
-        rel_permitivity_yy = mu_scat_yy
-        rel_permitivity_zz = mu_scat_zz
-        rel_permitivity_xy = mu_scat_xy
-        rel_permitivity_yx = mu_scat_yx
+        rel_permeability_xx = mu_scat_xx
+        rel_permeability_yy = mu_scat_yy
+        rel_permeability_zz = mu_scat_zz
+        rel_permeability_xy = mu_scat_xy
+        rel_permeability_yx = mu_scat_yx
         
         if (plasma == 1) then
             
@@ -137,9 +137,7 @@ do kk=1,NE
     endif
     
     
-    call element_matrix(PHI,DPHIX,DPHIY,DETJACOB, &
-        pxxe,pyye,pxye,pyxe,qe, &
-        AE,Ngauss,nodpel,ndim)
+    call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel,ndim)
     
     
     do i=1, nodpel

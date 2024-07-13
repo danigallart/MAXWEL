@@ -2,7 +2,7 @@ subroutine reader()
 use def_io
 use def_variables
 implicit none
-character*(1)::Z,coma 
+character*(1)::Z 
 character*(4):: elem_type
 character*(120):: textinput,option,complex_val
 integer :: leng,last,suma,kk,pasos_aux,j,npas,naux
@@ -181,40 +181,40 @@ do while(textinput /= 'end_data')
         last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='epsilon_xx') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_xx%re,coma,epsilon_scat_xx%im
+			if(option(1:last)=='epsilon_xx_re') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_xx%re
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='epsilon_yy') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_yy%re,coma,epsilon_scat_yy%im
+			if(option(1:last)=='epsilon_yy_re') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_yy%re
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='epsilon_zz') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_zz%re,coma,epsilon_scat_zz%im
+			if(option(1:last)=='epsilon_zz_re') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_zz%re
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='epsilon_xy') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_xy%re,coma,epsilon_scat_xy%im
+			if(option(1:last)=='epsilon_xy_re') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_xy%re
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='epsilon_yx') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') epsilon_scat_yx%re,coma,epsilon_scat_yx%im
+			if(option(1:last)=='epsilon_yx_re') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_yx%re
 				last=leng+1
 			endif
        enddo
@@ -222,40 +222,121 @@ do while(textinput /= 'end_data')
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='mu_xx') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_xx%re,coma,mu_scat_xx%im
+			if(option(1:last)=='epsilon_xx_im') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_xx%im
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='mu_yy') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_yy%re,coma,mu_scat_yy%im
+			if(option(1:last)=='epsilon_yy_im') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_yy%im
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='mu_zz') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_zz%re,coma,mu_scat_zz%im
+			if(option(1:last)=='epsilon_zz_im') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_zz%im
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='mu_xy') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_xy%re,coma,mu_scat_xy%im
+			if(option(1:last)=='epsilon_xy_im') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_xy%im
 				last=leng+1
 			endif
        enddo
                last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='mu_yx') then
-				read(option(last+2:leng-1),'(f3.0,a1,f3.0)') mu_scat_yx%re,coma,mu_scat_yx%im
+			if(option(1:last)=='epsilon_yx_im') then
+				read(option(last+1:leng),'(f5.0)') epsilon_scat_yx%im
+				last=leng+1
+			endif
+       enddo
+       
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_xx_re') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_xx%re
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_yy_re') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_yy%re
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_zz_re') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_zz%re
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_xy_re') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_xy%re
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_yx_re') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_yx%re
+				last=leng+1
+			endif
+       enddo
+                    last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_xx_im') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_xx%im
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_yy_im') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_yy%im
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_zz_im') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_zz%im
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_xy_im') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_xy%im
+				last=leng+1
+			endif
+       enddo
+               last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mu_yx_im') then
+				read(option(last+1:leng),'(f5.0)') mu_scat_yx%im
 				last=leng+1
 			endif
        enddo
