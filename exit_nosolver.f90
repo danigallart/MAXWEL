@@ -38,7 +38,15 @@ write(stiff_matrix_unit,*) indep_vect(ii)
 enddo
 
 do ii=1,NE
-    write(connectivity_unit,*) conn(ii,1),tab,conn(ii,2),tab,conn(ii,3)
+    if (nodpel == 3) then
+        write(connectivity_unit,*) conn(ii,1),tab,conn(ii,2),tab,conn(ii,3)
+    else if (nodpel == 4) then
+        write(connectivity_unit,*) conn(ii,1),tab,conn(ii,2),tab,conn(ii,3),tab,conn(ii,4)
+    else if (nodpel == 6) then
+        write(connectivity_unit,*) conn(ii,1),tab,conn(ii,2),tab,conn(ii,3),tab,conn(ii,4),tab,conn(ii,5),tab,conn(ii,6)
+    else if (nodpel == 8) then
+        write(connectivity_unit,*) conn(ii,1),tab,conn(ii,2),tab,conn(ii,3),tab,conn(ii,4),tab,conn(ii,5),tab,conn(ii,6),tab,conn(ii,7),tab,conn(ii,8)
+    end if
 enddo
   
   

@@ -4,7 +4,7 @@ module def_variables
     
     character(10) :: problem                                                                        !For future implementations where there are more than one available problem to solve
     character(4)  :: reader_type = 'read'
-
+    
     !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
     integer :: ndim = 2                                                                             !Number of physical dimensions
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
@@ -75,7 +75,8 @@ module def_variables
     real(kind=8) :: phii                                                                            ! rad, angle of incident field
     real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
     character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
-    character(len=1) :: read_logic
+    character(len=1) :: read_logic                                                                  ! Reads logic (AD,AN), yes or no
+    character(len=1) :: system_sym                                                                  ! Asumes symmetric system, yes or no
     
     integer :: plasma                                                                               !Plasma flag
     integer :: n_species

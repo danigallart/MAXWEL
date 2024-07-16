@@ -14,7 +14,7 @@ complex*16, allocatable :: AE(:,:)
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 
-Ngauss = 4
+!Ngauss = 4
 n_species = 3
 
 
@@ -141,24 +141,18 @@ do kk=1,NE
     
     
     do i=1, nodpel
-    AD(ns(i)) = AD(ns(i)) + AE(i,i)
-    do j=1, nodpel
-        do IAUX = 1,ICX(ns(i))
-            KEJE = IA(ns(i))+IAUX-1
-            if (JA(KEJE) == ns(j)) then
-                AN(KEJE) = AN(KEJE) + AE(i,j)
-            endif
+        AD(ns(i)) = AD(ns(i)) + AE(i,i)
+        do j=1, nodpel
+            do IAUX = 1,ICX(ns(i))
+                KEJE = IA(ns(i))+IAUX-1
+                if (JA(KEJE) == ns(j)) then
+                    AN(KEJE) = AN(KEJE) + AE(i,j)
+                endif
+            enddo
         enddo
-        
-    end do
     enddo
     
-end do
-
-! Compute elements
-
-
-
+enddo
 
 
 END SUBROUTINE assembly
@@ -242,9 +236,9 @@ if (nodpel == 3) then
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
         
-        if (detjacob(kgauss)%re <= 0.0) then
-            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
-        endif
+!        if (detjacob(kgauss)%re <= 0.0) then
+!            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+!        endif
     
     end do
     
@@ -361,11 +355,11 @@ do i=1,nodpel
         end do
         
         AE1(i,j) = gauss_sum1
-        AE1(j,i) = AE1(i,j)
+        !AE1(j,i) = AE1(i,j)
 
         AE2(i,j) = gauss_sum2
-        AE2(j,i) = AE2(i,j)
-        
+        !AE2(j,i) = AE2(i,j)
+                
     end do
 end do
 

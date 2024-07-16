@@ -3,7 +3,7 @@ use def_io
 use def_variables
 implicit none
 character*(1)::Z 
-character*(4):: elem_type
+character*(4):: elem_type, elem_shape
 character*(120):: textinput,option,complex_val
 integer :: leng,last,suma,kk,pasos_aux,j,npas,naux
 double precision :: pas
@@ -123,13 +123,30 @@ do while(textinput /= 'end_data')
 				read(option(last+1:leng),'(a4)') elem_type
 				last=leng+1
             endif
-            if (elem_type=='line') then
+       enddo
+       
+       		last=0
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='elem_shape') then
+				read(option(last+1:leng),'(a4)') elem_shape
+				last=leng+1
+            endif              
+       enddo
+       
+		if ((elem_type=='line') .and. elem_shape=='tria') then
                 nodpel=3
-            else if (elem_type=='quad') then
+                Ngauss=3
+        else if ((elem_type=='quad') .and. elem_shape=='tria') then
                 nodpel=6
-            endif
-                
-        enddo
+                Ngauss=4
+        else if ((elem_type=='line') .and. elem_shape=='squa') then
+                nodpel=4
+                Ngauss=4
+        else if ((elem_type=='quad') .and. elem_shape=='squa') then
+                nodpel=8
+                Ngauss=4 
+        endif
 
 		last=0
 	   do while(last<leng)
@@ -146,6 +163,16 @@ do while(textinput /= 'end_data')
 			last=last+1
 			if(option(1:last)=='read_logic') then
 				read(option(last+1:leng),'(a1)') read_logic
+				last=leng+1
+			endif
+       enddo
+              
+		last=0
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='system_sym') then
+				read(option(last+1:leng),*) system_sym
+                system_sym = trim(adjustl(system_sym))
 				last=leng+1
 			endif
        enddo
