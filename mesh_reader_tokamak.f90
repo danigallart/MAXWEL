@@ -14,9 +14,7 @@ subroutine mesh_reader_tokamak
     
     character*(120) :: text_line
     character*(20) :: label
-    
-    nodpel = 3 !Nodpel could be read from files (element-wise) but it's not necessary since all elements have the same number of nodes
-    
+        
     !Extracting parameters (NE,NP,ndim) from mesh file
     
     do while(text_line /= 'END_DIMENSIONS') 
@@ -53,14 +51,43 @@ subroutine mesh_reader_tokamak
     read(mesh_geo_unit, '(a120)') text_line
     
     !Store connectivity matrix
-    
-    if ( trim(adjustl(text_line)) == 'ELEMENTS') then
-        read(mesh_geo_unit,'(A120)') text_line
-        do while(text_line /= 'END_ELEMENTS')
-            read(text_line,*) ii, conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+    if (nodpel == 3) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
             read(mesh_geo_unit,'(A120)') text_line
-            text_line = trim(adjustl(text_line))
-        enddo
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_geo_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
+    else if (nodpel == 4) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+            read(mesh_geo_unit,'(A120)') text_line
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-3), conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_geo_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
+    else if (nodpel == 6) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+            read(mesh_geo_unit,'(A120)') text_line
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-5), conn(ii,nodpel-4), conn(ii,nodpel-3), conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_geo_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
+    
+        else if (nodpel == 8) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+            read(mesh_geo_unit,'(A120)') text_line
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-7), conn(ii,nodpel-6), conn(ii,nodpel-5), conn(ii,nodpel-4), conn(ii,nodpel-3), conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_geo_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
     endif
     
     read(mesh_geo_unit, '(a120)') text_line

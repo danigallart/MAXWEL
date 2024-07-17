@@ -142,7 +142,7 @@ else if (read_logic == 'Y') then
         read(logic_unit,'(A120)') text_line
         text_line = trim(adjustl(text_line))
     do while(text_line /= 'END_COLUMNS')
-        read(text_line, '(i10,i10)') i,JA(i)
+        read(text_line, '(i8,i10)') i,JA(i)
         read(logic_unit,'(A120)') text_line
         text_line = trim(adjustl(text_line))
     enddo

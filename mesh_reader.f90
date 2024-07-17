@@ -53,7 +53,17 @@ subroutine mesh_reader
                 text_line = trim(adjustl(text_line))
             enddo
         endif
-        
+
+    else if (nodpel == 4) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+            read(mesh_unit,'(A120)') text_line
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-3), conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
+      
     else if (nodpel == 6) then
         if ( trim(adjustl(text_line)) == 'ELEMENTS') then
             read(mesh_unit,'(A120)') text_line
@@ -63,8 +73,17 @@ subroutine mesh_reader
                 text_line = trim(adjustl(text_line))
             enddo
         endif
+
+    else if (nodpel == 8) then
+        if ( trim(adjustl(text_line)) == 'ELEMENTS') then
+            read(mesh_unit,'(A120)') text_line
+            do while(text_line /= 'END_ELEMENTS')
+                read(text_line,*) ii, conn(ii,nodpel-7), conn(ii,nodpel-6), conn(ii,nodpel-5), conn(ii,nodpel-4), conn(ii,nodpel-3), conn(ii,nodpel-2), conn(ii,nodpel-1), conn(ii,nodpel)
+                read(mesh_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
     endif
-        
         
     !Store coordinates array
    
@@ -217,7 +236,7 @@ do ii=1,n
         nx = vx / l  ! Unit vector from r0 to r (x-comp)
         ny = vy / l  ! Unit vector from r0 to r (y-comp)
 
-        if (l < 1.0e-7) then
+        if (l < 1.0e-8) then
             xc(ii) = cmplx(x(ii),0.0)
             yc(ii) = cmplx(y(ii),0.0)
         else
