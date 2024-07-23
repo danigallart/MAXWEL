@@ -16,10 +16,11 @@ module def_io
     character*(300) ::  stiff_matrix_file = 'stiff_matrix.txt'
     character*(300) ::  connectivity_file = 'connectivity.txt'
     
-    character*(300) :: mesh_geometry = 'data/EqMesh_TRIA3_FINE.geo.dat'
-    character*(300) :: mesh_param = 'data/EqMesh_TRIA3_FINE.dom.dat'
-    character*(300) :: mesh_element = 'data/EqMesh_TRIA3_FINE.set.dat'
-    character*(300) :: mesh_boundary = 'data/EqMesh_TRIA3_FINE.fix.dat'
+    character*(300) :: mesh_geometry        ! = 'data/EqMesh_TRIA3_FINE.geo.dat'
+    character*(300) :: mesh_param           ! = 'data/EqMesh_TRIA3_FINE.dom.dat'
+    character*(300) :: mesh_element         ! = 'data/EqMesh_TRIA3_FINE.set.dat'
+    character*(300) :: mesh_boundary        ! = 'data/EqMesh_TRIA3_FINE.fix.dat'
+    character*(300) :: mesh_flux
 
     character*(300) :: logic_file = 'sparse_logic.dat'
 
@@ -39,6 +40,7 @@ module def_io
         mesh_param_unit = 12, &
         mesh_element_unit = 13, &
         mesh_boundary_unit = 14, &
-        logic_unit = 15
+        mesh_flux_unit = 15, &
+        logic_unit = 17
     
 end module def_io

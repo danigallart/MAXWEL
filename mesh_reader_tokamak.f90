@@ -37,6 +37,7 @@ subroutine mesh_reader_tokamak
     allocate(conn(NE,nodpel))
     allocate(coorx_mid(NE),coory_mid(NE))
     allocate(material(NE), boundary(NP))
+    allocate(norm_mag_flux_elements(NE), norm_mag_flux_nodes(NP))
     allocate(pml_flag(NP))
     
     boundary = 0
@@ -129,11 +130,24 @@ subroutine mesh_reader_tokamak
         text_line = trim(adjustl(text_line))
     enddo
     endif
+    
+    ! Store normalised magnetic flux array 
+    
+    read(mesh_flux_unit,'(A120)') text_line
+    if ( trim(adjustl(text_line)) == 'MAGNETIC_FLUX') then
+    read(mesh_flux_unit,'(A120)') text_line
+    do while(text_line /= 'END_MAGNETIC_FLUX')
+        read(text_line,*) ii, norm_mag_flux_nodes(ii)
+        read(mesh_flux_unit,'(A120)') text_line
+        text_line = trim(adjustl(text_line))
+    enddo
+    endif
 
     
     do ii=1,NE
         coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
         coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
+        norm_mag_flux_elements(ii) = sum(norm_mag_flux_nodes(conn(ii,:)))/size(norm_mag_flux_nodes(conn(ii,:)))
         if (material(ii) == 3) then
             do jj = 1, nodpel
                 node = conn(ii,jj)

@@ -61,14 +61,14 @@ subroutine derivatives
             
             if (plasma == 1) then
               
-            rel_permitivity_xx = cmplx(0.0,0.0)
-            rel_permitivity_yy = cmplx(0.0,0.0)
-            rel_permitivity_zz = cmplx(0.0,0.0)
-            rel_permitivity_xy = cmplx(0.0,0.0)
-            rel_permitivity_yx = cmplx(0.0,0.0)
+                rel_permitivity_xx = cmplx(0.0,0.0)
+                rel_permitivity_yy = cmplx(0.0,0.0)
+                rel_permitivity_zz = cmplx(0.0,0.0)
+                rel_permitivity_xy = cmplx(0.0,0.0)
+                rel_permitivity_yx = cmplx(0.0,0.0)
             
-            call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),density_species(:,kk),nodpel,n_species)
-            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),mag_field(kk),mag_field0,nodpel)
+                call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
+                call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),mag_field(kk),mag_field0,nodpel,magnetic_flag,elem_shape)
             
             do j = 1,n_species
                 

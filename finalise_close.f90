@@ -16,5 +16,6 @@ implicit none
     close(mesh_param_unit)
     close(mesh_element_unit)
     close(mesh_boundary_unit)    
+    close(mesh_flux_unit)    
 
 end subroutine finalise

@@ -3,7 +3,6 @@ use def_io
 use def_variables
 implicit none
 character*(1)::Z 
-character*(4):: elem_type, elem_shape
 character*(120):: textinput,option,complex_val
 integer :: leng,last,suma,kk,pasos_aux,j,npas,naux
 double precision :: pas
@@ -52,7 +51,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='iter_solver') then
-				read(option(last+1:leng),'(i6)') iter_solver
+				read(option(last+1:leng),'(i10)') iter_solver
 				last=leng+1
 			endif
        enddo
@@ -192,6 +191,42 @@ do while(textinput /= 'end_data')
 			last=last+1
 			if(option(1:last)=='plasma') then
 				read(option(last+1:leng),'(i1)') plasma
+				last=leng+1
+			endif
+       enddo
+       
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='ka') then
+				read(option(last+1:leng),'(f5.0)') ka
+				last=leng+1
+			endif
+       enddo
+       
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='aa') then
+				read(option(last+1:leng),'(f5.0)') aa
+				last=leng+1
+			endif
+       enddo
+       
+        last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='density_flag') then
+				read(option(last+1:leng),'(i1)') density_flag
+				last=leng+1
+			endif
+       enddo
+       
+        last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='magnetic_flag') then
+				read(option(last+1:leng),'(i1)') magnetic_flag
 				last=leng+1
 			endif
        enddo

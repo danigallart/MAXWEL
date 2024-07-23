@@ -4,6 +4,7 @@ module def_variables
     
     character(10) :: problem                                                                        !For future implementations where there are more than one available problem to solve
     character(4)  :: reader_type = 'read'
+    character*(4):: elem_type, elem_shape
     
     !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
     integer :: ndim = 2                                                                             !Number of physical dimensions
@@ -78,12 +79,13 @@ module def_variables
     character(len=1) :: read_logic                                                                  ! Reads logic (AD,AN), yes or no
     character(len=1) :: system_sym                                                                  ! Asumes symmetric system, yes or no
     
-    integer :: plasma                                                                               !Plasma flag
+    integer :: plasma, density_flag, magnetic_flag                                                  !Plasma flag
     integer :: n_species
     double precision :: plasma_freq1, plasma_freq2, plasma_freq3                                    !Plasma frequency for electrons, deuterons and tritons
     double precision :: cyclo_freq1, cyclo_freq2, cyclo_freq3                                       !Cyclotron frequency for electrons, deuterons and tritons
     double precision :: mass1, mass2, mass3                                                         !Mass for electrons, deuterons and tritons
     double precision :: deu_tri_frac                                                                !Fraction of deuterium, n_d/(n_d+n_t)
+    double precision :: ka,aa                                                                       !Parameters of density function
     
     double precision, parameter :: mag_field0 = 0.5                                                 ! Axial magnetic field
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs

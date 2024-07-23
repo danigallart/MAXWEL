@@ -65,8 +65,8 @@ do kk=1,NE
             rel_permitivity_xy = cmplx(0.0,0.0)
             rel_permitivity_yx = cmplx(0.0,0.0)
             
-            call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),density_species(:,kk),nodpel,n_species)
-            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),mag_field(kk),mag_field0,nodpel)
+            call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
+            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),mag_field(kk),mag_field0,nodpel,magnetic_flag,elem_shape)
             
             do j = 1,n_species
                 
@@ -516,45 +516,71 @@ AE = AE1 + AE2
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-subroutine density_calculation(fraction,complx_coorx,complx_coory,density,nodpel,n_species)
+subroutine density_calculation(fraction,complx_coorx,complx_coory,magnetic_flux,k,a,density,nodpel,n_species,flag)
 
 implicit none
 
-integer :: nodpel,n_species
+integer :: nodpel,n_species, flag
 complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
 double precision :: density(n_species)
 double precision :: radius_element, xmid, ymid
-double precision :: fraction
+double precision :: fraction, magnetic_flux, k, a
 
 xmid = sum(real(complx_coorx))/size(complx_coorx)
 ymid = sum(real(complx_coory))/size(complx_coory)
 
 radius_element = sqrt(xmid**2 + ymid**2)
     
-density(n_species-2) = (1-0.01*radius_element**2)**1.5
+if (flag == 1) then
+    
+    density(n_species-2) = (1-0.01*radius_element**2)**1.5
+    
+else if (flag == 2) then
+
+    density(n_species-2) = k + (1-k)*(1-magnetic_flux**2)**a
+    
+end if
+
 density(n_species-1) = fraction * density(n_species-2)
 density(n_species) = (1-fraction) * density(n_species-2)
 
 density = density * 5e5
+
     
 end subroutine density_calculation
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_field,max_mag_field,nodpel)
+    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_flux,magnetic_field,max_mag_field,nodpel,flag,element_shape)
 
 implicit none
 
-integer :: nodpel
+integer :: nodpel, flag
 complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
-double precision :: magnetic_field, max_mag_field
+double precision :: magnetic_field, magnetic_flux ,max_mag_field
 double precision :: radius_element, xmid, ymid
-double precision :: displacement
+double precision :: area1,area2,area
+character*4 :: element_shape
 
 xmid = sum(real(complx_coorx))/size(complx_coorx)
 ymid = sum(real(complx_coory))/size(complx_coory)
+
+if (flag == 1) then
     
-magnetic_field = max_mag_field/xmid
+    magnetic_field = max_mag_field/xmid
+
+else if (flag == 2) then
+    if (element_shape == 'tria') then
+        area = abs(real(complx_coorx(1))*real(complx_coory(2)-complx_coory(3))+real(complx_coorx(2))*real(complx_coory(3)-complx_coory(1))+real(complx_coorx(3))*real(complx_coory(1)-complx_coory(2)))/2
+    else if (element_shape == 'squa') then
+        area1 = abs(real(complx_coorx(1))*real(complx_coory(2)-complx_coory(3))+real(complx_coorx(2))*real(complx_coory(3)-complx_coory(1))+real(complx_coorx(3))*real(complx_coory(1)-complx_coory(2)))/2
+        area2 = abs(real(complx_coorx(1))*real(complx_coory(3)-complx_coory(4))+real(complx_coorx(3))*real(complx_coory(4)-complx_coory(1))+real(complx_coorx(4))*real(complx_coory(1)-complx_coory(3)))/2
+        area=area1+area2
+    end if
+    
+    magnetic_field = magnetic_flux/area
+    
+end if
     
 end subroutine magnetic_field_calculation
 
