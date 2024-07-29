@@ -30,8 +30,6 @@ module def_vectors
     
     double precision, allocatable :: mass_species(:)
     double precision, allocatable :: charge_species(:)
-    double precision, allocatable :: omg_plasma_species(:)
-    double precision, allocatable :: omg_cyclotron_species(:)
     double precision, allocatable :: norm_mag_flux_nodes(:)
     double precision, allocatable :: norm_mag_flux_elements(:)
     double precision, allocatable :: mag_field(:)

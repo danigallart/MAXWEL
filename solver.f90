@@ -11,7 +11,7 @@ complex*16, allocatable :: Au_inc(:)
 
 allocate(u_inc(NP),u_scat(NP),u_tot(NP),Au_inc(NP))
 
-u_inc = exp(ij*k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii))) !No need to use complex coordinates. We just need the real value at each node
+u_inc = exp(ij*k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))!/nu0 !No need to use complex coordinates. We just need the real value at each node
 
 if (system_sym=='Y') then
     

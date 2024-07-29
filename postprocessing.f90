@@ -72,15 +72,15 @@ subroutine derivatives
             
             do j = 1,n_species
                 
-                omg_plasma_species(j) = ( density_species(j,kk) * (charge_species(j) * e_charge)**2 ) / ( e0 * mass_species(j) )
+                plasma_freq = ( density_species(j,kk) * (charge_species(j) * e_charge)**2 ) / ( e0 * mass_species(j) )
                 
-                omg_cyclotron_species(j) = ( mag_field(kk) * charge_species(j) * e_charge ) / mass_species(j)
+                cyclo_freq = ( mag_field(kk) * charge_species(j) * e_charge ) / mass_species(j)
                 
-                rel_permitivity_xx = rel_permitivity_xx + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
-                rel_permitivity_yy = rel_permitivity_yy + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
-                rel_permitivity_xy = rel_permitivity_xy + ( omg_cyclotron_species(j) * omg_plasma_species(j)**2)/(omg * (omg**2 - omg_cyclotron_species(j)**2))
+                rel_permitivity_xx = rel_permitivity_xx + ( plasma_freq**2 ) / (omg**2 - cyclo_freq**2)
+                rel_permitivity_yy = rel_permitivity_yy + ( plasma_freq**2 ) / (omg**2 - cyclo_freq**2)
+                rel_permitivity_xy = rel_permitivity_xy + ( cyclo_freq * plasma_freq**2)/(omg * (omg**2 - cyclo_freq**2))
                 rel_permitivity_yx = -rel_permitivity_xy
-                rel_permitivity_zz = rel_permitivity_zz + ( omg_plasma_species(j)**2 ) / (omg**2)
+                rel_permitivity_zz = rel_permitivity_zz + ( plasma_freq**2 ) / (omg**2)
                 
             enddo
 

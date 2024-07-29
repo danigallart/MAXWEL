@@ -15,28 +15,32 @@ allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 
 !Ngauss = 4
-n_species = 3
+n_species = 2
 
 
 allocate(JACOB(ndim,ndim,Ngauss),INVJACOB(ndim,ndim,Ngauss))
 allocate(DETJACOB(Ngauss))
 allocate(PHI(nodpel,Ngauss), DPHI(ndim, nodpel, Ngauss))
 allocate(DPHIX(nodpel,Ngauss),DPHIY(nodpel,Ngauss))
-allocate(omg_plasma_species(n_species),omg_cyclotron_species(n_species), &
-         mass_species(n_species), charge_species(n_species))
+allocate(mass_species(n_species), charge_species(n_species))
 allocate(density_species(n_species,NE), mag_field(NE))
 
 indep_vect=0.0
 AD=0.0
 AN=0.0
 
-charge_species = (/ -1., 1., 1./)
-
 mass1 = 0.511    !MeV
 mass2 = 1875.613 !MeV
 mass3 = 2808.921 !MeV
 
-mass_species = (/mass1, mass2, mass3 /)
+if (n_species == 2) then
+    charge_species = (/ -1., 1./)
+    mass_species = (/mass1, mass2 /)
+else if (n_species == 3) then
+    charge_species = (/ -1., 1., 1./)
+    mass_species = (/mass1, mass2, mass3 /)
+end if
+    
 mass_species = mass_species*1.7827E-30 !kg
 
 
@@ -66,19 +70,19 @@ do kk=1,NE
             rel_permitivity_yx = cmplx(0.0,0.0)
             
             call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
-            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),mag_field(kk),mag_field0,nodpel,magnetic_flag,elem_shape)
+            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),major_radius,mag_field0,mag_field(kk),nodpel,magnetic_flag,elem_shape)
             
             do j = 1,n_species
                 
-                omg_plasma_species(j) = ( density_species(j,kk) * (charge_species(j) * e_charge)**2 ) / ( e0 * mass_species(j) )
+                plasma_freq = sqrt(( density_species(j,kk) * (charge_species(j) * e_charge)**2 ) / ( e0 * mass_species(j) ))
                 
-                omg_cyclotron_species(j) = ( mag_field(kk) * charge_species(j) * e_charge ) / mass_species(j)
+                cyclo_freq = ( mag_field(kk) * charge_species(j) * e_charge ) / mass_species(j)
                 
-                rel_permitivity_xx = rel_permitivity_xx + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
-                rel_permitivity_yy = rel_permitivity_yy + ( omg_plasma_species(j)**2 ) / (omg**2 - omg_cyclotron_species(j)**2)
-                rel_permitivity_xy = rel_permitivity_xy + ( omg_cyclotron_species(j) * omg_plasma_species(j)**2)/(omg * (omg**2 - omg_cyclotron_species(j)**2))
+                rel_permitivity_xx = rel_permitivity_xx + ( plasma_freq**2 ) / (omg**2 - cyclo_freq**2)
+                rel_permitivity_yy = rel_permitivity_yy + ( plasma_freq**2 ) / (omg**2 - cyclo_freq**2)
+                rel_permitivity_xy = rel_permitivity_xy + ( cyclo_freq * plasma_freq**2)/(omg * (omg**2 - cyclo_freq**2))
                 rel_permitivity_yx = -rel_permitivity_xy
-                rel_permitivity_zz = rel_permitivity_zz + ( omg_plasma_species(j)**2 ) / (omg**2)
+                rel_permitivity_zz = rel_permitivity_zz + ( plasma_freq**2 ) / (omg**2)
                 
             enddo
 
@@ -533,32 +537,41 @@ radius_element = sqrt(xmid**2 + ymid**2)
     
 if (flag == 1) then
     
-    density(n_species-2) = (1-0.01*radius_element**2)**1.5
+    density(1) = (1-0.01*radius_element**2)**1.5
     
 else if (flag == 2) then
 
-    density(n_species-2) = k + (1-k)*(1-magnetic_flux**2)**a
+    density(1) = k + (1-k)*(1-magnetic_flux**2)**a
     
 end if
 
-density(n_species-1) = fraction * density(n_species-2)
-density(n_species) = (1-fraction) * density(n_species-2)
+if (n_species == 2) then
 
-density = density * 5e5
+    density(2) = density(1)
+    
+else if (n_species == 3) then
+    
+    density(2) = fraction * density(1)
+    density(3) = (1-fraction) * density(1)
+    
+end if
+
+density = density * 2.e18
+!density = 2.e18
 
     
 end subroutine density_calculation
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_flux,magnetic_field,max_mag_field,nodpel,flag,element_shape)
+    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_flux,radius_tokamak,max_mag_field,magnetic_field,nodpel,flag,element_shape)
 
 implicit none
 
 integer :: nodpel, flag
 complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
 double precision :: magnetic_field, magnetic_flux ,max_mag_field
-double precision :: radius_element, xmid, ymid
+double precision :: radius_element,radius_tokamak, xmid, ymid
 double precision :: area1,area2,area
 character*4 :: element_shape
 
@@ -567,7 +580,8 @@ ymid = sum(real(complx_coory))/size(complx_coory)
 
 if (flag == 1) then
     
-    magnetic_field = max_mag_field/xmid
+    magnetic_field = max_mag_field*radius_tokamak/xmid
+    !magnetic_field = max_mag_field
 
 else if (flag == 2) then
     if (element_shape == 'tria') then
