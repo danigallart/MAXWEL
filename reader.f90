@@ -59,7 +59,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='freq') then
-				read(option(last+1:leng),'(e6.3)') freq
+				read(option(last+1:leng),'(e10.4)') freq
 				last=leng+1
 			endif
        enddo
@@ -244,7 +244,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_xx_re') then
-				read(option(last+1:leng),'(f10.3)') epsilon_scat_xx%re
+				read(option(last+1:leng),'(f10.5)') epsilon_scat_xx%re
 				last=leng+1
 			endif
        enddo
@@ -252,7 +252,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_yy_re') then
-				read(option(last+1:leng),'(f10.3)') epsilon_scat_yy%re
+				read(option(last+1:leng),'(f10.5)') epsilon_scat_yy%re
 				last=leng+1
 			endif
        enddo
@@ -260,7 +260,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_zz_re') then
-				read(option(last+1:leng),'(f6.0)') epsilon_scat_zz%re
+				read(option(last+1:leng),'(f10.5)') epsilon_scat_zz%re
 				last=leng+1
 			endif
        enddo
@@ -309,7 +309,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_xy_im') then
-				read(option(last+1:leng),'(f10.3)') epsilon_scat_xy%im
+				read(option(last+1:leng),'(f10.5)') epsilon_scat_xy%im
 				last=leng+1
 			endif
        enddo
@@ -317,7 +317,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='epsilon_yx_im') then
-				read(option(last+1:leng),'(f10.3)') epsilon_scat_yx%im
+				read(option(last+1:leng),'(f10.5)') epsilon_scat_yx%im
 				last=leng+1
 			endif
        enddo

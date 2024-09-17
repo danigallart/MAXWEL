@@ -16,18 +16,18 @@ double precision :: angle_x,angle_y
 
 if (pol == 'TM') then
 
-  write(result_scat_unit,*) 'X,Y,Escat_z'
+  write(result_scat_unit,*) 'X,Y,Escat_real_z,Escat_imag_z'
   
 else if (pol == 'TE') then
     
-    write(result_scat_unit,*) 'X,Y,Hscat_z'
+    write(result_scat_unit,*) 'X,Y,Hscat_real_z,Hscat_imag_z'
     
 endif 
   
 
 do jj=1,NP
     
-    write(result_scat_unit,'(E15.5,a,E15.5,a,E15.5)') coorx(jj),coma,coory(jj),coma,abs(u_scat(jj))
+    write(result_scat_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx(jj),coma,coory(jj),coma,real(u_scat(jj)),coma,imag(u_scat(jj))
     
 enddo
 
@@ -35,18 +35,18 @@ enddo
 
 if (pol == 'TM') then
 
-    write(result_tot_unit,*) 'X,Y,Etot_z'
+    write(result_tot_unit,*) 'X,Y,Etot_real_z,Etot_imag_z'
     
 else if (pol == 'TE') then
     
-    write(result_tot_unit,*) 'X,Y,Htot_z'
+    write(result_tot_unit,*) 'X,Y,Htot_real_z,Htot_imag_z'
 
 endif
 
   
 do jj=1,NP
     
-    write(result_tot_unit,'(E15.5,a,E15.5,a,E15.5)') coorx(jj),coma,coory(jj),coma,abs(u_tot(jj))
+    write(result_tot_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx(jj),coma,coory(jj),coma,real(u_tot(jj)),coma,imag(u_tot(jj))
     
 enddo
 
@@ -54,11 +54,11 @@ enddo
 
 if (pol == 'TM') then
 
-    write(result_inc_unit,*) 'X,Y,Etot_z'
+    write(result_inc_unit,*) 'X,Y,Einc_z'
     
 else if (pol == 'TE') then
     
-    write(result_inc_unit,*) 'X,Y,Htot_z'
+    write(result_inc_unit,*) 'X,Y,Hinc_z'
 
 endif
 

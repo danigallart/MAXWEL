@@ -15,7 +15,7 @@ allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 
 !Ngauss = 4
-n_species = 2
+n_species = 3
 
 
 allocate(JACOB(ndim,ndim,Ngauss),INVJACOB(ndim,ndim,Ngauss))
@@ -32,6 +32,7 @@ AN=0.0
 mass1 = 0.511    !MeV
 mass2 = 1875.613 !MeV
 mass3 = 2808.921 !MeV
+mass4 = 2809.413 !MeV
 
 if (n_species == 2) then
     charge_species = (/ -1., 1./)
@@ -39,6 +40,9 @@ if (n_species == 2) then
 else if (n_species == 3) then
     charge_species = (/ -1., 1., 1./)
     mass_species = (/mass1, mass2, mass3 /)
+else if (n_species == 4) then
+    charge_species = (/ -1., 1., 1., 2./)
+    mass_species = (/mass1, mass2, mass3 , mass4/)
 end if
     
 mass_species = mass_species*1.7827E-30 !kg
@@ -256,9 +260,9 @@ if (nodpel == 3) then
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
         
-        if (detjacob(kgauss)%re <= 0.0) then
-            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
-        endif
+        !if (detjacob(kgauss)%re <= 0.0) then
+        !    print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+        !endif
     
     end do
 
@@ -310,9 +314,9 @@ else if (nodpel == 4) then
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
         
-        if (detjacob(kgauss)%re <= 0.0) then
-            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
-        endif
+        !if (detjacob(kgauss)%re <= 0.0) then
+        !    print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+        !endif
 
     end do
     
@@ -371,9 +375,9 @@ else if (nodpel == 6) then
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
         
-        if (detjacob(kgauss)%re <= 0.0) then
-            print*, 'WARNING: |J| <= 0', detjacob(kgauss)
-        endif
+        !if (detjacob(kgauss)%re <= 0.0) then
+        !    print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+        !endif
 
     end do
 
@@ -440,9 +444,9 @@ else if (nodpel == 8) then
             dphiy(ii,kgauss) = invjacob(2,1,kgauss) * dphi(1,ii,kgauss) + invjacob(2,2,kgauss) * dphi(2,ii,kgauss)
         enddo
         
-        if (detjacob(kgauss)%re <= 0.0) then
-           print*, 'WARNING: |J| <= 0', detjacob(kgauss)
-        endif
+        !if (detjacob(kgauss)%re <= 0.0) then
+        !   print*, 'WARNING: |J| <= 0', detjacob(kgauss)
+        !endif
 
     end do
 
@@ -554,9 +558,16 @@ else if (n_species == 3) then
     density(2) = fraction * density(1)
     density(3) = (1-fraction) * density(1)
     
+else if (n_species == 4) then
+    
+    density(2) = 0.5e19 * density(1)
+    density(3) = 0.5e19 * density(1)
+    density(4) = 2e17 * density(1)
+    density(1) = 1.04e19 * density(1)
+    
 end if
 
-density = density * 2.e18
+density = density * 1.0e19
 !density = 2.e18
 
     

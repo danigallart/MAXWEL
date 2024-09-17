@@ -83,11 +83,11 @@ module def_variables
     integer :: n_species
     double precision :: plasma_freq                                                                 !Plasma frequency
     double precision :: cyclo_freq                                                                  !Cyclotron frequency for electrons, deuterons and tritons
-    double precision :: mass1, mass2, mass3                                                         !Mass for electrons, deuterons and tritons
+    double precision :: mass1, mass2, mass3, mass4                                                  !Mass for electrons, deuterons and tritons
     double precision :: deu_tri_frac                                                                !Fraction of deuterium, n_d/(n_d+n_t)
     double precision :: ka,aa                                                                       !Parameters of density function
     
-    double precision, parameter :: mag_field0 = 2.0                                                 ! Axial magnetic field
+    double precision, parameter :: mag_field0 = 5.0                                                 ! Axial magnetic field
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
     double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     

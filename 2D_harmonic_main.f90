@@ -29,14 +29,14 @@
         
         CALL open_files()
 
-    ! Convert frequency from MHz to Hz
+        ! Convert frequency from MHz to Hz
     freq_hz = freq * 1e6
 
     ! Calculate wavelength and other parameters
     lambda0 = c0 / freq_hz
     k0 = 2.0 * pi / lambda0
     omg = 2.0 * pi * freq_hz
-        
+    
         print*, "Mesh reader"
         if (reader_type == 'read') then
             CALL mesh_reader()
@@ -73,6 +73,6 @@
         endif
     
         CALL finalise()
-
+        
     end program $2D_harmonic_main
 
