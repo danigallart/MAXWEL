@@ -13,26 +13,26 @@ allocate(u_inc(NP),u_scat(NP),u_tot(NP),Au_inc(NP))
 
 u_inc = exp(ij*(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii))))!/nu0 !No need to use complex coordinates. We just need the real value at each node
 
-if (system_sym=='Y') then
+!if (system_sym=='Y') then
     
-  call MATXVECSIM_cplx(NP,IA,JA,AN,AD,u_inc,Au_inc)
+!  call MATXVECSIM_cplx(NP,IA,JA,AN,AD,u_inc,Au_inc)
   
-elseif (system_sym=='N') then
+!elseif (system_sym=='N') then
     
-  call MATXVEC_cplex(IA,JA,AN,AD,u_inc,Au_inc,NP,NONULL,0)
+!  call MATXVEC_cplex(IA,JA,AN,AD,u_inc,Au_inc,NP,NONULL,0)
   
-endif
+!endif
 
-indep_vect=cmplx(0.0,0.0)
+!indep_vect=cmplx(0.0,0.0)
 
-do kk=1,NE
-    if (material(kk) == 1) then
-        do ii = 1, nodpel 
-            i = conn(kk,ii)
-            indep_vect(i) = -Au_inc(i)
-        enddo
-    endif
-enddo
+!do kk=1,NE
+!    if (material(kk) == 1) then
+!        do ii = 1, nodpel 
+!            i = conn(kk,ii)
+!            indep_vect(i) = -Au_inc(i)
+!        enddo
+!    endif
+!enddo
 
 u_scat = cmplx(0.0,0.0)
 

@@ -9,6 +9,7 @@ subroutine mesh_reader
             
     double precision :: min_tol, max_tol
     logical, allocatable :: pml_flag(:)
+    double precision, allocatable :: dist(:)
     
     character*(120) :: text_line
 
@@ -32,7 +33,7 @@ subroutine mesh_reader
     
     !Allocate vectors once the parameters are stored
     
-    allocate(coorx(NP), coory(NP))
+    allocate(coorx(NP), coory(NP), dist(NP))
     allocate(conn(NE,nodpel))
     allocate(coorx_mid(NE),coory_mid(NE))
     allocate(material(NE), boundary(NP))
@@ -152,6 +153,9 @@ coorx = coorx !+ major_radius
 coory = coory
 coorx_mid = coorx_mid !+ major_radius
 coory_mid = coory_mid
+
+dist = sqrt((coorx-source_coorx)**2+(coory-source_coory)**2)
+source_node = minloc(dist,1)
 
 call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
