@@ -154,8 +154,10 @@ coory = coory
 coorx_mid = coorx_mid !+ major_radius
 coory_mid = coory_mid
 
-dist = sqrt((coorx-source_coorx)**2+(coory-source_coory)**2)
-source_node = minloc(dist,1)
+!do jj = 1, source_num
+!    dist = sqrt((coorx-source_coorx(jj))**2+(coory-source_coory(jj))**2)
+!    source_node(jj) = minloc(dist,1)
+!end do
 
 call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 

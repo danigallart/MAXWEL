@@ -91,9 +91,7 @@ module def_variables
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
     double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     
-    double precision, parameter :: source_coorx = 0.0, source_coory = 0.0                           ! Coordinates of the point-like source
-    integer :: source_node                                                                          ! Source Node Number
-    double precision :: current_density = 1e4                                                       ! A/m^2, current density
+    complex*16 :: current_density                                                                   ! A/m^2, current density
     
     double precision :: plasma_radius, free_space_dim, pmldim, huygdim, &
                         rpmlin, rpmlout, rhuyg

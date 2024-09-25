@@ -35,6 +35,10 @@ module def_vectors
     double precision, allocatable :: mag_field(:)
     double precision, allocatable :: density_species(:,:)
     
+    double precision, allocatable :: source_coorx(:),source_coory(:)
+    integer, allocatable :: source_node(:), source_element(:)
+    !complex*16, allocatable :: current_density(:)
+    
     
 end module def_vectors
 

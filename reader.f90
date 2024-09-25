@@ -1,6 +1,7 @@
 subroutine reader()
 use def_io
 use def_variables
+use def_vectors
 implicit none
 character*(1)::Z 
 character*(120):: textinput,option,complex_val
@@ -399,6 +400,22 @@ do while(textinput /= 'end_data')
 			last=last+1
 			if(option(1:last)=='mu_yx_im') then
 				read(option(last+1:leng),'(f5.0)') mu_scat_yx%im
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source_re') then
+				read(option(last+1:leng),'(f5.0)') current_density%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source_im') then
+				read(option(last+1:leng),'(f5.0)') current_density%im
 				last=leng+1
 			endif
        enddo

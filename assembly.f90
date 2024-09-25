@@ -5,7 +5,8 @@ use def_vectors
 
 implicit none
 
-integer :: kk, ii, i, j, jj, KEJE, IAUX, local_source_node, source_element
+integer :: kk, ii, i, j, jj, KEJE, IAUX
+!integer :: local_source_node(source_num)
 
 complex*16 :: determinant
 
@@ -49,6 +50,7 @@ end if
     
 mass_species = mass_species*1.7827E-30 !kg
 
+!current_density = (/current_density1,current_density2,current_density3,current_density4/)
 
 do kk=1,NE
     
@@ -57,10 +59,12 @@ do kk=1,NE
         ns(i) = conn(kk,i)
         local_coords(1,i) = complex_coorx(ns(i))
         local_coords(2,i) = complex_coory(ns(i))
-        if (ns(i) == source_node) then
-            local_source_node = i
-            source_element = kk
-        endif
+        !do j=1,source_num
+        !    if (ns(i) == source_node(j)) then
+        !    local_source_node(j) = i
+        !    source_element(j) = kk
+        !    endif
+        !enddo
     enddo
     
     if (material(kk) == 1) then
@@ -153,8 +157,10 @@ do kk=1,NE
     
     call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel)
     BE = cmplx(0.0,0.0)
-    if (kk == source_element) then
-        call element_indepvec(PHI,DETJACOB,local_source_node,current_density,BE,Ngauss,nodpel)
+    if ((material(kk) == 4).or.(material(kk) == 5)) then
+        call element_indepvec(PHI,DETJACOB,current_density,BE,Ngauss,nodpel)
+!    else if (material(kk) == 5) then
+!        call element_indepvec(PHI,DETJACOB,-current_density,BE,Ngauss,nodpel)
     end if
     
     
@@ -532,13 +538,12 @@ AE = AE1 + AE2
     
     end subroutine element_matrix
     
-subroutine element_indepvec(PHI,DETJACOB,source_node,source_current,BE,Ngauss,nodpel)
+subroutine element_indepvec(PHI,DETJACOB,source_current,BE,Ngauss,nodpel)
 
     !Input variables
     double precision :: PHI(nodpel,Ngauss)
     complex*16 :: DETJACOB(Ngauss)
-    integer :: source_node
-    double precision :: source_current
+    complex*16 :: source_current
     
     !Output varaibles
     complex*16 :: BE(nodpel)
@@ -565,13 +570,11 @@ endif
 BE = cmplx(0.0,0.0)
 
 do i=1,nodpel
-    if (i==source_node) then
-        do k=1,Ngauss
+    do k=1,Ngauss
         
             BE(i) = BE(i) - gauss_wt(k)*PHI(i,k)*source_current*DETJACOB(k)
     
         enddo
-    endif
 enddo
 
 

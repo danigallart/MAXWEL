@@ -50,7 +50,7 @@ elseif (system_sym == 'N') then
 endif
 
 
-u_tot = u_scat+u_inc
+u_tot = u_scat
 
 write(control_unit,*) 'CG it.   ',iter, '/ ', iter_solver
 write(control_unit,*) 'CG err.  ',ERR
