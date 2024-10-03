@@ -15,11 +15,17 @@ subroutine open_files
 
     if (reader_type == 'toka') then
         
-        mesh_geometry = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-3.dat'
-        mesh_param = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-2.dat'
-        mesh_element = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-4.dat'
-        mesh_boundary = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-5.dat'
-        mesh_flux = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak_psi.dat'
+        !mesh_geometry = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-3.dat'
+        !mesh_param = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-2.dat'
+        !mesh_element = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-4.dat'
+        !mesh_boundary = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-5.dat'
+        !mesh_flux = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak_psi.dat'
+        
+        mesh_geometry = 'JET_shot_99886_mesh/JET_shot_99886_mesh-3.dat'
+        mesh_param = 'JET_shot_99886_mesh/JET_shot_99886_mesh-2.dat'
+        mesh_element = 'JET_shot_99886_mesh/JET_shot_99886_mesh-4.dat'
+        mesh_boundary = 'JET_shot_99886_mesh/JET_shot_99886_mesh-5.dat'
+        mesh_flux = 'JET_shot_99886_mesh/JET_shot_99886_mesh_psi.dat'
         
         open(unit=mesh_geo_unit, file=mesh_geometry, status='old')
         open(unit=mesh_param_unit, file=mesh_param, status='old')
