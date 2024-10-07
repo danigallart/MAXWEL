@@ -6,13 +6,14 @@ use def_vectors
 implicit none
 
 integer :: kk, ii, i, j, jj, KEJE, IAUX
-
 complex*16 :: determinant
 
 complex*16, allocatable :: AE(:,:)
+complex*16, allocatable :: BE(:)
 
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
+allocate(BE(nodpel))
 
 !Ngauss = 4
 n_species = 3
@@ -25,9 +26,9 @@ allocate(DPHIX(nodpel,Ngauss),DPHIY(nodpel,Ngauss))
 allocate(mass_species(n_species), charge_species(n_species))
 allocate(density_species(n_species,NE), mag_field(NE))
 
-indep_vect=0.0
-AD=0.0
-AN=0.0
+indep_vect1=cmplx(0.0,0.0)
+AD=cmplx(0.0,0.0)
+AN=cmplx(0.0,0.0)
 
 mass1 = 0.511    !MeV
 mass2 = 1875.613 !MeV
@@ -46,7 +47,6 @@ else if (n_species == 4) then
 end if
     
 mass_species = mass_species*1.7827E-30 !kg
-
 
 do kk=1,NE
     
@@ -145,11 +145,21 @@ do kk=1,NE
     endif
     
     
-    call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel,ndim)
+    call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel)
+    BE = cmplx(0.0,0.0)
+    if (antenna_source == 'Y') then
+        if ((material(kk) == 4).or.(material(kk) == 5)) then
+            call element_indepvec(PHI,DETJACOB,current_density,BE,Ngauss,nodpel)
+!    else if (material(kk) == 5) then
+!        call element_indepvec(PHI,DETJACOB,-current_density,BE,Ngauss,nodpel)
+        end if
+    endif
+    
     
     
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AE(i,i)
+        indep_vect1(ns(i)) = indep_vect1(ns(i)) + BE(i)
         do j=1, nodpel
             do IAUX = 1,ICX(ns(i))
                 KEJE = IA(ns(i))+IAUX-1
@@ -459,7 +469,7 @@ endif
     
     !Function that computes PHI and DPHI in the absolute coordinates
     
-subroutine element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel,ndim)
+subroutine element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel)
     
 
 !Input variables
@@ -489,7 +499,6 @@ else if ((Ngauss == 4) .and. (nodpel == 8)) then
     gauss_wt = (/ 1.0, 1.0, 1.0, 1.0/)
 else if ((Ngauss == 9) .and. (nodpel == 8)) then
     gauss_wt = (/ (25./81.), (40./81.), (25./81.), (40./81.), (64./81.), (40./81.), (25./81.), (40./81.), (25./81.)/)
-
 endif
 
 AE1 = cmplx(0.0,0.0)
@@ -521,6 +530,48 @@ end do
 AE = AE1 + AE2
     
     end subroutine element_matrix
+    
+subroutine element_indepvec(PHI,DETJACOB,source_current,BE,Ngauss,nodpel)
+
+    !Input variables
+    double precision :: PHI(nodpel,Ngauss)
+    complex*16 :: DETJACOB(Ngauss)
+    complex*16 :: source_current
+    
+    !Output varaibles
+    complex*16 :: BE(nodpel)
+    
+    !Local variables
+    integer :: i,k
+    double precision, allocatable :: gauss_wt(:)
+    complex*16 :: gauss_sum
+    
+    allocate(gauss_wt(Ngauss))
+    
+if ((Ngauss == 3) .and. (nodpel == 3)) then
+    gauss_wt = 1.0/6.0
+else if ((Ngauss == 4) .and. (nodpel == 6)) then
+    gauss_wt = (/ -(27./96.), (25./96.), (25./96.), (25./96.)/)
+else if ((Ngauss == 4) .and. (nodpel == 4)) then
+    gauss_wt = (/ 1.0, 1.0, 1.0, 1.0/)
+else if ((Ngauss == 4) .and. (nodpel == 8)) then
+    gauss_wt = (/ 1.0, 1.0, 1.0, 1.0/)
+else if ((Ngauss == 9) .and. (nodpel == 8)) then
+    gauss_wt = (/ (25./81.), (40./81.), (25./81.), (40./81.), (64./81.), (40./81.), (25./81.), (40./81.), (25./81.)/)
+endif
+
+BE = cmplx(0.0,0.0)
+
+do i=1,nodpel
+    do k=1,Ngauss
+        
+            BE(i) = BE(i) - gauss_wt(k)*PHI(i,k)*source_current*DETJACOB(k)
+    
+        enddo
+enddo
+
+
+end subroutine element_indepvec
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     

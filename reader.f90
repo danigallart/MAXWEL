@@ -1,6 +1,7 @@
 subroutine reader()
 use def_io
 use def_variables
+use def_vectors
 implicit none
 character*(1)::Z 
 character*(120):: textinput,option,complex_val
@@ -170,8 +171,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='system_sym') then
-				read(option(last+1:leng),*) system_sym
-                system_sym = trim(adjustl(system_sym))
+				read(option(last+1:leng),'(a1)') system_sym
 				last=leng+1
 			endif
        enddo
@@ -182,6 +182,24 @@ do while(textinput /= 'end_data')
 			if(option(1:last)=='logic_file') then
 				read(option(last+1:leng),*) logic_file
                 logic_file = trim(adjustl(logic_file))
+				last=leng+1
+			endif
+       enddo
+       
+		last=0
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='antenna_source') then
+				read(option(last+1:leng),'(a1)') antenna_source
+				last=leng+1
+			endif
+       enddo
+       
+		last=0
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='plane_wave_source') then
+				read(option(last+1:leng),'(a1)') plane_wave_source
 				last=leng+1
 			endif
        enddo
@@ -399,6 +417,22 @@ do while(textinput /= 'end_data')
 			last=last+1
 			if(option(1:last)=='mu_yx_im') then
 				read(option(last+1:leng),'(f5.0)') mu_scat_yx%im
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source_re') then
+				read(option(last+1:leng),'(f5.0)') current_density%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source_im') then
+				read(option(last+1:leng),'(f5.0)') current_density%im
 				last=leng+1
 			endif
        enddo
