@@ -3,3 +3,7 @@
 /x64/Debug
 /x64/Release
 /Release
+/*.o
+/*.mod
+/maxwel
+/*.csv
