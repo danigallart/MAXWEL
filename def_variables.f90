@@ -76,8 +76,10 @@ module def_variables
     real(kind=8) :: phii                                                                            ! rad, angle of incident field
     real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
     character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
-    character(len=1) :: read_logic                                                                  ! Reads logic (AD,AN), yes or no
-    character(len=1) :: system_sym                                                                  ! Asumes symmetric system, yes or no
+    character(len=1) :: read_logic                                                                  ! Reads logic (AD,AN), Yes or No
+    character(len=1) :: system_sym                                                                  ! Asumes symmetric system, Yes or No
+    character(len=1) :: antenna_source                                                              ! Radiation from antenna, Yes(On) or No(Off)
+    character(len=1) :: plane_wave_source                                                           ! Radiation from plane wave, Yes(On) or No(Off)
     
     integer :: plasma, density_flag, magnetic_flag                                                  ! Plasma flag
     integer :: n_species

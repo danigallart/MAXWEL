@@ -6,8 +6,6 @@ use def_vectors
 implicit none
 
 integer :: kk, ii, i, j, jj, KEJE, IAUX
-!integer :: local_source_node(source_num)
-
 complex*16 :: determinant
 
 complex*16, allocatable :: AE(:,:)
@@ -28,7 +26,7 @@ allocate(DPHIX(nodpel,Ngauss),DPHIY(nodpel,Ngauss))
 allocate(mass_species(n_species), charge_species(n_species))
 allocate(density_species(n_species,NE), mag_field(NE))
 
-indep_vect=cmplx(0.0,0.0)
+indep_vect1=cmplx(0.0,0.0)
 AD=cmplx(0.0,0.0)
 AN=cmplx(0.0,0.0)
 
@@ -50,8 +48,6 @@ end if
     
 mass_species = mass_species*1.7827E-30 !kg
 
-!current_density = (/current_density1,current_density2,current_density3,current_density4/)
-
 do kk=1,NE
     
     !Extract local coordinates of nodes
@@ -59,12 +55,6 @@ do kk=1,NE
         ns(i) = conn(kk,i)
         local_coords(1,i) = complex_coorx(ns(i))
         local_coords(2,i) = complex_coory(ns(i))
-        !do j=1,source_num
-        !    if (ns(i) == source_node(j)) then
-        !    local_source_node(j) = i
-        !    source_element(j) = kk
-        !    endif
-        !enddo
     enddo
     
     if (material(kk) == 1) then
@@ -157,16 +147,19 @@ do kk=1,NE
     
     call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel)
     BE = cmplx(0.0,0.0)
-    if ((material(kk) == 4).or.(material(kk) == 5)) then
-        call element_indepvec(PHI,DETJACOB,current_density,BE,Ngauss,nodpel)
+    if (antenna_source == 'Y') then
+        if ((material(kk) == 4).or.(material(kk) == 5)) then
+            call element_indepvec(PHI,DETJACOB,current_density,BE,Ngauss,nodpel)
 !    else if (material(kk) == 5) then
 !        call element_indepvec(PHI,DETJACOB,-current_density,BE,Ngauss,nodpel)
-    end if
+        end if
+    endif
+    
     
     
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AE(i,i)
-        indep_vect(ns(i)) = indep_vect(ns(i)) + BE(i)
+        indep_vect1(ns(i)) = indep_vect1(ns(i)) + BE(i)
         do j=1, nodpel
             do IAUX = 1,ICX(ns(i))
                 KEJE = IA(ns(i))+IAUX-1

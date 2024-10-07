@@ -8,7 +8,7 @@ integer :: nno,kk,npas
 character*(120) :: text_line
 
 
-allocate( AD(NP),IA(NP+1),ncount(NP),indep_vect(NP))
+allocate( AD(NP),IA(NP+1),ncount(NP),indep_vect(NP),indep_vect1(NP),indep_vect2(NP))
 allocate( ICX(NP+1),consim(NP) )
 allocate(ns(nodpel))
 

@@ -7,7 +7,7 @@ module def_vectors
     complex*16, allocatable :: complex_coorx(:), complex_coory(:)                                                           !Complex coordiantes for the PML region
     
     complex*16, allocatable :: u_scat(:), u_inc(:), u_tot(:), &                                                             !Scattered wave and incident wave
-                               indep_vect(:), &                                                                             !Independent vector of the linear equation system
+                               indep_vect1(:),indep_vect2(:),indep_vect(:), &                                                !Independent vector of the linear equation system
                                grad(:,:), gradxel(:,:), &                                                                   !Gradients of solutions
                                AD(:), AN(:)                                                                                 !Diagonal and non-diagonal elements of stiff matrix
     

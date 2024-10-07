@@ -16,19 +16,23 @@ boundary_tol = 1e-6
 
 deuterium_frac = 0.50
 
-mesh_reader: toka					# read  toka
+mesh_reader: read					# read  toka
 
 elem_type: line						# line	quad
 
 elem_shape: tria					# tria	squa	
 
-mesh_file = JET_shot_99886_mesh\JET_shot_99886_mesh         #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
+mesh_file = line_tria_antenna2.dat         #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
 
 read_logic:Y
 
 system_sym:N                 
 
-logic_file = JET_shot_99886_mesh\JET_shot_99886_mesh_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat		# sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
+logic_file = line_tria_antenna2_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
+
+antenna_source:Y
+
+plane_wave_source:Y
 
 plasma:0            # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
 
@@ -42,9 +46,9 @@ magnetic_flag:1      #1: 1/x magnetic field     2: magnetic field computed from 
 
 conductivity = 0.0
 
-epsilon_xx_re = 1.0
-epsilon_yy_re = 1.0
-epsilon_zz_re = 1.0
+epsilon_xx_re = 9.0
+epsilon_yy_re = 4.0
+epsilon_zz_re = 2.0
 epsilon_xy_re = 0.0
 epsilon_yx_re = 0.0
 
@@ -68,6 +72,6 @@ mu_yx_im = 0.0
 
 current_source_re = 0.0
 
-current_source_im = 100.0
+current_source_im = -500.0
 
 end_data

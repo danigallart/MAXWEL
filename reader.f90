@@ -171,8 +171,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='system_sym') then
-				read(option(last+1:leng),*) system_sym
-                system_sym = trim(adjustl(system_sym))
+				read(option(last+1:leng),'(a1)') system_sym
 				last=leng+1
 			endif
        enddo
@@ -183,6 +182,24 @@ do while(textinput /= 'end_data')
 			if(option(1:last)=='logic_file') then
 				read(option(last+1:leng),*) logic_file
                 logic_file = trim(adjustl(logic_file))
+				last=leng+1
+			endif
+       enddo
+       
+		last=0
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='antenna_source') then
+				read(option(last+1:leng),'(a1)') antenna_source
+				last=leng+1
+			endif
+       enddo
+       
+		last=0
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='plane_wave_source') then
+				read(option(last+1:leng),'(a1)') plane_wave_source
 				last=leng+1
 			endif
        enddo
