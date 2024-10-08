@@ -57,7 +57,7 @@ do kk=1,NE
         local_coords(2,i) = complex_coory(ns(i))
     enddo
     
-    if ((material(kk) == 1).or.(material(kk) == 2)) then
+    if (material(kk) == 1) then
         
         rel_permeability_xx = mu_scat_xx
         rel_permeability_yy = mu_scat_yy
