@@ -42,6 +42,7 @@ subroutine mesh_reader_tokamak
     
     boundary = 0
     pml_flag = .FALSE.
+    norm_mag_flux_nodes = 1.0
 
     !Skip irrelevant data
     

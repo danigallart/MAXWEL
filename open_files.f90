@@ -21,11 +21,11 @@ subroutine open_files
         !mesh_boundary = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-5.dat'
         !mesh_flux = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak_psi.dat'
         
-        mesh_geometry = 'JET_shot_99886_mesh/JET_shot_99886_mesh-3.dat'
-        mesh_param = 'JET_shot_99886_mesh/JET_shot_99886_mesh-2.dat'
-        mesh_element = 'JET_shot_99886_mesh/JET_shot_99886_mesh-4.dat'
-        mesh_boundary = 'JET_shot_99886_mesh/JET_shot_99886_mesh-5.dat'
-        mesh_flux = 'JET_shot_99886_mesh/JET_shot_99886_mesh_psi.dat'
+        mesh_geometry = trim(mesh_file)//'-3.dat'
+        mesh_param = trim(mesh_file)//'-2.dat'
+        mesh_element = trim(mesh_file)//'-4.dat'
+        mesh_boundary = trim(mesh_file)//'-5.dat'
+        mesh_flux = trim(mesh_file)//'_psi.dat'
         
         open(unit=mesh_geo_unit, file=mesh_geometry, status='old')
         open(unit=mesh_param_unit, file=mesh_param, status='old')
