@@ -136,15 +136,19 @@ do while(textinput /= 'end_data')
        
 		if ((elem_type=='line') .and. elem_shape=='tria') then
                 nodpel=3
+                nodpedge=2 
                 Ngauss=3
         else if ((elem_type=='quad') .and. elem_shape=='tria') then
                 nodpel=6
+                nodpedge=3 
                 Ngauss=4
         else if ((elem_type=='line') .and. elem_shape=='squa') then
                 nodpel=4
+                nodpedge=2 
                 Ngauss=4
         else if ((elem_type=='quad') .and. elem_shape=='squa') then
                 nodpel=8
+                nodpedge=3 
                 Ngauss=4 
         endif
 

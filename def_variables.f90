@@ -10,6 +10,7 @@ module def_variables
     integer :: ndim = 2                                                                             !Number of physical dimensions
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
     integer :: Nodpel                                                                               !Nodes per element
+    integer :: nodpedge, num_bnode_e                                                                             !Nodes per edge of the element
     integer :: Ngauss                                                                               !Number of gaussian integration points
     
     !INTEGER, parameter :: element_type = 1                                                         !1. triangle 2.quadrilateral
@@ -93,7 +94,7 @@ module def_variables
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
     double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     
-    complex*16 :: current_density                                                                   ! A/m^2, current density
+    complex*16 :: current_density,dummy_current                                                     ! A/m^2, current density
     
     double precision :: plasma_radius, free_space_dim, pmldim, huygdim, &
                         rpmlin, rpmlout, rhuyg

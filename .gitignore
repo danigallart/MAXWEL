@@ -7,3 +7,6 @@
 /*.mod
 /maxwel
 /*.csv
+/connectivity.txt
+/stiff_matrix.txt
+/*.zip
