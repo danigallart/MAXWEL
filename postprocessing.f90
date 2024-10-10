@@ -67,8 +67,8 @@ subroutine derivatives
                 rel_permitivity_xy = cmplx(0.0,0.0)
                 rel_permitivity_yx = cmplx(0.0,0.0)
             
-                call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
-                call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),major_radius,mag_field0,mag_field(kk),nodpel,magnetic_flag,elem_shape)
+                call density_calculation(density_e_0,deuterium_frac,tritium_frac,helium_3_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
+                call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),major_radius,mag_field_0,mag_field(kk),nodpel,magnetic_flag,elem_shape)
             
             do j = 1,n_species
                 

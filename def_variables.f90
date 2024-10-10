@@ -75,6 +75,7 @@ module def_variables
     real(kind=8) :: omg                                                                             ! rad/sec, radial frequency
     real(kind=8) :: phii                                                                            ! rad, angle of incident field
     real(kind=8) :: r_scat                                                                          ! radius of scaterer in units of lambda0
+    real(kind=8) :: density_e_0                                                                     ! Central plasma electron density
     character(len=2) :: pol                                                                         ! TE: Transversal electric, TM: Transversal magnetic
     character(len=1) :: read_logic                                                                  ! Reads logic (AD,AN), Yes or No
     character(len=1) :: system_sym                                                                  ! Asumes symmetric system, Yes or No
@@ -86,12 +87,15 @@ module def_variables
     double precision :: plasma_freq                                                                 ! Plasma frequency
     double precision :: cyclo_freq                                                                  ! Cyclotron frequency for electrons, deuterons and tritons
     double precision :: mass1, mass2, mass3, mass4                                                  ! Mass for electrons, deuterons and tritons
-    double precision :: deu_tri_frac                                                                ! Fraction of deuterium, n_d/(n_d+n_t)
+    double precision :: deuterium_frac                                                              ! Fraction of deuterium, n_d/(n_e)
+    double precision :: tritium_frac                                                                ! Fraction of tritium, n_t/(n_e)
+    double precision :: helium_3_frac                                                               ! Fraction of helium-3, n_he3/(n_e)
     double precision :: ka,aa                                                                       ! Parameters of density function
     
-    double precision, parameter :: mag_field0 = 5.0                                                 ! Axial magnetic field
+    double precision :: mag_field_0                                                                 ! Axial magnetic field
+    double precision :: major_radius                                                                ! Tokamak major radius                                                   
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
-    double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
+
     
     complex*16 :: current_density                                                                   ! A/m^2, current density
     
