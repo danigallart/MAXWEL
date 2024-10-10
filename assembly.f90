@@ -33,7 +33,7 @@ AN=cmplx(0.0,0.0)
 mass1 = 0.511    !MeV
 mass2 = 1875.613 !MeV
 mass3 = 2808.921 !MeV
-mass4 = 2809.413 !MeV
+mass4 = 2808.392 !MeV
 
 if (n_species == 2) then
     charge_species = (/ -1., 1./)
@@ -46,7 +46,7 @@ else if (n_species == 4) then
     mass_species = (/mass1, mass2, mass3 , mass4/)
 end if
     
-mass_species = mass_species*1.7827E-30 !kg
+mass_species = mass_species*1.78266E-30 !kg
 
 do kk=1,NE
     
