@@ -136,15 +136,19 @@ do while(textinput /= 'end_data')
        
 		if ((elem_type=='line') .and. elem_shape=='tria') then
                 nodpel=3
+                nodpedge=2 
                 Ngauss=3
         else if ((elem_type=='quad') .and. elem_shape=='tria') then
                 nodpel=6
+                nodpedge=3 
                 Ngauss=4
         else if ((elem_type=='line') .and. elem_shape=='squa') then
                 nodpel=4
+                nodpedge=2 
                 Ngauss=4
         else if ((elem_type=='quad') .and. elem_shape=='squa') then
                 nodpel=8
+                nodpedge=3 
                 Ngauss=4 
         endif
 
@@ -477,16 +481,33 @@ do while(textinput /= 'end_data')
             last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='current_source_re') then
-				read(option(last+1:leng),'(f5.0)') current_density%re
+			if(option(1:last)=='current_source1_re') then
+				read(option(last+1:leng),'(f5.0)') current_density1%re
 				last=leng+1
 			endif
        enddo
             last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='current_source_im') then
-				read(option(last+1:leng),'(f5.0)') current_density%im
+			if(option(1:last)=='current_source1_im') then
+				read(option(last+1:leng),'(f5.0)') current_density1%im
+				last=leng+1
+			endif
+       enddo
+       
+       last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source2_re') then
+				read(option(last+1:leng),'(f5.0)') current_density2%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source2_im') then
+				read(option(last+1:leng),'(f5.0)') current_density2%im
 				last=leng+1
 			endif
        enddo
