@@ -43,7 +43,7 @@ AN=cmplx(0.0,0.0)
 mass1 = 0.511    !MeV
 mass2 = 1875.613 !MeV
 mass3 = 2808.921 !MeV
-mass4 = 2809.413 !MeV
+mass4 = 2808.392 !MeV
 
 if (n_species == 2) then
     charge_species = (/ -1., 1./)
@@ -56,7 +56,7 @@ else if (n_species == 4) then
     mass_species = (/mass1, mass2, mass3 , mass4/)
 end if
     
-mass_species = mass_species*1.7827E-30 !kg
+mass_species = mass_species*1.78266E-30 !kg
 
 do kk=1,NE
     
@@ -83,8 +83,8 @@ do kk=1,NE
             rel_permitivity_xy = cmplx(0.0,0.0)
             rel_permitivity_yx = cmplx(0.0,0.0)
             
-            call density_calculation(deu_tri_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
-            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),major_radius,mag_field0,mag_field(kk),nodpel,magnetic_flag,elem_shape)
+            call density_calculation(density_e_0,deuterium_frac,tritium_frac,helium_3_frac,local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),ka,aa,density_species(:,kk),nodpel,n_species,density_flag)
+            call magnetic_field_calculation(local_coords(1,:),local_coords(2,:),norm_mag_flux_elements(kk),major_radius,mag_field_0,mag_field(kk),nodpel,magnetic_flag,elem_shape)
             
             do j = 1,n_species
                 
@@ -886,7 +886,7 @@ end subroutine element_indepvec
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-subroutine density_calculation(fraction,complx_coorx,complx_coory,magnetic_flux,k,a,density,nodpel,n_species,flag)
+subroutine density_calculation(density_e_0,deuterium_frac,tritium_frac,helium_3_frac,complx_coorx,complx_coory,magnetic_flux,k,a,density,nodpel,n_species,flag)
 
 implicit none
 
@@ -894,7 +894,8 @@ integer :: nodpel,n_species, flag
 complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
 double precision :: density(n_species)
 double precision :: radius_element, xmid, ymid
-double precision :: fraction, magnetic_flux, k, a
+double precision :: deuterium_frac, tritium_frac, helium_3_frac, magnetic_flux, k, a
+real(kind=8) :: density_e_0
 
 xmid = sum(real(complx_coorx))/size(complx_coorx)
 ymid = sum(real(complx_coory))/size(complx_coory)
@@ -903,11 +904,11 @@ radius_element = sqrt(xmid**2 + ymid**2)
     
 if (flag == 1) then
     
-    density(1) = (1-0.01*radius_element**2)**1.5
+    density(1) = density_e_0 * (1-0.01*radius_element**2)**1.5
     
 else if (flag == 2) then
 
-    density(1) = k + (1-k)*(1-magnetic_flux**2)**a
+    density(1) = density_e_0 * (k + (1-k)*(1-magnetic_flux**2)**a)
     
 end if
 
@@ -917,34 +918,31 @@ if (n_species == 2) then
     
 else if (n_species == 3) then
     
-    density(2) = fraction * density(1)
-    density(3) = (1-fraction) * density(1)
+    density(2) = deuterium_frac * density(1)
+    density(3) = tritium_frac * density(1)
     
 else if (n_species == 4) then
     
-    density(2) = 0.5e19 * density(1)
-    density(3) = 0.5e19 * density(1)
-    density(4) = 2e17 * density(1)
-    density(1) = 1.04e19 * density(1)
+    density(2) = deuterium_frac * density(1)
+    density(3) = tritium_frac * density(1)
+    density(4) = helium_3_frac * density(1)
     
 end if
 
-density = density * 1.0e19
-!density = 2.e18
 
-    
+
 end subroutine density_calculation
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_flux,radius_tokamak,max_mag_field,magnetic_field,nodpel,flag,element_shape)
+subroutine magnetic_field_calculation(complx_coorx,complx_coory,magnetic_flux,major_radius,mag_field_0,magnetic_field,nodpel,flag,element_shape)
 
 implicit none
 
 integer :: nodpel, flag
 complex*16 :: complx_coorx(nodpel), complx_coory(nodpel)
-double precision :: magnetic_field, magnetic_flux ,max_mag_field
-double precision :: radius_element,radius_tokamak, xmid, ymid
+double precision :: magnetic_field, magnetic_flux ,mag_field_0
+double precision :: radius_element,major_radius, xmid, ymid
 double precision :: area1,area2,area
 character*4 :: element_shape
 
@@ -953,7 +951,7 @@ ymid = sum(real(complx_coory))/size(complx_coory)
 
 if (flag == 1) then
     
-    magnetic_field = max_mag_field*radius_tokamak/xmid
+    magnetic_field = mag_field_0*major_radius/xmid
     !magnetic_field = max_mag_field
 
 else if (flag == 2) then

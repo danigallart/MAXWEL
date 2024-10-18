@@ -98,14 +98,14 @@ do while(textinput /= 'end_data')
 			endif
        enddo
        
-        last=0	 
-	   do while(last<leng)
-			last=last+1
-			if(option(1:last)=='deuterium_frac') then
-				read(option(last+1:leng),'(f5.0)') deu_tri_frac
-				last=leng+1
-			endif
-       enddo
+        !last=0	 
+	   !do while(last<leng)
+			!last=last+1
+			!if(option(1:last)=='deuterium_frac') then
+				!read(option(last+1:leng),'(f5.0)') deu_tri_frac
+				!last=leng+1
+			!endif
+       !enddo
        
         last=0
 	   do while(last<leng)
@@ -156,7 +156,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='mesh_file') then
-				read(option(last+1:leng),*) mesh_file
+				read(option(last+1:leng),'(A)') mesh_file
                 mesh_file = trim(adjustl(mesh_file))
 				last=leng+1
 			endif
@@ -184,7 +184,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='logic_file') then
-				read(option(last+1:leng),*) logic_file
+				read(option(last+1:leng),'(A)') logic_file
                 logic_file = trim(adjustl(logic_file))
 				last=leng+1
 			endif
@@ -243,12 +243,66 @@ do while(textinput /= 'end_data')
 				last=leng+1
 			endif
        enddo
+
+	   last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='density_e_0') then
+				read(option(last+1:leng),'(e10.4)') density_e_0
+				last=leng+1
+			endif
+       enddo
        
+        last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='deuterium_frac') then
+				read(option(last+1:leng),'(f5.0)') deuterium_frac
+				last=leng+1
+			endif
+       enddo
+
+	   last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='tritium_frac') then
+				read(option(last+1:leng),'(f5.0)') tritium_frac
+				last=leng+1
+			endif
+       enddo
+
+	   last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='helium_3_frac') then
+				read(option(last+1:leng),'(f5.0)') helium_3_frac
+				last=leng+1
+			endif
+       enddo
+
         last=0	 
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='magnetic_flag') then
 				read(option(last+1:leng),'(i1)') magnetic_flag
+				last=leng+1
+			endif
+       enddo
+
+	   last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='mag_field_0') then
+				read(option(last+1:leng),'(f10.8)') mag_field_0
+				last=leng+1
+			endif
+       enddo
+
+	   last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='major_radius') then
+				read(option(last+1:leng),'(f10.8)') major_radius
 				last=leng+1
 			endif
        enddo

@@ -4,7 +4,7 @@ tol_solver = 1e-10
 
 iter_solver = 1000000
 
-freq = 3.0e2
+freq = 3.22e1
 
 phii = 0.0
 
@@ -13,8 +13,6 @@ pol:TE
 r_scat = 1.0						# Ratio with lambda0
 
 boundary_tol = 1e-6
-
-deuterium_frac = 0.50
 
 mesh_reader: toka					# read  toka
 
@@ -32,9 +30,9 @@ logic_file = tokamak_antenna3ref\tokamak_antenna3_sparse_logic.dat      #tokamak
 
 antenna_source:Y
 
-plane_wave_source:Y
+plane_wave_source:N
 
-plasma:0            # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
+plasma:1            # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
 
 ka = 0.01314034
 
@@ -42,7 +40,19 @@ aa = 1.18
 
 density_flag:2      #1: type 1 density function     2: type 2 density function
 
+density_e_0 = 1.0e19               # Central plasma electron density [m⁻3]
+
+deuterium_frac = 0.50            # Deuterium density fraction in plasma 
+
+tritium_frac = 0.50              # Tritium density fraction in plasma
+
+helium_3_frac = 0                # Helium-3 density fraction in plasma
+
 magnetic_flag:1      #1: 1/x magnetic field     2: magnetic field computed from magnetic flux
+
+mag_field_0 = 3.295              # Magnetic field at major radius [T]
+
+major_radius = 2.96               # Major radius [m]   JET: 2.96 m    ITER: 6.2 m
 
 conductivity = 0.0
 
