@@ -94,7 +94,7 @@ module def_variables
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
     double precision, parameter :: major_radius = 6.2                                               ! Tokamak major radius
     
-    complex*16 :: current_density,dummy_current                                                     ! A/m^2, current density
+    complex*16 :: current_density1,current_density2,dummy_current                                   ! A/m^2, current density
     
     double precision :: plasma_radius, free_space_dim, pmldim, huygdim, &
                         rpmlin, rpmlout, rhuyg

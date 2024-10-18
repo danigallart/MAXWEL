@@ -22,7 +22,7 @@ elem_type: line						# line	quad
 
 elem_shape: tria					# tria	squa	
 
-mesh_file = tokamak_antenna3ref\tokamak_antenna3         #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
+mesh_file = tokamak_antenna3ref\tokamak_antenna3        #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
 
 read_logic:Y
 
@@ -32,7 +32,7 @@ logic_file = tokamak_antenna3ref\tokamak_antenna3_sparse_logic.dat      #tokamak
 
 antenna_source:Y
 
-plane_wave_source:N
+plane_wave_source:Y
 
 plasma:0            # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
 
@@ -70,8 +70,12 @@ mu_zz_im = 0.0
 mu_xy_im = 0.0
 mu_yx_im = 0.0
 
-current_source_re = 0.0
+current_source1_re = 500.0
 
-current_source_im = -500.0
+current_source1_im = 0.0
+
+current_source2_re = 0.0
+
+current_source2_im = 500.0
 
 end_data

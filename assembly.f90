@@ -12,12 +12,13 @@ complex*16, allocatable :: AE(:,:)
 complex*16, allocatable :: BE(:)
 complex*16, allocatable :: integ_line(:),integ_line1(:),integ_line2(:),integ_surf(:)
 
+logical :: mask1(NP),mask2(NP)
+
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
 allocate(BE(nodpel),integ_line(nodpel),integ_line1(nodpel),integ_line2(nodpel),integ_surf(nodpel))
 allocate(ls(2),ls1(2),ls2(2))
 
-!Ngauss = 4
 n_species = 3
 dummy_current = cmplx(0.0,0.0)
 
@@ -27,9 +28,9 @@ allocate(PHI(nodpel,Ngauss), DPHI(ndim, nodpel, Ngauss))
 allocate(DPHIX(nodpel,Ngauss),DPHIY(nodpel,Ngauss))
 allocate(mass_species(n_species), charge_species(n_species))
 allocate(density_species(n_species,NE), mag_field(NE))
-allocate (JACOB_1D(2,Ngauss),PHI_1D(2,Ngauss),DPHI_1D(2,Ngauss))
-allocate (JACOB_1D1(2,Ngauss),PHI_1D1(2,Ngauss),DPHI_1D1(2,Ngauss))
-allocate (JACOB_1D2(2,Ngauss),PHI_1D2(2,Ngauss),DPHI_1D2(2,Ngauss))
+allocate (JACOB_1D(ndim,Ngauss),PHI_1D(2,Ngauss),DPHI_1D(2,Ngauss))
+allocate (JACOB_1D1(ndim,Ngauss),PHI_1D1(2,Ngauss),DPHI_1D1(2,Ngauss))
+allocate (JACOB_1D2(ndim,Ngauss),PHI_1D2(2,Ngauss),DPHI_1D2(2,Ngauss))
 allocate (coorx_b(2),coory_b(2))
 allocate (coorx_b1(2),coory_b1(2),coorx_b2(2),coory_b2(2))
 
@@ -156,22 +157,28 @@ do kk=1,NE
     
     call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel)
     BE = cmplx(0.0,0.0)
+    integ_line = cmplx(0.0,0.0)
+    integ_surf = cmplx(0.0,0.0)
+    integ_line1 = cmplx(0.0,0.0)
+    integ_line2 = cmplx(0.0,0.0)
+    mask1 = .FALSE.
+    mask2= .FALSE.
     if (antenna_source == 'Y') then
-        if ((material(kk) == 4) .or. (material(kk)==5)) then
+        if (material(kk) == 4) then
             if (pol=='TE') then
-                num_bnode_e = count((boundary(ns(:)) == 4) .or. (boundary(ns(:)) == 5))
-                if (num_bnode_e == 2) then
+                num_bnode_e = count(boundary(ns(:)) == 4)
+                if ((num_bnode_e == 2) .and. (nodpel == 3)) then
                     counter = 0
                     do i=1,nodpel
-                        if ((boundary(ns(i)) == 4) .or. (boundary(ns(i)) == 5)) then
+                        if (boundary(ns(i)) == 4) then
                             counter = counter + 1
                             ls(counter) = ns(i)
                             coorx_b(counter) = local_coords(1,i)
                             coory_b(counter) = local_coords(2,i)
                         endif
                     enddo
-                call line_integ(coorx_b,coory_b,PHI_1D,pyye,pxxe,dummy_current,current_density,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
-                else if (num_bnode_e == 3) then
+                call line_integ(coorx_b,coory_b,PHI_1D,pyye,pxxe,dummy_current,current_density1,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
+                else if ((num_bnode_e == 3) .and. (nodpel == 3)) then
                             ls1 = ns(1:2)
                             ls2 = ns(2:3)
                             
@@ -180,20 +187,90 @@ do kk=1,NE
                             
                             coorx_b2= local_coords(1,1:2)
                             coory_b2 = local_coords(2,2:3)
-
-                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
-                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                            
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density1,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density1,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
                     integ_line = integ_line1 + integ_line2
+                    
+                else if ((num_bnode_e == 3) .and. (nodpel == 6)) then
+                    mask1(ns(1:3)) = .TRUE.
+                    mask2(ns(4:6)) = .TRUE.
+                    ls1(1)=findloc(boundary,5,1,MASK=mask1)
+                    ls1(2)=findloc(boundary,5,1,MASK=mask2)
+                    ls2(1)=ls1(2)
+                    ls2(2)=findloc(boundary,5,1,MASK=mask1,BACK=.TRUE.)
+                    
+                    coorx_b1 = local_coords(1,1:2)
+                    coory_b1 = local_coords(2,2:3)
+                            
+                    coorx_b2= local_coords(1,1:2)
+                    coory_b2 = local_coords(2,2:3)
+                            
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    integ_line = integ_line1 + integ_line2
+                else if ((num_bnode_e == 5) .and. (nodpel == 6)) then
+
                 endif
-                call surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density,integ_surf,Ngauss,nodpel)
+                call surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density1,integ_surf,Ngauss,nodpel)
             else if (pol=='TM') then
-             call element_indepvec(PHI,DETJACOB,current_density,BE,Ngauss,nodpel)
+             call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density1,BE,Ngauss,nodpel)
             endif
-!    else if (material(kk) == 5) then
-!        call element_indepvec(PHI,DETJACOB,-current_density,BE,Ngauss,nodpel)    
-        end if
+    else if (material(kk) == 5) then
+            if (pol=='TE') then
+                num_bnode_e = count(boundary(ns(:)) == 5)
+                if ((num_bnode_e == 2) .and. (nodpel == 3)) then
+                    counter = 0
+                    do i=1,nodpel
+                        if (boundary(ns(i)) == 5) then
+                            counter = counter + 1
+                            ls(counter) = ns(i)
+                            coorx_b(counter) = local_coords(1,i)
+                            coory_b(counter) = local_coords(2,i)
+                        endif
+                    enddo
+                call line_integ(coorx_b,coory_b,PHI_1D,pyye,pxxe,dummy_current,current_density2,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
+                else if ((num_bnode_e == 3) .and. (nodpel == 3)) then
+                            ls1 = ns(1:2)
+                            ls2 = ns(2:3)
+                            
+                            coorx_b1 = local_coords(1,1:2)
+                            coory_b1 = local_coords(2,2:3)
+                            
+                            coorx_b2= local_coords(1,1:2)
+                            coory_b2 = local_coords(2,2:3)
+                            
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    integ_line = integ_line1 + integ_line2
+                    
+                else if ((num_bnode_e == 3) .and. (nodpel == 6)) then
+                    mask1(ns(1:3)) = .TRUE.
+                    mask2(ns(4:6)) = .TRUE.
+                    ls1(1)=findloc(boundary,5,1,MASK=mask1)
+                    ls1(2)=findloc(boundary,5,1,MASK=mask2)
+                    ls2(1)=ls1(2)
+                    ls2(2)=findloc(boundary,5,1,MASK=mask1,BACK=.TRUE.)
+                    
+                    coorx_b1 = local_coords(1,1:2)
+                    coory_b1 = local_coords(2,2:3)
+                            
+                    coorx_b2= local_coords(1,1:2)
+                    coory_b2 = local_coords(2,2:3)
+                            
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    integ_line = integ_line1 + integ_line2
+                else if ((num_bnode_e == 5) .and. (nodpel == 6)) then
+             
+                endif
+                call surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density2,integ_surf,Ngauss,nodpel)
+            else if (pol=='TM') then
+             call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density2,BE,Ngauss,nodpel)
+            endif
+    end if
     endif
-    
+
     
     
     do i=1, nodpel
@@ -645,6 +722,9 @@ if (Ngauss == 3) then
     
     integ = integ_x + integ_y
     
+    print*, 'Line integral'
+    print*, integ
+    
     end subroutine line_integ
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -684,11 +764,13 @@ integ_surface = cmplx(0.0,0.0)
 do i=1,nodpel
     do k=1,Ngauss
         
-            integ_surface(i) = integ_surface(i) - gauss_wt(k)*(DPHIY(i,k)*pxxe*current_x-DPHIX(i,k)*pyye*current_y)*DETJACOB(k)
+            integ_surface(i) = integ_surface(i) + gauss_wt(k)*(DPHIY(i,k)*pxxe*current_x-DPHIX(i,k)*pyye*current_y)*DETJACOB(k)
     
         enddo
 enddo
 
+    print*, 'Surface integral'
+    print*, integ_surface
 
     end subroutine surf_integ
     
