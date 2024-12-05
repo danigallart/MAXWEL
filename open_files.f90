@@ -25,13 +25,15 @@ subroutine open_files
         mesh_param = trim(mesh_file)//'.dom.dat'
         mesh_element = trim(mesh_file)//'.set.dat'
         mesh_boundary = trim(mesh_file)//'.fix.dat'
-        mesh_flux = trim(mesh_file)//'_psi.dat'
+        mesh_flux = trim(mesh_file)//'.psi.dat'
+        mesh_phys = trim(mesh_file)//'.ker.dat'
         
         open(unit=mesh_geo_unit, file=mesh_geometry, status='old')
         open(unit=mesh_param_unit, file=mesh_param, status='old')
         open(unit=mesh_element_unit, file=mesh_element, status='old')
         open(unit=mesh_boundary_unit, file=mesh_boundary, status='old')
         open(unit=mesh_flux_unit, file=mesh_flux, status='old')
+        open(unit=mesh_phys_unit, file=mesh_phys, status='old')
     endif
       
 end subroutine open_files

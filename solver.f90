@@ -11,7 +11,11 @@ complex*16, allocatable :: Au_inc(:)
 
 allocate(u_inc(NP),u_scat(NP),u_tot(NP),Au_inc(NP))
 
-u_inc = exp(ij*(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))) !No need to use complex coordinates. We just need the real value at each node
+!u_inc = exp(ij*(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))) !No need to use complex coordinates. We just need the real value at each node
+
+u_inc%re = cos(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))
+u_inc%im = 0.0
+
 indep_vect = cmplx(0.0,0.0)
 indep_vect2 = cmplx(0.0,0.0)
 
@@ -39,6 +43,13 @@ endif
 u_scat = cmplx(0.0,0.0)
 
 indep_vect = indep_vect1 + indep_vect2
+
+!do ii=1,NP
+!    if (indep_vect(ii)%im /= 0.0) then
+!        print*,indep_vect(ii)
+!    end if
+!end do
+
 
 iter=1
 err=10.0

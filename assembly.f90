@@ -156,6 +156,14 @@ do kk=1,NE
     
     
     call element_matrix(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,pxye,pyxe,qe,AE,Ngauss,nodpel)
+!    do i=1,nodpel
+!        do j=1,nodpel
+!            if (AE(i,j)%im /= 0.0) then
+!                print*, kk,material(kk),i,j,AE(i,j)
+!            endif
+!        end do
+!    end do
+    
     BE = cmplx(0.0,0.0)
     integ_line = cmplx(0.0,0.0)
     integ_surf = cmplx(0.0,0.0)
@@ -212,7 +220,7 @@ do kk=1,NE
                 else if ((num_bnode_e == 5) .and. (nodpel == 6)) then
 
                 endif
-                call surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density1,integ_surf,Ngauss,nodpel)
+                call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density1,integ_surf,Ngauss,nodpel)
             else if (pol=='TM') then
              call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density1,BE,Ngauss,nodpel)
             endif
@@ -264,7 +272,7 @@ do kk=1,NE
                 else if ((num_bnode_e == 5) .and. (nodpel == 6)) then
              
                 endif
-                call surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density2,integ_surf,Ngauss,nodpel)
+                call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density2,integ_surf,Ngauss,nodpel)
             else if (pol=='TM') then
              call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density2,BE,Ngauss,nodpel)
             endif
@@ -661,6 +669,7 @@ subroutine shape_gauss_1D(xcoord_e,ycoord_e,phi,dphi,jacob_1d,Ngauss,nodpel,nodp
     complex*16 :: current_x,current_y
     complex*16 :: jacob_1d(ndim,Ngauss)
     complex*16 :: coorx(2),coory(2)
+    double precision :: coorx_mid,coory_mid,radius
 
     !Output variables
     complex*16, intent(out) :: integ(nodpel)
@@ -679,6 +688,13 @@ subroutine shape_gauss_1D(xcoord_e,ycoord_e,phi,dphi,jacob_1d,Ngauss,nodpel,nodp
     integ = cmplx(0.0,0.0)
     integ_x = cmplx(0.0,0.0)
     integ_y = cmplx(0.0,0.0)
+    
+    coorx_mid = sum(real(coorx))/size(coorx)
+    coory_mid = sum(real(coory))/size(coory)
+    radius = sqrt(coorx_mid**2+coory_mid**2)
+
+!    current_x = current_x*coory_mid/radius
+!    current_y = -current_y*coorx_mid/radius
     
 if (Ngauss == 3) then
         gauss_point1 = 0.0
@@ -722,14 +738,14 @@ if (Ngauss == 3) then
     
     integ = integ_x + integ_y
     
-    print*, 'Line integral'
-    print*, integ
+    !print*, 'Line integral'
+    !print*, integ
     
     end subroutine line_integ
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-subroutine surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,current_x,current_y,integ_surface,Ngauss,nodpel)
+subroutine surf_integ(coorx,coory,PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,current_x,current_y,integ_surface,Ngauss,nodpel)
 
     !Input variables
     double precision :: PHI(nodpel,Ngauss)
@@ -737,6 +753,8 @@ subroutine surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,current_x,current_y,int
     complex*16 :: current_x, current_y
     complex*16 :: pxxe, pyye
     complex*16 :: DPHIX(nodpel,Ngauss), DPHIY(nodpel,Ngauss)
+    complex*16 :: coorx(nodpel),coory(nodpel)
+    double precision :: coorx_mid,coory_mid,radius
 
     
     !Output varaibles
@@ -746,7 +764,14 @@ subroutine surf_integ(PHI,DPHIX,DPHIY,DETJACOB,pxxe,pyye,current_x,current_y,int
     integer :: i,k
     double precision :: gauss_wt(Ngauss)
     complex*16 :: gauss_sum
-        
+    
+    coorx_mid = sum(real(coorx))/size(coorx)
+    coory_mid = sum(real(coory))/size(coory)
+    radius = sqrt(coorx_mid**2+coory_mid**2)
+
+    !current_x = current_x*coory_mid/radius
+    !current_y = -current_y*coorx_mid/radius
+    
 if ((Ngauss == 3) .and. (nodpel == 3)) then
     gauss_wt = 1.0/6.0
 else if ((Ngauss == 4) .and. (nodpel == 6)) then
@@ -769,8 +794,8 @@ do i=1,nodpel
         enddo
 enddo
 
-    print*, 'Surface integral'
-    print*, integ_surface
+    !print*, 'Surface integral'
+    !print*, integ_surface
 
     end subroutine surf_integ
     

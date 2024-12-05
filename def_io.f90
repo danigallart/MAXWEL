@@ -20,7 +20,8 @@ module def_io
     character*(300) :: mesh_param           ! = 'data/EqMesh_TRIA3_FINE.dom.dat'
     character*(300) :: mesh_element         ! = 'data/EqMesh_TRIA3_FINE.set.dat'
     character*(300) :: mesh_boundary        ! = 'data/EqMesh_TRIA3_FINE.fix.dat'
-    character*(300) :: mesh_flux
+    character*(300) :: mesh_flux            ! = 'data/EqMesh_TRIA3_FINE.psi.dat'
+    character*(300) :: mesh_phys            ! = 'data/EqMesh_TRIA3_FINE.ker.dat'
 
     character*(300) :: logic_file = 'sparse_logic.dat'
 
@@ -41,6 +42,7 @@ module def_io
         mesh_element_unit = 13, &
         mesh_boundary_unit = 14, &
         mesh_flux_unit = 15, &
-        logic_unit = 17
+        mesh_phys_unit = 17, &
+        logic_unit = 18
     
 end module def_io

@@ -4,7 +4,7 @@ tol_solver = 1e-10
 
 iter_solver = 1000000
 
-freq = 3.22e1
+freq = 6.0e1
 
 phii = 0.0
 
@@ -20,19 +20,19 @@ elem_type: line						# line	quad
 
 elem_shape: tria					# tria	squa	
 
-mesh_file = tokamak_antenna3ref\tokamak_antenna3        #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
+mesh_file = square_mesh\square_mesh       #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
 
 read_logic:Y
 
 system_sym:N                 
 
-logic_file = tokamak_antenna3ref\tokamak_antenna3_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
+logic_file = square_mesh\square_mesh_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
 
-antenna_source:Y
+antenna_source:N
 
-plane_wave_source:N
+plane_wave_source:Y
 
-plasma:1            # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
+plasma:0            # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
 
 ka = 0.01314034
 
@@ -50,9 +50,9 @@ helium_3_frac = 0                # Helium-3 density fraction in plasma
 
 magnetic_flag:1      #1: 1/x magnetic field     2: magnetic field computed from magnetic flux
 
-mag_field_0 = 3.295              # Magnetic field at major radius [T]
+mag_field_0 = 5.0              # Magnetic field at major radius [T]
 
-major_radius = 2.96               # Major radius [m]   JET: 2.96 m    ITER: 6.2 m
+major_radius = 6.2               # Major radius [m]   JET: 2.96 m    ITER: 6.2 m
 
 conductivity = 0.0
 
@@ -84,8 +84,8 @@ current_source1_re = 500.0
 
 current_source1_im = 0.0
 
-current_source2_re = 0.0
+current_source2_re = 500.0
 
-current_source2_im = 500.0
+current_source2_im = 0.0
 
 end_data

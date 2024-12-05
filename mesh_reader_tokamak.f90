@@ -104,18 +104,20 @@ subroutine mesh_reader_tokamak
             text_line = trim(adjustl(text_line))
         enddo
     endif
-
-    read(mesh_geo_unit, '(a120)') text_line
+        
+    !Skip irrelevant data
+    
+    do while(text_line /= 'MATERIALS')
+        read(mesh_geo_unit,*) text_line
+    enddo
     
     ! Store material array
-    
-    read(mesh_element_unit,'(A120)') text_line
-    
-    if ( trim(adjustl(text_line)) == 'ELEMENTS') then
-        read(mesh_element_unit,'(A120)') text_line
-        do while(text_line /= 'END_ELEMENTS')
+        
+    if ( trim(adjustl(text_line)) == 'MATERIALS') then
+        read(mesh_geo_unit,'(A120)') text_line
+        do while(text_line /= 'END_MATERIALS')
             read(text_line,*) ii, material(ii)
-            read(mesh_element_unit,'(A120)') text_line
+            read(mesh_geo_unit,'(A120)') text_line
             text_line = trim(adjustl(text_line))
         enddo
     endif
