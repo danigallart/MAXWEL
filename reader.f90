@@ -511,6 +511,15 @@ do while(textinput /= 'end_data')
 				last=leng+1
 			endif
        enddo
+       
+       last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='boundary_type') then
+				read(option(last+1:leng),'(a3)') boundary_type
+				last=leng+1
+			endif
+       enddo
 enddo
 
 

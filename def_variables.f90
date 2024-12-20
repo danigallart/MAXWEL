@@ -4,14 +4,16 @@ module def_variables
     
     character(10) :: problem                                                                        !For future implementations where there are more than one available problem to solve
     character(4)  :: reader_type = 'read'
-    character*(4):: elem_type, elem_shape
+    character*(4) :: elem_type, elem_shape
+    character*(3) :: boundary_type
     
     !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
     integer :: ndim = 2                                                                             !Number of physical dimensions
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
     integer :: Nodpel                                                                               !Nodes per element
-    integer :: nodpedge, num_bnode_e                                                                             !Nodes per edge of the element
+    integer :: nodpedge, num_bnode_e                                                                !Nodes per edge of the element
     integer :: Ngauss                                                                               !Number of gaussian integration points
+    integer :: nboun                                                                                !Number of boundaries
     
     !INTEGER, parameter :: element_type = 1                                                         !1. triangle 2.quadrilateral
     !INTEGER, parameter :: pol_order = 1                                                            !1. linear 2. quadratic 3. cubic
@@ -59,7 +61,7 @@ module def_variables
     
 	! Constants
     real(kind=8), parameter :: c0 = 3.0d8                                                           ! m/sec, velocity of light in free space
-	real(kind=8), parameter :: pi = 4*ATAN(1.)                                                      ! pi is pi, constant of nature
+	real(kind=8), parameter :: pi = 4.0*ATAN(1.)                                                    ! pi is pi, constant of nature
 	complex*16, parameter :: ij = cmplx(0, 1)                                                       ! Imaginary unit, sqrt(-1)
 
 

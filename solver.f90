@@ -30,14 +30,14 @@ if (plane_wave_source=='Y') then
   
     endif
 
-    do kk=1,NE
-        if (material(kk) == 1) then
-            do ii = 1, nodpel 
-                i = conn(kk,ii)
-                indep_vect2(i) = -Au_inc(i)
-            enddo
-        endif
-    enddo
+    !do kk=1,NE
+    !    if (material(kk) == 1) then
+    !        do ii = 1, nodpel 
+    !            i = conn(kk,ii)
+    !            indep_vect2(i) = -Au_inc(i)
+    !        enddo
+    !    endif
+    !enddo
 endif
 
 u_scat = cmplx(0.0,0.0)
@@ -65,7 +65,7 @@ elseif (system_sym == 'N') then
 endif
 
 if (plane_wave_source=='Y') then
-    u_tot = u_scat+u_inc
+    u_tot = u_scat!+u_inc
 else if (plane_wave_source=='N') then
     u_tot = u_scat
 endif

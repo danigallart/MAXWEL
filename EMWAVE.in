@@ -4,7 +4,7 @@ tol_solver = 1e-10
 
 iter_solver = 1000000
 
-freq = 6.0e1
+freq = 3.0e1
 
 phii = 0.0
 
@@ -18,15 +18,17 @@ mesh_reader: toka					# read  toka
 
 elem_type: line						# line	quad
 
-elem_shape: tria					# tria	squa	
+elem_shape: tria					# tria	squa
 
-mesh_file = square_mesh\square_mesh       #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
+boundary_type: ABC					# PML	ABC	
+
+mesh_file = nopml/nopml       #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
 
 read_logic:Y
 
 system_sym:N                 
 
-logic_file = square_mesh\square_mesh_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
+logic_file = nopml/nopml_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
 
 antenna_source:N
 

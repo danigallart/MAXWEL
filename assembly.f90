@@ -5,12 +5,16 @@ use def_vectors
 
 implicit none
 
-integer :: kk, ii, i, j, jj, KEJE, IAUX, counter
+integer :: kk, ii, i, j, jj, KEJE, IAUX, counter, index1, index2,k,imax,imin,jmax,jmin
 complex*16 :: determinant
 
 complex*16, allocatable :: AE(:,:)
-complex*16, allocatable :: BE(:)
+complex*16, allocatable :: BE(:), wavin_ele(:)
 complex*16, allocatable :: integ_line(:),integ_line1(:),integ_line2(:),integ_surf(:)
+complex*16 :: alpha, beta, f(nodpel)
+
+double precision :: distance
+double precision, allocatable :: matrix(:,:)
 
 logical :: mask1(NP),mask2(NP)
 
@@ -28,11 +32,12 @@ allocate(PHI(nodpel,Ngauss), DPHI(ndim, nodpel, Ngauss))
 allocate(DPHIX(nodpel,Ngauss),DPHIY(nodpel,Ngauss))
 allocate(mass_species(n_species), charge_species(n_species))
 allocate(density_species(n_species,NE), mag_field(NE))
-allocate (JACOB_1D(ndim,Ngauss),PHI_1D(2,Ngauss),DPHI_1D(2,Ngauss))
-allocate (JACOB_1D1(ndim,Ngauss),PHI_1D1(2,Ngauss),DPHI_1D1(2,Ngauss))
-allocate (JACOB_1D2(ndim,Ngauss),PHI_1D2(2,Ngauss),DPHI_1D2(2,Ngauss))
-allocate (coorx_b(2),coory_b(2))
-allocate (coorx_b1(2),coory_b1(2),coorx_b2(2),coory_b2(2))
+allocate(JACOB_1D(ndim,Ngauss),PHI_1D(2,Ngauss),DPHI_1D(2,Ngauss))
+allocate(JACOB_1D1(ndim,Ngauss),PHI_1D1(2,Ngauss),DPHI_1D1(2,Ngauss))
+allocate(JACOB_1D2(ndim,Ngauss),PHI_1D2(2,Ngauss),DPHI_1D2(2,Ngauss))
+allocate(coorx_b(2),coory_b(2))
+allocate(coorx_b1(2),coory_b1(2),coorx_b2(2),coory_b2(2))
+allocate(wavin_ele(nodpel))
 
 
 
@@ -185,7 +190,7 @@ do kk=1,NE
                             coory_b(counter) = local_coords(2,i)
                         endif
                     enddo
-                call line_integ(coorx_b,coory_b,PHI_1D,pyye,pxxe,dummy_current,current_density1,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
+                call line_integ(coorx_b,coory_b,PHI_1D,pyye*dummy_current,pxxe*current_density1,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
                 else if ((num_bnode_e == 3) .and. (nodpel == 3)) then
                             ls1 = ns(1:2)
                             ls2 = ns(2:3)
@@ -196,8 +201,8 @@ do kk=1,NE
                             coorx_b2= local_coords(1,1:2)
                             coory_b2 = local_coords(2,2:3)
                             
-                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density1,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
-                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density1,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye*dummy_current,pxxe*current_density1,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye*dummy_current,pxxe*current_density1,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
                     integ_line = integ_line1 + integ_line2
                     
                 else if ((num_bnode_e == 3) .and. (nodpel == 6)) then
@@ -214,8 +219,8 @@ do kk=1,NE
                     coorx_b2= local_coords(1,1:2)
                     coory_b2 = local_coords(2,2:3)
                             
-                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
-                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye*dummy_current,pxxe*current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye*dummy_current,pxxe*current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
                     integ_line = integ_line1 + integ_line2
                 else if ((num_bnode_e == 5) .and. (nodpel == 6)) then
 
@@ -237,7 +242,7 @@ do kk=1,NE
                             coory_b(counter) = local_coords(2,i)
                         endif
                     enddo
-                call line_integ(coorx_b,coory_b,PHI_1D,pyye,pxxe,dummy_current,current_density2,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
+                call line_integ(coorx_b,coory_b,PHI_1D,pyye*dummy_current,pxxe*current_density2,JACOB_1D,integ_line,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls,ndim)
                 else if ((num_bnode_e == 3) .and. (nodpel == 3)) then
                             ls1 = ns(1:2)
                             ls2 = ns(2:3)
@@ -248,8 +253,8 @@ do kk=1,NE
                             coorx_b2= local_coords(1,1:2)
                             coory_b2 = local_coords(2,2:3)
                             
-                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
-                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye*dummy_current,pxxe*current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye*dummy_current,pxxe*current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
                     integ_line = integ_line1 + integ_line2
                     
                 else if ((num_bnode_e == 3) .and. (nodpel == 6)) then
@@ -266,8 +271,8 @@ do kk=1,NE
                     coorx_b2= local_coords(1,1:2)
                     coory_b2 = local_coords(2,2:3)
                             
-                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
-                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye,pxxe,dummy_current,current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
+                    call line_integ(coorx_b1,coory_b1,PHI_1D1,pyye*dummy_current,pxxe*current_density2,JACOB_1D1,integ_line1,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls1,ndim)
+                    call line_integ(coorx_b2,coory_b2,PHI_1D2,pyye*dummy_current,pxxe*current_density2,JACOB_1D2,integ_line2,Ngauss,nodpel,nodpedge,num_bnode_e,ns,ls2,ndim)
                     integ_line = integ_line1 + integ_line2
                 else if ((num_bnode_e == 5) .and. (nodpel == 6)) then
              
@@ -277,9 +282,90 @@ do kk=1,NE
              call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density2,BE,Ngauss,nodpel)
             endif
     end if
+    else if (plane_wave_source=='Y') then
+        if (material(kk)/=3) then
+        !f = -(k0**2)*(pxxe*cos(phii)**2+(pxye+pyxe)/2*sin(2*phii)+pyye*sin(phii)**2-rel_permeability_zz)*exp(ij*(k0*(local_coords(1,:)*cos(phii)+local_coords(2,:)*sin(phii))))
+        !call element_indepvec_nodal(PHI,DETJACOB,f,BE,Ngauss,nodpel)
+        endif
     endif
 
+    if (boundary_type == "ABC") then
+       inner: do ii = 1,nboun
+            if (kk == element_boundary(ii,1)) then
+                index1 = findloc(conn(kk,:),element_boundary(ii,2),1)
+                index2 = findloc(conn(kk,:),element_boundary(ii,3),1)
+                exit inner
+            endif
+        enddo inner
+        beta = cmplx(0.0,0.0)
+        alpha = cmplx(0.0,0.0)!1./1.5,k0*cos(phii))
+        if ((index1 == 1).and.(index2==2)) then
+            
+            distance = sqrt((coorx(conn(kk,index2))-coorx(conn(kk,index1)))**2+(coory(conn(kk,index2))-coory(conn(kk,index1)))**2)
+            
+            AE(1,1) = AE(1,1) + alpha*distance/3.0 
+            AE(1,2) = AE(1,2) + alpha*distance/6.0 
+            AE(2,1) = AE(2,1) + alpha*distance/6.0 
+            AE(2,2) = AE(2,2) + alpha*distance/3.0 
+            
+            BE(1) = BE(1) + beta*distance/2.0
+            BE(2) = BE(2) + beta*distance/2.0
+            
+        else if ((index1 == 2).and.(index2==3)) then
+            
+            distance = sqrt((coorx(conn(kk,index2))-coorx(conn(kk,index1)))**2+(coory(conn(kk,index2))-coory(conn(kk,index1)))**2)
+            
+            AE(2,2) = AE(2,2) + alpha*distance/3.0 
+            AE(2,3) = AE(2,3) + alpha*distance/6.0 
+            AE(3,2) = AE(3,2) + alpha*distance/6.0 
+            AE(3,3) = AE(3,3) + alpha*distance/3.0 
+            
+            BE(2) = BE(2) + beta*distance/2.0
+            BE(3) = BE(3) + beta*distance/2.0
+            
+        else if ((index1 == 3).and.(index2==1)) then
+            
+            distance = sqrt((coorx(conn(kk,index2))-coorx(conn(kk,index1)))**2+(coory(conn(kk,index2))-coory(conn(kk,index1)))**2)
+            
+            AE(1,1) = AE(1,1) + alpha*distance/3.0 
+            AE(1,3) = AE(1,3) + alpha*distance/6.0 
+            AE(3,1) = AE(3,1) + alpha*distance/6.0 
+            AE(3,3) = AE(3,3) + alpha*distance/3.0 
+            
+            BE(1) = BE(1) + beta*distance/2.0
+            BE(3) = BE(3) + beta*distance/2.0
+
+        endif
+    endif
+    wavin_ele = cmplx(0.0,0.0)
+    do i=1,nodpel
+        wavin_ele(i)%re = cos(k0*(coorx(conn(kk,i))*cos(phii)+coory(conn(kk,i))*sin(phii)))
+    !    do j=1,nodpel
+    !        !AE(i,j)%re = nint( AE(i,j)%re * 10.**2 ) / 10.**2
+    !        AE(i,j)%re = (-1)**(i+j)*((i*1.0)+(j*1.0))/((i*1.0)*(j*1.0))
+    !    enddo
+    enddo
     
+    BE = cmplx(0.0,0.0)
+    if (material(kk)==1) then
+        do i=1, nodpel
+            BE(i)%re = 0.0
+            do j=1,nodpel
+                BE(i)%re = BE(i)%re - AE(i,j)%re * wavin_ele(j)%re
+            enddo
+        enddo
+        
+    endif
+        
+    if (mod(kk,100)==0) then
+        print *,  "Element: ", kk
+        print *, "AE"
+        print *, char(11),AE%re
+        print *, "BE"
+        print *, char(11),BE%re
+        print *, ""
+        print *, ""
+    endif
     
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AE(i,i)
@@ -296,6 +382,31 @@ do kk=1,NE
     
 enddo
 
+!allocate(matrix(NP,NP))
+!matrix = 0.0
+!imin=847
+!imax=imin+10
+!jmin=847
+!jmax=jmin+10
+!
+! do i = 1, NP
+!     ! Añadir el elemento de la diagonal
+!     matrix(i, i) = AD(i)
+!     ! Añadir los elementos fuera de la diagonal
+!     do k = IA(i), IA(i+1) - 1
+!        j = JA(k)  ! Columna del elemento
+!        matrix(i, j) = AN(k)
+!     end do
+! end do
+! 
+!do i = imin, imax
+!    do j=jmin,jmax
+!     write(*, '(F12.5)', advance='no') matrix(i, j)
+!    enddo
+!    print *,''
+!end do
+!
+!deallocate(matrix)
 
 END SUBROUTINE assembly
 
@@ -658,15 +769,14 @@ subroutine shape_gauss_1D(xcoord_e,ycoord_e,phi,dphi,jacob_1d,Ngauss,nodpel,nodp
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    subroutine line_integ(coorx,coory,phi_1d,pxxe,pyye,current_x,current_y,jacob_1d,integ,Ngauss,nodpel,nodpedge,num_bnode,n_global,l_global,ndim)
+    subroutine line_integ(coorx,coory,phi_1d,term_x,term_y,jacob_1d,integ,Ngauss,nodpel,nodpedge,num_bnode,n_global,l_global,ndim)
     
     implicit none
     
     !Input variables
     integer :: Ngauss,nodpel, nodpedge, ndim, num_bnode, n_global(nodpel), l_global(2)
     double precision :: phi_1d(2,Ngauss)
-    complex*16 :: pxxe,pyye
-    complex*16 :: current_x,current_y
+    complex*16 :: term_x,term_y
     complex*16 :: jacob_1d(ndim,Ngauss)
     complex*16 :: coorx(2),coory(2)
     double precision :: coorx_mid,coory_mid,radius
@@ -730,8 +840,8 @@ if (Ngauss == 3) then
         enddo
         
         do kgauss=1,Ngauss
-            integ_x(ii) = integ_x(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*pxxe*current_x*jacob_1d(1,kgauss)
-            integ_y(ii) = integ_y(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*pxxe*current_y*jacob_1d(2,kgauss)
+            integ_x(ii) = integ_x(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*term_x*jacob_1d(1,kgauss)
+            integ_y(ii) = integ_y(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*term_y*jacob_1d(2,kgauss)
         enddo
         
     enddo
@@ -798,6 +908,64 @@ enddo
     !print*, integ_surface
 
     end subroutine surf_integ
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    !Function that computes the alpha integral for boundary conditions
+    
+    !subroutine aebound_integ(coorx,coory,matrix,nodpel)
+    
+    !complex*16 :: matrix(nodpel,nodpel)
+    !complex*16 :: coorx(2),coory(2)
+    !
+    !!Local variables
+    !integer :: i, j, k
+    !complex*16 :: matrix_x(nodpel,nodpel),matrix_y(nodpel,nodpel)
+    !double precision :: dummy_1d(nodpel,Ngauss)
+    !double precision :: ksi, gauss_point1, gauss_point2, gauss_weight1, gauss_weight2
+    !double precision :: gauss_pt_ksi(Ngauss), gauss_wt(Ngauss)
+    !
+    !
+    !if (Ngauss == 3) then
+    !    gauss_point1 = 0.0
+    !    gauss_point2 = sqrt(0.6)
+    !    gauss_weight1 = 8./9.
+    !    gauss_weight2 = 5./9.
+    !    gauss_pt_ksi = (/gauss_point1, gauss_point2, -gauss_point2/)
+    !    gauss_wt = (/gauss_weight1, gauss_weight2, gauss_weight2/)
+    !
+    !else if (Ngauss == 4) then
+    !    gauss_point1 = sqrt((3.0/7.0)-(2.0/7.0)*sqrt(6.0/5.0))
+    !    gauss_point2 = sqrt((3.0/7.0)+(2.0/7.0)*sqrt(6.0/5.0))
+    !    gauss_weight1 = (18.+sqrt(30.))/36.
+    !    gauss_weight2 = (18.-sqrt(30.))/36.
+    !    gauss_pt_ksi = (/gauss_point1, -gauss_point1, gauss_point2, -gauss_point2/)
+    !    gauss_wt = (/ gauss_weight1, gauss_weight1, gauss_weight2, gauss_weight2/)
+    !
+    !else if (Ngauss == 9) then
+    !    gauss_pt_ksi = (/0.0,-0.8360311073266358,0.8360311073266358,-0.9681602395076261,0.9681602395076261,-0.3242534234038089,0.3242534234038089,-0.6133714327005904,0.6133714327005904/)
+    !    gauss_wt = (/ 0.3302393550012598, 0.1806481606948574, 0.1806481606948574, 0.0812743883615744,0.0812743883615744,0.3123470770400029,0.3123470770400029,0.2606106964029354,0.2606106964029354/)
+    !
+    !endif
+    !
+    !
+    !call shape_gauss_1D(coorx,coory,gauss_pt_ksi,phi_1d,jacob_1d,Ngauss,nodpel,nodpedge,num_bnode,ndim)
+    !
+    !
+    !do i=1,nodpel
+    !    do j=1,nodpel
+    !        do k=1,Ngauss
+    !    
+    !            matrix_x(i,j) = matrix_x(i,j) + gauss_wt(k)*PHI_1D(i,k)*PHI_1D(j,k)*alpha*jacob_1d(k)
+    !            matrix_y(i,j) = matrix_y(i,j) + gauss_wt(k)*PHI_1D(i,k)*PHI_1D(j,k)*alpha*jacob_1d(k)
+    !        
+    !        enddo
+    !    enddo
+    !enddo
+    !
+    !matrix = matrix_x + matrix_y
+    !
+    !end subroutine aebound_intef
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
@@ -901,13 +1069,57 @@ BE = cmplx(0.0,0.0)
 do i=1,nodpel
     do k=1,Ngauss
         
-            BE(i) = BE(i) - gauss_wt(k)*PHI(i,k)*source_current*DETJACOB(k)
+            BE(i) = BE(i) + gauss_wt(k)*PHI(i,k)*source_current*DETJACOB(k)
     
         enddo
 enddo
 
 
-end subroutine element_indepvec
+    end subroutine element_indepvec
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+subroutine element_indepvec_nodal(PHI,DETJACOB,source_current,BE,Ngauss,nodpel)
+
+    !Input variables
+    double precision :: PHI(nodpel,Ngauss)
+    complex*16 :: DETJACOB(Ngauss)
+    complex*16 :: source_current(nodpel)
+    
+    !Output varaibles
+    complex*16 :: BE(nodpel)
+    
+    !Local variables
+    integer :: i,k
+    double precision, allocatable :: gauss_wt(:)
+    complex*16 :: gauss_sum
+    
+    allocate(gauss_wt(Ngauss))
+    
+if ((Ngauss == 3) .and. (nodpel == 3)) then
+    gauss_wt = 1.0/6.0
+else if ((Ngauss == 4) .and. (nodpel == 6)) then
+    gauss_wt = (/ -(27./96.), (25./96.), (25./96.), (25./96.)/)
+else if ((Ngauss == 4) .and. (nodpel == 4)) then
+    gauss_wt = (/ 1.0, 1.0, 1.0, 1.0/)
+else if ((Ngauss == 4) .and. (nodpel == 8)) then
+    gauss_wt = (/ 1.0, 1.0, 1.0, 1.0/)
+else if ((Ngauss == 9) .and. (nodpel == 8)) then
+    gauss_wt = (/ (25./81.), (40./81.), (25./81.), (40./81.), (64./81.), (40./81.), (25./81.), (40./81.), (25./81.)/)
+endif
+
+BE = cmplx(0.0,0.0)
+
+do i=1,nodpel
+    do k=1,Ngauss
+        
+            BE(i) = BE(i) + gauss_wt(k)*PHI(i,k)*source_current(i)*DETJACOB(k)
+    
+        enddo
+enddo
+
+
+end subroutine element_indepvec_nodal
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
@@ -992,5 +1204,23 @@ else if (flag == 2) then
     
 end if
     
-end subroutine magnetic_field_calculation
+    end subroutine magnetic_field_calculation
 
+    
+!!!!!!!!!!!!!!!!!!!!!
+subroutine maths_matrix_vector_multiplication_1(m,n,A,B,C)
+    !
+    ! A(m,n)*B(n,1)=C(m,1)
+    !
+    integer        :: m, n, i, j
+    complex*16     :: A(m,n), B(n), C(m)
+
+    C = cmplx(0.0,0.0)
+    do i = 1,m 
+       C(i) = cmplx(0.0,0.0)
+        do j = 1,n
+          C(i) = C(i) + cmplx(A(i,j)%re * B(j)%re - A(i,j)%im * B(j)%im,A(i,j)%im * B(j)%re + A(i,j)%re * B(j)%im)
+       end do
+    end do
+
+  end subroutine maths_matrix_vector_multiplication_1

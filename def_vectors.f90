@@ -19,6 +19,7 @@ module def_vectors
 
     integer, allocatable :: material(:)
     integer, allocatable :: boundary(:)
+    integer, allocatable :: element_boundary(:,:)
     
     complex*16, allocatable :: JACOB(:,:,:),INVJACOB(:,:,:)
     double precision, allocatable :: PHI(:,:),DPHI(:,:,:)
