@@ -5,7 +5,7 @@ subroutine mesh_reader_tokamak
     
     implicit none
     
-    integer :: istat, ii, jj, node
+    integer :: istat, ii, jj, kk, node
         
     double precision :: r
     
@@ -26,6 +26,8 @@ subroutine mesh_reader_tokamak
             read(text_line, '(a20,i10)') label,NE
         elseif(index(text_line, 'SPACE_DIMENSIONS=') == 1) then
             read(text_line, '(a20,i10)') label,ndim
+        elseif(index(text_line, 'BOUNDARIES=') == 1) then
+            read(text_line, '(a20,i10)') label,nboun
         endif
     enddo
     
@@ -39,8 +41,13 @@ subroutine mesh_reader_tokamak
     allocate(material(NE), boundary(NP))
     allocate(norm_mag_flux_elements(NE), norm_mag_flux_nodes(NP))
     allocate(pml_flag(NP))
+    allocate(complex_coorx(NP), complex_coory(NP))
+    allocate(element_boundary(nboun,3))
+    allocate(boundary_alya(NE,4))
     
     boundary = 0
+    element_boundary = 0
+    boundary_alya = 0
     pml_flag = .FALSE.
     norm_mag_flux_nodes = 1.0
 
@@ -105,6 +112,23 @@ subroutine mesh_reader_tokamak
         enddo
     endif
         
+    if (boundary_type == "ABC") then
+        
+        !Store external boundaries
+        do while(trim(adjustl(text_line)) /= 'BOUNDARIES, ELEMENT')
+            read(mesh_geo_unit,'(A120)') text_line
+        enddo
+        
+        if ( trim(adjustl(text_line)) == 'BOUNDARIES, ELEMENT') then
+            read(mesh_geo_unit,'(A120)') text_line
+            do while(text_line /= 'END_BOUNDARIES')
+                read(text_line,*) ii, element_boundary(ii,2), element_boundary(ii,3), element_boundary(ii,1)
+                read(mesh_geo_unit,'(A120)') text_line
+                text_line = trim(adjustl(text_line))
+            enddo
+        endif
+    endif
+    
     !Skip irrelevant data
     
     do while(text_line /= 'MATERIALS')
@@ -127,49 +151,66 @@ subroutine mesh_reader_tokamak
     read(mesh_boundary_unit,'(A120)') text_line
     if ( trim(adjustl(text_line)) == 'ON_NODES') then
     read(mesh_boundary_unit,'(A120)') text_line
-    do while(text_line /= 'END_ON_NODES')
-        read(text_line,*) ii, boundary(ii)
-        read(mesh_boundary_unit,'(A120)') text_line
-        text_line = trim(adjustl(text_line))
-    enddo
-    endif
+        do while(text_line /= 'END_ON_NODES')
+            read(text_line,*) ii, boundary(ii)
+            read(mesh_boundary_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+        enddo
+    else if (trim(adjustl(text_line)) == 'ON_BOUNDARIES, UNKNOWN') then
+    read(mesh_boundary_unit,'(A120)') text_line
+        do while(text_line /= 'END_ON_BOUNDARIES')
+            read(text_line,*) ii, boundary_alya(ii,1), boundary_alya(ii,2), boundary_alya(ii,3), boundary_alya(ii,4)
+            read(mesh_boundary_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+        enddo
+    endif        
     
     ! Store normalised magnetic flux array 
     
     read(mesh_flux_unit,'(A120)') text_line
     if ( trim(adjustl(text_line)) == 'MAGNETIC_FLUX') then
-    read(mesh_flux_unit,'(A120)') text_line
-    do while(text_line /= 'END_MAGNETIC_FLUX')
-        read(text_line,*) ii, norm_mag_flux_nodes(ii)
         read(mesh_flux_unit,'(A120)') text_line
-        text_line = trim(adjustl(text_line))
-    enddo
+        do while(text_line /= 'END_MAGNETIC_FLUX')
+            read(text_line,*) ii, norm_mag_flux_nodes(ii)
+            read(mesh_flux_unit,'(A120)') text_line
+            text_line = trim(adjustl(text_line))
+        enddo
     endif
 
+    complex_coorx = cmplx(0.0,0.0)
+    complex_coory = cmplx(0.0,0.0)
     
     do ii=1,NE
         coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
         coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
         norm_mag_flux_elements(ii) = sum(norm_mag_flux_nodes(conn(ii,:)))/size(norm_mag_flux_nodes(conn(ii,:)))
-        if (material(ii) == 3) then
-            do jj = 1, nodpel
-                node = conn(ii,jj)
-                pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
-            enddo
+        if (boundary_type == 'PML') then
+            if (material(ii) == 3) then
+                do jj = 1, nodpel
+                    node = conn(ii,jj)
+                    pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
+                enddo
+            endif
         endif
     enddo
     
     n_scatb = count(boundary == 1, dim=1)
-    n_pml_bin = count(boundary == 2, dim=1)
-    n_pml_bout = count(boundary == 3, dim=1)
+    
+    if (boundary_type == 'PML') then
+        n_pml_bin = count(boundary == 2, dim=1)
+        n_pml_bout = count(boundary == 3, dim=1)
 
-allocate(complex_coorx(NP), complex_coory(NP))
+        call lcpml_tokamak(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
-complex_coorx = cmplx(0.0,0.0)
-complex_coory = cmplx(0.0,0.0)
-
-call lcpml_tokamak(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
-
+    else if (boundary_type == 'ABC') then
+        
+        do ii=1,NP
+            complex_coorx(ii)%re = coorx(ii)
+            complex_coory(ii)%re = coory(ii)
+        enddo
+        
+    end if
+    
 
     end subroutine mesh_reader_tokamak
     

@@ -5,14 +5,23 @@ use def_vectors
 
 implicit none
 
-integer :: kk, ii, i, j, jj, KEJE, IAUX, counter
+integer :: kk, ii, i, j, jj, KEJE, IAUX, counter, index1, index2
 complex*16 :: determinant
 
 complex*16, allocatable :: AE(:,:)
 complex*16, allocatable :: BE(:)
 complex*16, allocatable :: integ_line(:),integ_line1(:),integ_line2(:),integ_surf(:)
+complex*16 :: AB(3,3)
+complex*16 :: BB(3)
+complex*16 :: alpha,beta,gamma_1_jin,gamma_2_jin
 
 logical :: mask1(NP),mask2(NP)
+
+complex*16, allocatable :: Au_inc(:)
+
+double precision :: distance,radius
+
+allocate(u_inc(NP),Au_inc(NP))
 
 allocate(local_coords(ndim,nodpel))
 allocate(AE(nodpel,nodpel))
@@ -278,7 +287,6 @@ do kk=1,NE
             endif
     end if
     endif
-
     
     
     do i=1, nodpel
@@ -295,6 +303,114 @@ do kk=1,NE
     enddo
     
 enddo
+
+do ii = 1,NP
+    u_inc(ii) = exp(ij*(k0*(real(complex_coorx(ii))*cos(phii)+real(complex_coory(ii))*sin(phii)))) !No need to use complex coordinates. We just need the real value at each node
+enddo
+!u_inc%re = cos(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))
+!u_inc%im = 0.0
+
+indep_vect = cmplx(0.0,0.0)
+indep_vect2 = cmplx(0.0,0.0)
+
+if (plane_wave_source=='Y') then
+    if (system_sym=='Y') then
+    
+    call MATXVECSIM_cplx(NP,IA,JA,AN,AD,u_inc,Au_inc)
+  
+    elseif (system_sym=='N') then
+    
+    call MATXVEC_cplex(IA,JA,AN,AD,u_inc,Au_inc,NP,NONULL,0)
+  
+    endif
+
+    do kk=1,NE
+        if (material(kk) == 1) then
+            do ii = 1, nodpel 
+                i = conn(kk,ii)
+                indep_vect2(i) = -Au_inc(i)
+            enddo
+        endif
+    enddo
+endif
+
+indep_vect = indep_vect1 + indep_vect2
+
+if (boundary_type == "ABC") then
+    do kk = 1,NE
+        inner: do ii = 1,nboun
+            if (kk == element_boundary(ii,1)) then
+                index1 = findloc(conn(kk,:),element_boundary(ii,2),1)
+                index2 = findloc(conn(kk,:),element_boundary(ii,3),1)
+                distance = sqrt((coorx(conn(kk,index2))-coorx(conn(kk,index1)))**2+(coory(conn(kk,index2))-coory(conn(kk,index1)))**2)
+                exit inner
+            endif
+        enddo inner
+        radius = 2.0
+        beta = cmplx(0.0,0.0)!u_inc(conn(kk,index1))
+        alpha = cmplx(1.0/(2.0*radius),k0*cos(phii))
+        !gamma_1_jin = (ij*k0+1./(2.0*radius)-((1./radius)**2)*(1./8.)*(1./(1.0/radius+ij*k0)))
+        !gamma_2_jin = -0.5/(1.0/radius+ij*k0)
+        gamma_1_jin = ij*k0
+        gamma_2_jin = 0.0!-0.5/(ij*k0)
+        AB = cmplx(0.0,0.0)
+        BB = cmplx(0.0,0.0)
+        
+        if ((boundary_alya(kk,4)==1).or.(boundary_alya(kk,4)==4)) then
+            gamma_1_jin = gamma_1_jin
+            gamma_2_jin = gamma_2_jin
+        else if ((boundary_alya(kk,4)==2).or.(boundary_alya(kk,4)==3)) then
+            gamma_1_jin = -gamma_1_jin
+            gamma_2_jin = -gamma_2_jin
+        endif
+        
+        if ((index1 == 1).and.(index2==2)) then
+            
+            AB(1,1) = AB(1,1) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(1,2) = AB(1,2) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(2,1) = AB(2,1) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(2,2) = AB(2,2) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            
+            BB(1) = BB(1) + beta*distance/2.0
+            BB(2) = BB(2) + beta*distance/2.0
+            
+        else if ((index1 == 2).and.(index2==3)) then
+                        
+            AB(2,2) = AB(2,2) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(2,3) = AB(2,3) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,2) = AB(3,2) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,3) = AB(3,3) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            
+            BB(2) = BB(2) + beta*distance/2.0
+            BB(3) = BB(3) + beta*distance/2.0
+            
+        else if ((index1 == 3).and.(index2==1)) then
+                        
+            AB(1,1) = AB(1,1) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(1,3) = AB(1,3) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,1) = AB(3,1) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,3) = AB(3,3) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            
+            BB(1) = BB(1) + beta*distance/2.0
+            BB(3) = BB(3) + beta*distance/2.0
+
+        endif
+    
+        do i=1, nodpel
+        AD(ns(i)) = AD(ns(i)) + AB(i,i)
+        indep_vect(ns(i)) = indep_vect(ns(i)) + BB(i)
+        do j=1, nodpel
+            do IAUX = 1,ICX(ns(i))
+                KEJE = IA(ns(i))+IAUX-1
+                if (JA(KEJE) == ns(j)) then
+                    AN(KEJE) = AN(KEJE) + AB(i,j)
+                endif
+            enddo
+        enddo
+    enddo
+        
+    enddo
+endif
 
 
 END SUBROUTINE assembly
@@ -907,7 +1023,7 @@ do i=1,nodpel
 enddo
 
 
-end subroutine element_indepvec
+    end subroutine element_indepvec
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
@@ -992,5 +1108,5 @@ else if (flag == 2) then
     
 end if
     
-end subroutine magnetic_field_calculation
-
+    end subroutine magnetic_field_calculation
+    
