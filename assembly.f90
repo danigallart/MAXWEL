@@ -286,7 +286,7 @@ do kk=1,NE
              call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density2,BE,Ngauss,nodpel)
             endif
     end if
-    endif
+        endif
     
     
     do i=1, nodpel
@@ -322,7 +322,7 @@ if (plane_wave_source=='Y') then
     
     call MATXVEC_cplex(IA,JA,AN,AD,u_inc,Au_inc,NP,NONULL,0)
   
-    endif
+endif
 
     do kk=1,NE
         if (material(kk) == 1) then
@@ -349,51 +349,51 @@ if (boundary_type == "ABC") then
         radius = 2.0
         beta = cmplx(0.0,0.0)!u_inc(conn(kk,index1))
         alpha = cmplx(1.0/(2.0*radius),k0*cos(phii))
-        !gamma_1_jin = (ij*k0+1./(2.0*radius)-((1./radius)**2)*(1./8.)*(1./(1.0/radius+ij*k0)))
-        !gamma_2_jin = -0.5/(1.0/radius+ij*k0)
-        gamma_1_jin = ij*k0
-        gamma_2_jin = 0.0!-0.5/(ij*k0)
+        gamma_1_jin = (ij*k0+1./(2.0*radius)-((1./radius)**2)*(1./8.)*(1./(1.0/radius+ij*k0)))
+        gamma_2_jin = -0.5/(1.0/radius+ij*k0)
+        !gamma_1_jin = ij*k0
+        !gamma_2_jin = 0.0!-0.5/(ij*k0)
         AB = cmplx(0.0,0.0)
         BB = cmplx(0.0,0.0)
-        
-        if ((boundary_alya(kk,4)==1).or.(boundary_alya(kk,4)==4)) then
-            gamma_1_jin = gamma_1_jin
-            gamma_2_jin = gamma_2_jin
-        else if ((boundary_alya(kk,4)==2).or.(boundary_alya(kk,4)==3)) then
-            gamma_1_jin = -gamma_1_jin
-            gamma_2_jin = -gamma_2_jin
-        endif
+        !call bc_integ((/coorx(conn(kk,index1)),coorx(conn(kk,index2))/),(/coory(conn(kk,index1)),coory(conn(kk,index2))/),phi_1d,pxxe,pyye,k0,jacob_1d,AB,Ngauss,nodpel,2,2,ndim)
+        !if ((boundary_alya(kk,4)==1).or.(boundary_alya(kk,4)==4)) then
+        !    gamma_1_jin = gamma_1_jin
+        !    gamma_2_jin = gamma_2_jin
+        !else if ((boundary_alya(kk,4)==2).or.(boundary_alya(kk,4)==3)) then
+        !    gamma_1_jin = -gamma_1_jin
+        !    gamma_2_jin = -gamma_2_jin
+        !endif
         
         if ((index1 == 1).and.(index2==2)) then
             
-            AB(1,1) = AB(1,1) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
-            AB(1,2) = AB(1,2) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
-            AB(2,1) = AB(2,1) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
-            AB(2,2) = AB(2,2) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(1,1) = AB(1,1) - gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(1,2) = AB(1,2) - gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(2,1) = AB(2,1) - gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(2,2) = AB(2,2) - gamma_1_jin*distance/3.0 - gamma_2_jin/distance
             
             BB(1) = BB(1) + beta*distance/2.0
             BB(2) = BB(2) + beta*distance/2.0
             
         else if ((index1 == 2).and.(index2==3)) then
                         
-            AB(2,2) = AB(2,2) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
-            AB(2,3) = AB(2,3) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
-            AB(3,2) = AB(3,2) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
-            AB(3,3) = AB(3,3) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(2,2) = AB(2,2) - gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(2,3) = AB(2,3) - gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,2) = AB(3,2) - gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,3) = AB(3,3) - gamma_1_jin*distance/3.0 - gamma_2_jin/distance
             
             BB(2) = BB(2) + beta*distance/2.0
             BB(3) = BB(3) + beta*distance/2.0
             
         else if ((index1 == 3).and.(index2==1)) then
                         
-            AB(1,1) = AB(1,1) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
-            AB(1,3) = AB(1,3) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
-            AB(3,1) = AB(3,1) + gamma_1_jin*distance/6.0 + gamma_2_jin/distance
-            AB(3,3) = AB(3,3) + gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(1,1) = AB(1,1) - gamma_1_jin*distance/3.0 - gamma_2_jin/distance
+            AB(1,3) = AB(1,3) - gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,1) = AB(3,1) - gamma_1_jin*distance/6.0 + gamma_2_jin/distance
+            AB(3,3) = AB(3,3) - gamma_1_jin*distance/3.0 - gamma_2_jin/distance
             
             BB(1) = BB(1) + beta*distance/2.0
             BB(3) = BB(3) + beta*distance/2.0
-
+        
         endif
     
         do i=1, nodpel
@@ -847,7 +847,7 @@ if (Ngauss == 3) then
         
         do kgauss=1,Ngauss
             integ_x(ii) = integ_x(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*pxxe*current_x*jacob_1d(1,kgauss)
-            integ_y(ii) = integ_y(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*pxxe*current_y*jacob_1d(2,kgauss)
+            integ_y(ii) = integ_y(ii) + gauss_wt(kgauss)*dummy_phi(ii,kgauss)*pyye*current_y*jacob_1d(2,kgauss)
         enddo
         
     enddo
@@ -858,6 +858,76 @@ if (Ngauss == 3) then
     !print*, integ
     
     end subroutine line_integ
+    
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    subroutine bc_integ(coorx,coory,phi_1d,pxxe,pyye,k0,jacob_1d,AB,Ngauss,nodpel,nodpedge,num_bnode,ndim)
+    
+    implicit none
+    
+    !Input variables
+    integer :: Ngauss,nodpel, nodpedge, ndim, num_bnode
+    double precision :: phi_1d(2,Ngauss), k0
+    complex*16 :: pxxe,pyye
+    complex*16 :: jacob_1d(ndim,Ngauss)
+    complex*16 :: coorx(2),coory(2),length,nxe,nye
+
+    !Output variables
+    complex*16, intent(out) :: AB(nodpel,nodpel)
+
+    !Local variables
+    integer :: kgauss, ii, jj, i
+    double precision :: ksi, gauss_point1, gauss_point2, gauss_weight1, gauss_weight2
+    double precision :: gauss_pt_ksi(Ngauss), gauss_wt(Ngauss)
+    complex*16 :: ij
+
+    !Allocate local variables
+    !allocate(gauss_wt(Ngauss),gauss_pt_ksi(Ngauss),dummy_phi(nodpel,Ngauss))
+    ij = cmplx(0.0,1.0)
+    AB = cmplx(0.0,0.0)
+    
+if (Ngauss == 3) then
+        gauss_point1 = 0.0
+        gauss_point2 = sqrt(0.6)
+        gauss_weight1 = 8./9.
+        gauss_weight2 = 5./9.
+        gauss_pt_ksi = (/gauss_point1, gauss_point2, -gauss_point2/)
+        gauss_wt = (/gauss_weight1, gauss_weight2, gauss_weight2/)
+
+    else if (Ngauss == 4) then
+        gauss_point1 = sqrt((3.0/7.0)-(2.0/7.0)*sqrt(6.0/5.0))
+        gauss_point2 = sqrt((3.0/7.0)+(2.0/7.0)*sqrt(6.0/5.0))
+        gauss_weight1 = (18.+sqrt(30.))/36.
+        gauss_weight2 = (18.-sqrt(30.))/36.
+        gauss_pt_ksi = (/gauss_point1, -gauss_point1, gauss_point2, -gauss_point2/)
+        gauss_wt = (/ gauss_weight1, gauss_weight1, gauss_weight2, gauss_weight2/)
+    
+    else if (Ngauss == 9) then
+        gauss_pt_ksi = (/0.0,-0.8360311073266358,0.8360311073266358,-0.9681602395076261,0.9681602395076261,-0.3242534234038089,0.3242534234038089,-0.6133714327005904,0.6133714327005904/)
+        gauss_wt = (/ 0.3302393550012598, 0.1806481606948574, 0.1806481606948574, 0.0812743883615744,0.0812743883615744,0.3123470770400029,0.3123470770400029,0.2606106964029354,0.2606106964029354/)
+
+    endif
+    
+    call shape_gauss_1D(coorx,coory,gauss_pt_ksi,phi_1d,jacob_1d,Ngauss,nodpel,nodpedge,num_bnode,ndim)
+    
+    length = sqrt((coorx(2)-coorx(1))**2+(coory(2)-coory(1))**2)
+    
+    nxe = (coory(2)-coory(1))/length
+    nye = (coorx(2)-coorx(1))/length
+    
+    
+    do ii=1,nodpel
+        do jj=1,nodpel
+            do kgauss=1,Ngauss
+                AB(ii,jj) = AB(ii,jj) + gauss_wt(kgauss)*PHI_1D(ii,kgauss)*PHI_1D(jj,kgauss)*(pxxe*nxe+pyye*nye)*ij*k0*length/2
+            enddo
+        enddo
+    enddo
+        
+    !print*, 'Line integral'
+    !print*, integ
+    
+    end subroutine bc_integ
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
