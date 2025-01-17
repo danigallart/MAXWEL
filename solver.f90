@@ -65,7 +65,7 @@ elseif (system_sym == 'N') then
 endif
 
 if (plane_wave_source=='Y') then
-    u_tot = u_scat!+u_inc
+    u_tot = u_scat+u_inc
 else if (plane_wave_source=='N') then
     u_tot = u_scat
 endif
