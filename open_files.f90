@@ -3,7 +3,6 @@ subroutine open_files
     use def_variables
     implicit none
     
-    open(unit=data_unit,file=output_data,status='unknown')
     open(unit=result_scat_unit,file=result_scat,status='unknown')
     open(unit=result_tot_unit,file=result_tot,status='unknown')
     open(unit=result_inc_unit,file=result_inc,status='unknown')

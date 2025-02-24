@@ -188,17 +188,16 @@ subroutine mesh_reader_tokamak
             if (material(ii) == 3) then
                 do jj = 1, nodpel
                     node = conn(ii,jj)
-                    pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
-                enddo
+                    pml_flag(node) = (boundary(node) /= 3) .and. (boundary(node) /=4)
+    enddo
             endif
         endif
     enddo
     
-    n_scatb = count(boundary == 1, dim=1)
     
     if (boundary_type == 'PML') then
-        n_pml_bin = count(boundary == 2, dim=1)
-        n_pml_bout = count(boundary == 3, dim=1)
+        n_pml_bin = count(boundary == 3, dim=1)
+        n_pml_bout = count(boundary == 4, dim=1)
 
         call lcpml_tokamak(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
@@ -252,11 +251,11 @@ count1 = 0
 count2 = 0
   
 do ii=1,n
-    if (boundary_array(ii) == 2) then
+    if (boundary_array(ii) == 3) then
         count1 = count1 + 1
         pmlbin_x(count1) = x(ii)
         pmlbin_y(count1) = y(ii)
-    else if (boundary_array(ii) == 3) then
+    else if (boundary_array(ii) == 4) then
         count2 = count2 + 1
         pmlbout_x(count2) = x(ii)
         pmlbout_y(count2) = y(ii)
@@ -264,7 +263,7 @@ do ii=1,n
 enddo
   
 do ii=1,n
-    if ((boundary_array(ii) == 3) .or. flag_array(ii)) then
+    if ((boundary_array(ii) == 4) .or. flag_array(ii)) then
         !Set LC-PML parameters
         !alpha = 7.0 * k
         alphajk = cmplx(0.0,-7.0)

@@ -149,7 +149,6 @@ subroutine mesh_reader
         endif
     enddo
     
-    n_scatb = count(boundary == 1, dim=1)
     
     if (boundary_type == 'PML') then
         n_pml_bin = count(boundary == 2, dim=1)

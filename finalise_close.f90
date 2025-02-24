@@ -2,7 +2,6 @@ subroutine finalise
 use def_io
 implicit none
 
-    close(data_unit)
     close(result_scat_unit)
     close(result_tot_unit)
     close(result_inc_unit)

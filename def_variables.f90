@@ -7,7 +7,6 @@ module def_variables
     character*(4) :: elem_type, elem_shape
     character*(3) :: boundary_type
     
-    !integer, parameter :: geo_type = 3                                                             !1. plane stress, 2. plane strain, 3. axisymmetric 4. 3D 
     integer :: ndim = 2                                                                             !Number of physical dimensions
     integer :: NE, NP                                                                               !NE: Number of elements, NP: Number of nodes
     integer :: Nodpel                                                                               !Nodes per element
@@ -34,7 +33,6 @@ module def_variables
     integer :: n_pml_bin                                                                            !PML inside boundary nodes
     integer :: n_pml_bout                                                                           !PML outside boundary nodes
     integer :: n_pml                                                                                !PML nodes
-    integer :: n_scatb                                                                              !Scatering boundary nodes
     integer :: n_huygb
     
     double precision :: delh
