@@ -38,6 +38,7 @@ subroutine mesh_reader
     allocate(coorx_mid(NE),coory_mid(NE))
     allocate(material(NE), boundary(NP))
     allocate(pml_flag(NP))
+    allocate(complex_coorx(NP), complex_coory(NP))
     
     boundary = 0
     pml_flag = .FALSE.
@@ -128,41 +129,46 @@ subroutine mesh_reader
     
     close(mesh_unit)
     
+    coorx = coorx !+ major_radius
+    coory = coory
+    coorx_mid = coorx_mid !+ major_radius
+    coory_mid = coory_mid
+    complex_coorx = cmplx(0.0,0.0)
+    complex_coory = cmplx(0.0,0.0)
     
     do ii=1,NE
         coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
         coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
-        if (material(ii) == 3) then
-            do jj = 1, nodpel
-                node = conn(ii,jj)
-                pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
-            enddo
+        if (boundary_type == 'PML') then
+            if (material(ii) == 3) then
+                do jj = 1, nodpel
+                    node = conn(ii,jj)
+                    pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
+                enddo
+            endif
         endif
     enddo
     
-    n_scatb = count(boundary == 1, dim=1)
-    n_pml_bin = count(boundary == 2, dim=1)
-    n_pml_bout = count(boundary == 3, dim=1)
     
-allocate(complex_coorx(NP), complex_coory(NP))
+    if (boundary_type == 'PML') then
+        n_pml_bin = count(boundary == 2, dim=1)
+        n_pml_bout = count(boundary == 3, dim=1)
+        
+        call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
-complex_coorx = cmplx(0.0,0.0)
-complex_coory = cmplx(0.0,0.0)
-
-coorx = coorx !+ major_radius
-coory = coory
-coorx_mid = coorx_mid !+ major_radius
-coory_mid = coory_mid
-
+    else if (boundary_type=='ABC') then
+        
+        complex_coorx%re = coorx
+        complex_coory%re = coory
+        
+    end if
+    
 !do jj = 1, source_num
 !    dist = sqrt((coorx-source_coorx(jj))**2+(coory-source_coory(jj))**2)
 !    source_node(jj) = minloc(dist,1)
 !end do
-
-call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
-
-
-
+    
+    
     end subroutine mesh_reader
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

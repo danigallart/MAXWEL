@@ -153,6 +153,7 @@ subroutine derivatives
         !
         !endif
         !
+    if (boundary_type == "PML") then
         do kk = 1,NE
             if (material(kk) == 3) then
                 do ii = 1, nodpel
@@ -164,6 +165,8 @@ subroutine derivatives
                 plane_field_y(kk) = cmplx(0.0,0.0)
             endif
         enddo
+    endif
+    
        
     
     end subroutine derivatives

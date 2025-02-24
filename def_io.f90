@@ -1,7 +1,6 @@
 module def_io
     
     character*(300) :: inputfile = 'EMWAVE.in'
-    character*(300) :: output_data = 'EMWAVE.out'
     
     character*(300) :: result_scat = 'scat_field_results.csv'
     character*(300) :: result_tot = 'total_field_results.csv'
@@ -28,7 +27,6 @@ module def_io
     
     integer, parameter :: &
         input_unit = 1, &
-        data_unit = 2, &
         result_scat_unit = 3, &
         result_tot_unit = 4, &
         result_inc_unit = 5, &
