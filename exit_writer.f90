@@ -43,12 +43,17 @@ else if (pol == 'TE') then
 
 endif
 
+write(1111,*)'MAXWEL'
+write(1111,*)'Solution',NP
   
 do jj=1,NP
     
     write(result_tot_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx(jj),coma,coory(jj),coma,real(u_tot(jj)),coma,imag(u_tot(jj))
+    write(1111,*)jj, u_tot(jj)
     
 enddo
+
+close(1111)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
