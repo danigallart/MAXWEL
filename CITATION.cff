@@ -1,0 +1,29 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: MAXWEL
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Hernán
+    family-names: Domingo Ramos
+    email: hernan.domingo@bsc.es
+    affiliation: Barcelona Supercomputing Center
+    orcid: 'https://orcid.org/0000-0002-6391-3144'
+repository-code: 'https://github.com/danigallart/MAXWEL'
+abstract: >-
+  MAXWEL code is able to simulate electromagnetic wave
+  propagation in 2D through dielectrics and cold plasma
+  media. The numerical scheme uses the Finite Element Method
+  (FEM).
+keywords:
+  - Finite Element Method
+  - Nuclear Fusion
+  - Wave propagation
+  - ICRH
+license: CC-BY-NC-ND-4.0
+commit: eb052a0
+date-released: '2025-02-24'
