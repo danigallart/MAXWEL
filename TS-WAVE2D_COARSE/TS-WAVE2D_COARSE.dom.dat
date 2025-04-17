@@ -1,10 +1,10 @@
 $------------------------------------------------------------
 DIMENSIONS
-  NODAL_POINTS=        11057
-  ELEMENTS=            21986
+  NODAL_POINTS=          104
+  ELEMENTS=              166
   SPACE_DIMENSIONS=        2
   TYPES_OF_ELEMENTS=      10,      0,      0,      0,      0
-  BOUNDARIES=            126
+  BOUNDARIES=             40
 END_DIMENSIONS
 $------------------------------------------------------------
 STRATEGY
@@ -16,15 +16,15 @@ STRATEGY
 END_STRATEGY
 $-------------------------------------------------------------
 GEOMETRY
-  INCLUDE  TS-WAVE2D_FINERES.geo.dat
+  INCLUDE  TS-WAVE2D_COARSE.geo.dat
 END_GEOMETRY  
 $-------------------------------------------------------------
 SETS
-  INCLUDE  TS-WAVE2D_FINERES.set.dat  
+  INCLUDE  TS-WAVE2D_COARSE.set.dat  
 END_SETS
 $-------------------------------------------------------------
 BOUNDARY_CONDITIONS
-  INCLUDE  TS-WAVE2D_FINERES.fix.dat  
+  INCLUDE  TS-WAVE2D_COARSE.fix.dat  
 END_BOUNDARY_CONDITIONS
 $-------------------------------------------------------------
 FIELDS

@@ -1,10 +1,10 @@
 $------------------------------------------------------------
 DIMENSIONS
-  NODAL_POINTS=        11057
-  ELEMENTS=            21986
+  NODAL_POINTS=          249
+  ELEMENTS=              449
   SPACE_DIMENSIONS=        2
   TYPES_OF_ELEMENTS=      10,      0,      0,      0,      0
-  BOUNDARIES=            126
+  BOUNDARIES=             71
 END_DIMENSIONS
 $------------------------------------------------------------
 STRATEGY
@@ -16,15 +16,15 @@ STRATEGY
 END_STRATEGY
 $-------------------------------------------------------------
 GEOMETRY
-  INCLUDE  TS-WAVE2D_FINERES.geo.dat
+  INCLUDE  TS-ANTENA.geo.dat
 END_GEOMETRY  
 $-------------------------------------------------------------
 SETS
-  INCLUDE  TS-WAVE2D_FINERES.set.dat  
+  INCLUDE  TS-ANTENA.set.dat  
 END_SETS
 $-------------------------------------------------------------
 BOUNDARY_CONDITIONS
-  INCLUDE  TS-WAVE2D_FINERES.fix.dat  
+  INCLUDE  TS-ANTENA.fix.dat  
 END_BOUNDARY_CONDITIONS
 $-------------------------------------------------------------
 FIELDS

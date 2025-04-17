@@ -7,52 +7,52 @@ implicit none
 integer :: ii,i,j
 integer :: kk,iter
 double precision :: err
-!complex*16, allocatable :: Au_inc(:)
-!
+complex*16 :: write_val
+
 allocate(u_scat(NP),u_tot(NP))
-!
-!u_inc = exp(ij*(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))) !No need to use complex coordinates. We just need the real value at each node
-!
-!!u_inc%re = cos(k0*(real(complex_coorx)*cos(phii)+real(complex_coory)*sin(phii)))
-!!u_inc%im = 0.0
-!
-!indep_vect = cmplx(0.0,0.0)
-!indep_vect2 = cmplx(0.0,0.0)
-!
-!if (plane_wave_source=='Y') then
-!    if (system_sym=='Y') then
-!    
-!    call MATXVECSIM_cplx(NP,IA,JA,AN,AD,u_inc,Au_inc)
-!  
-!    elseif (system_sym=='N') then
-!    
-!    call MATXVEC_cplex(IA,JA,AN,AD,u_inc,Au_inc,NP,NONULL,0)
-!  
-!    endif
-!
-!    do kk=1,NE
-!        if (material(kk) == 1) then
-!            do ii = 1, nodpel 
-!                i = conn(kk,ii)
-!                indep_vect2(i) = -Au_inc(i)
-!            enddo
-!        endif
-!    enddo
-!endif
+
 
 u_scat = cmplx(0.0,0.0)
 
-!indep_vect = indep_vect1 + indep_vect2
 
-!do ii=1,NP
-!    if (indep_vect(ii)%im /= 0.0) then
-!        print*,indep_vect(ii)
-!    end if
-!end do
 
 
 iter=1
 err=10.0
+
+do i=1,NP
+    write_val=AD(i)
+    if (abs(write_val%re) <1e-12) then
+        write_val%re = 0.0
+    endif
+    if(abs(write_val%im) <1e-12) then
+        write_val%im = 0.0
+    endif
+    write(6666,*) write_val
+enddo
+close(6666)
+do i=1,NONULL
+    write_val=AN(i)
+    if (abs(write_val%re) <1e-12) then
+        write_val%re = 0.0
+    endif
+    if(abs(write_val%im) <1e-12) then
+        write_val%im = 0.0
+    endif
+    write(7777,*) write_val
+enddo
+close(7777)
+do i=1,NP
+    write_val=indep_vect(i)
+    if (abs(write_val%re)<1e-12) then
+        write_val%re = 0.0
+    endif
+    if (abs(write_val%im)<1e-12) then
+        write_val%im = 0.0
+    endif
+    write(4444,*) write_val
+end do
+close(4444)
 
 if (system_sym == 'Y') then
 
