@@ -185,7 +185,11 @@ subroutine mesh_reader_tokamak
     do ii=1,NE
         coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
         coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
-        norm_mag_flux_elements(ii) = sum(norm_mag_flux_nodes(conn(ii,:)))/size(norm_mag_flux_nodes(conn(ii,:)))
+        do jj =1,nodpel
+            norm_mag_flux_elements(ii) = norm_mag_flux_elements(ii) + norm_mag_flux_nodes(conn(ii,jj))
+        enddo
+        norm_mag_flux_elements(ii) = norm_mag_flux_elements(ii)/real(nodpel)
+        
         if (boundary_type == 'PML') then
             if (material(ii) == 3) then
                 do jj = 1, nodpel

@@ -1,10 +1,10 @@
 $------------------------------------------------------------
 DIMENSIONS
-  NODAL_POINTS=        12844
-  ELEMENTS=            25218
+  NODAL_POINTS=        10210
+  ELEMENTS=            20201
   SPACE_DIMENSIONS=        2
   TYPES_OF_ELEMENTS=      10,      0,      0,      0,      0
-  BOUNDARIES=            555
+  BOUNDARIES=            264
 END_DIMENSIONS
 $------------------------------------------------------------
 STRATEGY

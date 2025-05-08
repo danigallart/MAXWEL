@@ -7,7 +7,6 @@ implicit none
 integer :: ii,i,j
 integer :: kk,iter
 double precision :: err
-complex*16 :: write_val
 
 allocate(u_scat(NP),u_tot(NP))
 
@@ -20,39 +19,6 @@ u_scat = cmplx(0.0,0.0)
 iter=1
 err=10.0
 
-do i=1,NP
-    write_val=AD(i)
-    if (abs(write_val%re) <1e-12) then
-        write_val%re = 0.0
-    endif
-    if(abs(write_val%im) <1e-12) then
-        write_val%im = 0.0
-    endif
-    write(6666,*) write_val
-enddo
-close(6666)
-do i=1,NONULL
-    write_val=AN(i)
-    if (abs(write_val%re) <1e-12) then
-        write_val%re = 0.0
-    endif
-    if(abs(write_val%im) <1e-12) then
-        write_val%im = 0.0
-    endif
-    write(7777,*) write_val
-enddo
-close(7777)
-do i=1,NP
-    write_val=indep_vect(i)
-    if (abs(write_val%re)<1e-12) then
-        write_val%re = 0.0
-    endif
-    if (abs(write_val%im)<1e-12) then
-        write_val%im = 0.0
-    endif
-    write(4444,*) write_val
-end do
-close(4444)
 
 if (system_sym == 'Y') then
 

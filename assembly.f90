@@ -74,7 +74,7 @@ end if
 mass_species = mass_species*1.78266E-30 !kg
 
 do kk=1,NE
-    
+
     !Extract local coordinates of nodes
     do i=1,nodpel
         ns(i) = conn(kk,i)
@@ -188,6 +188,9 @@ do kk=1,NE
                     j = conn(kk,jj)
                     Auinc_elem(ii) = Auinc_elem(ii) - AE(ii,jj)*exp(ij*(k0*(real(complex_coorx(j))*cos(phii)+real(complex_coory(j))*sin(phii))))
                 enddo
+                if (boundary(i)==2) then
+                    BE(ii) = BE(ii) + Auinc_elem(ii)
+                endif
             enddo
     endif
         
@@ -206,13 +209,8 @@ do kk=1,NE
             endif
         endif
     endif
-    
-    do i=1,nodpel
-        if (boundary(ns(i))==2) then
-            BE(i) = BE(i) + Auinc_elem(i)
-        endif
-    enddo
 
+    
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AE(i,i)
         indep_vect1(ns(i)) = indep_vect1(ns(i)) + BE(i) + integ_surf(i)
@@ -256,7 +254,7 @@ do ii = 1, nboun
     else if (boundary_alya(ii,4) == 4) then
         call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
     else if ((boundary_alya(ii,4) == 1).and.(boundary_type == 'ABC')) then
-        radius = 0.5*(sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2)+sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2))
+        radius = sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2)!+sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2))*0.5
         gamma_1_jin = (ij*k0+1./(2.0*radius)-((1./radius)**2)*(1./8.)*(1./(1.0/radius+ij*k0)))
         gamma_2_jin = cmplx(0.0,0.0)!-0.5/(1.0/radius+ij*k0)
         AB = cmplx(0.0,0.0)
@@ -264,7 +262,7 @@ do ii = 1, nboun
         call bc_integ(coorx_b,coory_b,gamma_1_jin,AB,BB,Ngauss,nodpel,2,ndim,node_pos1,node_pos2)
         
     endif
-    
+
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AB(i,i)
         indep_vect2(ns(i)) = indep_vect2(ns(i)) + integ_line(i) + BB(i)
