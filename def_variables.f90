@@ -58,14 +58,14 @@ module def_variables
     complex*16 :: pxxe,pxye,pyxe,pyye,qe
     
 	! Constants
-    real(kind=8), parameter :: c0 = 3.0d8                                                           ! m/sec, velocity of light in free space
+    real(kind=8), parameter :: c0 = 299792458.0                                                     ! m/s, velocity of light in free space
 	real(kind=8), parameter :: pi = 4.0*ATAN(1.)                                                    ! pi is pi, constant of nature
 	complex*16, parameter :: ij = cmplx(0, 1)                                                       ! Imaginary unit, sqrt(-1)
 
 
-    real(kind=8), parameter :: nu0 = 120.0 * pi                                                     ! ohm, intrinsic impedance of free space
-    real(kind=8), parameter :: e0 = (1e-9) / (36.0 * pi)                                            ! F/m, permittivity of free space
-    real(kind=8), parameter :: mu0 = 4.0 * pi * 1e-7                                                ! H/m, permeability of free space
+    real(kind=8), parameter :: nu0 = 376.730313412                                                  ! ohm, intrinsic impedance of free space
+    real(kind=8), parameter :: e0 = 8.8542e-12                                                      ! F/m, permittivity of free space
+    real(kind=8), parameter :: mu0 = 12.566370e-7                                                   ! H/m, permeability of free space
     
 
     ! Input parameters

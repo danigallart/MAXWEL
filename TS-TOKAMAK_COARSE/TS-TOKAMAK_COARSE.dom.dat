@@ -1,0 +1,32 @@
+$------------------------------------------------------------
+DIMENSIONS
+  NODAL_POINTS=         1854
+  ELEMENTS=             3449
+  SPACE_DIMENSIONS=        2
+  TYPES_OF_ELEMENTS=      10,      0,      0,      0,      0
+  BOUNDARIES=            257
+END_DIMENSIONS
+$------------------------------------------------------------
+STRATEGY
+  INTEGRATION_RULE:                Open  
+  DOMAIN_INTEGRATION_POINTS:       0  
+  EXTRAPOLATE_BOUNDARY_CONDITIONS: On
+  BOUNDARY_ELEMENT:                On
+  GROUPS=                             100, Sequential_frontal  
+END_STRATEGY
+$-------------------------------------------------------------
+GEOMETRY
+  INCLUDE  TS-TOKAMAK_COARSE.geo.dat
+END_GEOMETRY  
+$-------------------------------------------------------------
+SETS
+  INCLUDE  TS-TOKAMAK_COARSE.set.dat  
+END_SETS
+$-------------------------------------------------------------
+BOUNDARY_CONDITIONS
+  INCLUDE  TS-TOKAMAK_COARSE.fix.dat  
+END_BOUNDARY_CONDITIONS
+$-------------------------------------------------------------
+FIELDS
+END_FIELDS
+$-------------------------------------------------------------

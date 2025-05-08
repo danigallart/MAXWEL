@@ -43,7 +43,7 @@ subroutine mesh_reader_tokamak
     allocate(pml_flag(NP))
     allocate(complex_coorx(NP), complex_coory(NP))
     allocate(element_boundary(nboun,3))
-    allocate(boundary_alya(NE,4))
+    allocate(boundary_alya(nboun,4))
     
     boundary = 0
     element_boundary = 0
@@ -156,7 +156,9 @@ subroutine mesh_reader_tokamak
             read(mesh_boundary_unit,'(A120)') text_line
             text_line = trim(adjustl(text_line))
         enddo
-    else if (trim(adjustl(text_line)) == 'ON_BOUNDARIES, UNKNOWN') then
+    endif
+    read(mesh_boundary_unit,'(A120)') text_line
+    if (trim(adjustl(text_line)) == 'ON_BOUNDARIES, UNKNOWN') then
     read(mesh_boundary_unit,'(A120)') text_line
         do while(text_line /= 'END_ON_BOUNDARIES')
             read(text_line,*) ii, boundary_alya(ii,1), boundary_alya(ii,2), boundary_alya(ii,3), boundary_alya(ii,4)
@@ -183,12 +185,16 @@ subroutine mesh_reader_tokamak
     do ii=1,NE
         coorx_mid(ii) = sum(coorx(conn(ii,:)))/size(coorx(conn(ii,:)))
         coory_mid(ii) = sum(coory(conn(ii,:)))/size(coory(conn(ii,:)))
-        norm_mag_flux_elements(ii) = sum(norm_mag_flux_nodes(conn(ii,:)))/size(norm_mag_flux_nodes(conn(ii,:)))
+        do jj =1,nodpel
+            norm_mag_flux_elements(ii) = norm_mag_flux_elements(ii) + norm_mag_flux_nodes(conn(ii,jj))
+        enddo
+        norm_mag_flux_elements(ii) = norm_mag_flux_elements(ii)/real(nodpel)
+        
         if (boundary_type == 'PML') then
             if (material(ii) == 3) then
                 do jj = 1, nodpel
                     node = conn(ii,jj)
-                    pml_flag(node) = (boundary(node) /= 3) .and. (boundary(node) /=4)
+                    pml_flag(node) = (boundary(node) /= 2) .and. (boundary(node) /=3)
     enddo
             endif
         endif
@@ -196,8 +202,8 @@ subroutine mesh_reader_tokamak
     
     
     if (boundary_type == 'PML') then
-        n_pml_bin = count(boundary == 3, dim=1)
-        n_pml_bout = count(boundary == 4, dim=1)
+        n_pml_bin = count(boundary == 2, dim=1)
+        n_pml_bout = count(boundary == 3, dim=1)
 
         call lcpml_tokamak(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
@@ -251,11 +257,11 @@ count1 = 0
 count2 = 0
   
 do ii=1,n
-    if (boundary_array(ii) == 3) then
+    if (boundary_array(ii) == 2) then
         count1 = count1 + 1
         pmlbin_x(count1) = x(ii)
         pmlbin_y(count1) = y(ii)
-    else if (boundary_array(ii) == 4) then
+    else if (boundary_array(ii) == 3) then
         count2 = count2 + 1
         pmlbout_x(count2) = x(ii)
         pmlbout_y(count2) = y(ii)
@@ -263,7 +269,7 @@ do ii=1,n
 enddo
   
 do ii=1,n
-    if ((boundary_array(ii) == 4) .or. flag_array(ii)) then
+    if ((boundary_array(ii) == 3) .or. flag_array(ii)) then
         !Set LC-PML parameters
         !alpha = 7.0 * k
         alphajk = cmplx(0.0,-7.0)

@@ -10,3 +10,5 @@
 /connectivity.txt
 /stiff_matrix.txt
 /*.zip
+/tolerance_control.dat
+/fort.*
