@@ -98,7 +98,8 @@ module def_variables
     double precision, parameter :: e_charge = 1.60217662e-19                                        ! Elementary charge in Coulombs
 
     
-    complex*16 :: current_density1,current_density2,dummy_current                                   ! A/m^2, current density
+    complex*16 :: current_density1_x,current_density2_x,current_density1_y,current_density2_y, &    ! A/m^2, current density
+                  current_density1_z,current_density2_z
     
     double precision :: plasma_radius, free_space_dim, pmldim, huygdim, &
                         rpmlin, rpmlout, rhuyg

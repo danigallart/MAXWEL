@@ -311,7 +311,7 @@ do while(textinput /= 'end_data')
 	   do while(last<leng)
 			last=last+1
 			if(option(1:last)=='conductivity') then
-				read(option(last+1:leng),'(f3.0)') cond
+				read(option(last+1:leng),'(f10.5)') cond
 				last=leng+1
 			endif
        enddo
@@ -481,16 +481,16 @@ do while(textinput /= 'end_data')
             last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='current_source1_re') then
-				read(option(last+1:leng),'(f5.0)') current_density1%re
+			if(option(1:last)=='current_source1_re_x') then
+				read(option(last+1:leng),'(f5.0)') current_density1_x%re
 				last=leng+1
 			endif
        enddo
             last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='current_source1_im') then
-				read(option(last+1:leng),'(f5.0)') current_density1%im
+			if(option(1:last)=='current_source1_im_x') then
+				read(option(last+1:leng),'(f5.0)') current_density1_x%im
 				last=leng+1
 			endif
        enddo
@@ -498,16 +498,82 @@ do while(textinput /= 'end_data')
        last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='current_source2_re') then
-				read(option(last+1:leng),'(f5.0)') current_density2%re
+			if(option(1:last)=='current_source2_re_x') then
+				read(option(last+1:leng),'(f5.0)') current_density2_x%re
 				last=leng+1
 			endif
        enddo
             last=0	 
 	   do while(last<leng)
 			last=last+1
-			if(option(1:last)=='current_source2_im') then
-				read(option(last+1:leng),'(f5.0)') current_density2%im
+			if(option(1:last)=='current_source2_im_x') then
+				read(option(last+1:leng),'(f5.0)') current_density2_x%im
+				last=leng+1
+			endif
+       enddo
+       
+                   last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source1_re_y') then
+				read(option(last+1:leng),'(f5.0)') current_density1_y%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source1_im_y') then
+				read(option(last+1:leng),'(f5.0)') current_density1_y%im
+				last=leng+1
+			endif
+       enddo
+                          last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source1_re_z') then
+				read(option(last+1:leng),'(f5.0)') current_density1_z%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source1_im_z') then
+				read(option(last+1:leng),'(f5.0)') current_density1_z%im
+				last=leng+1
+			endif
+       enddo
+       
+       last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source2_re_y') then
+				read(option(last+1:leng),'(f5.0)') current_density2_y%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source2_im_y') then
+				read(option(last+1:leng),'(f5.0)') current_density2_y%im
+				last=leng+1
+			endif
+       enddo
+                                 last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source2_re_z') then
+				read(option(last+1:leng),'(f5.0)') current_density2_z%re
+				last=leng+1
+			endif
+       enddo
+            last=0	 
+	   do while(last<leng)
+			last=last+1
+			if(option(1:last)=='current_source2_im_z') then
+				read(option(last+1:leng),'(f5.0)') current_density2_z%im
 				last=leng+1
 			endif
        enddo

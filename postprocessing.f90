@@ -43,8 +43,11 @@ subroutine derivatives
             i = conn(kk,ii)                   
             
             do k = 1, Ngauss
-            DSOLX = DSOLX + u_tot(i)*DPHIX(ii,k)/(Ngauss*Ngauss)
-            DSOLY = DSOLY + u_tot(i)*DPHIY(ii,k)/(Ngauss*Ngauss)
+            !DSOLX = DSOLX + u_tot(i)*DPHIX(ii,k)/(Ngauss*Ngauss)
+            !DSOLY = DSOLY + u_tot(i)*DPHIY(ii,k)/(Ngauss*Ngauss)
+                
+            DSOLX = DSOLX + u_tot(i)*DPHIX(ii,k)/Ngauss
+            DSOLY = DSOLY + u_tot(i)*DPHIY(ii,k)/Ngauss  
             enddo
             
             !DSOLX = DSOLX + u_scat(i)*DPHIX(ii)/(nodpel*nodpel)
@@ -139,8 +142,16 @@ subroutine derivatives
             inv_tensor_yx = -rel_permitivity_yx/determinant_tensor
             inv_tensor_yy = rel_permitivity_xx/determinant_tensor
         
-            plane_field_x(kk) = (inv_tensor_xx*DSOLY - inv_tensor_xy*DSOLX)/(ij*omg*e0)
-            plane_field_y(kk) = (inv_tensor_yx*DSOLY - inv_tensor_yy*DSOLX)/(ij*omg*e0)
+            if (material(kk) == 3) then
+                plane_field_x(kk) = (inv_tensor_xx*(DSOLY-current_density1_x) - inv_tensor_xy*(DSOLX+current_density1_y))/(ij*omg*e0)
+                plane_field_y(kk) = (inv_tensor_yx*(DSOLY-current_density1_x) - inv_tensor_yy*(DSOLX+current_density1_y))/(ij*omg*e0)
+            else if (material(kk) == 4) then
+                plane_field_x(kk) = (inv_tensor_xx*(DSOLY-current_density2_x) - inv_tensor_xy*(DSOLX+current_density2_y))/(ij*omg*e0)
+                plane_field_y(kk) = (inv_tensor_yx*(DSOLY-current_density2_x) - inv_tensor_yy*(DSOLX+current_density2_y))/(ij*omg*e0)
+            else
+                plane_field_x(kk) = (inv_tensor_xx*DSOLY - inv_tensor_xy*DSOLX)/(ij*omg*e0)
+                plane_field_y(kk) = (inv_tensor_yx*DSOLY - inv_tensor_yy*DSOLX)/(ij*omg*e0)
+            endif
     
         endif
     enddo

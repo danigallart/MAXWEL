@@ -15,15 +15,19 @@ complex*16 :: AB(3,3)
 complex*16 :: BB(3),fe(nodpel)
 complex*16 :: coorx_bc(2),coory_bc(2)
 complex*16 :: gamma_1_jin,gamma_2_jin
+complex*16 :: um
+
+double precision :: xm,ym
 
 integer, dimension(:), allocatable :: lin_pos
 
+integer :: bound
 
 logical :: mask1(NP),mask2(NP)
 
 complex*16, allocatable :: Au_inc(:)
 
-double precision :: distance,radius
+double precision :: distance,radius,normal_vec(2),tangent_vec(2)
 
 allocate(u_inc(NP),Au_inc(NP),Auinc_elem(nodpel))
 
@@ -33,7 +37,7 @@ allocate(BE(nodpel),integ_line(nodpel),integ_line1(nodpel),integ_line2(nodpel),i
 allocate(ls(2),ls1(2),ls2(2))
 
 n_species = 3
-dummy_current = cmplx(0.0,0.0)
+!dummy_current = cmplx(0.0,0.0)
 
 allocate(JACOB(ndim,ndim,Ngauss),INVJACOB(ndim,ndim,Ngauss))
 allocate(DETJACOB(Ngauss))
@@ -123,7 +127,7 @@ do kk=1,NE
             
             
         else
-                                    
+            
             im_rel = -cond/(omg*e0)
         
             rel_permitivity_xx = epsilon_scat_xx + ij * im_rel
@@ -188,32 +192,44 @@ do kk=1,NE
                     j = conn(kk,jj)
                     Auinc_elem(ii) = Auinc_elem(ii) - AE(ii,jj)*exp(ij*(k0*(real(complex_coorx(j))*cos(phii)+real(complex_coory(j))*sin(phii))))
                 enddo
-                if (boundary(i)==2) then
+                if ((boundary(i)==2).or.(material(kk)==1)) then
                     BE(ii) = BE(ii) + Auinc_elem(ii)
                 endif
             enddo
     endif
-        
-    if (antenna_source == 'Y') then
+    
+    if ((material(kk) == 3).or.(material(kk) == 4)) then
+        bound = findloc(element_boundary(:,1),kk,dim=1)
+        if (bound /= 0) then
+            index1 = element_boundary(bound,2)
+            index2 = element_boundary(bound,3)
+    
+            tangent_vec(1) = complex_coorx(index2)%re-complex_coorx(index1)%re
+            tangent_vec(2) = complex_coory(index2)%re-complex_coory(index1)%re
+            tangent_vec = tangent_vec/sqrt(tangent_vec(1)**2+tangent_vec(2)**2)
+        endif
+    endif
+    
         if (material(kk) == 3) then
             if (pol == 'TE') then
-                call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density1,integ_surf,Ngauss,nodpel)
+                !call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density1,integ_surf,Ngauss,nodpel)
+                !call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,current_density1*tangent_vec(1),current_density1*tangent_vec(2),integ_surf,Ngauss,nodpel)
             else if(pol == 'TM') then
-                call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density1,BE,Ngauss,nodpel)
+                call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density1_z,integ_surf,Ngauss,nodpel)
             endif
         else if (material(kk) == 4) then
             if (pol == 'TE') then
-                call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density2,integ_surf,Ngauss,nodpel)
+                !call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,dummy_current,current_density2,integ_surf,Ngauss,nodpel)
+                !call surf_integ(local_coords(1,:),local_coords(2,:),PHI,DPHIX,DPHIY,DETJACOB,pyye,pxxe,current_density2*tangent_vec(1),current_density2*tangent_vec(2),integ_surf,Ngauss,nodpel)
             else if(pol == 'TM') then
-                call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density2,BE,Ngauss,nodpel)
+                call element_indepvec(PHI,DETJACOB,-ij*k0*nu0*current_density2_z,integ_surf,Ngauss,nodpel)
             endif
-        endif
     endif
 
     
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AE(i,i)
-        indep_vect1(ns(i)) = indep_vect1(ns(i)) + BE(i) + integ_surf(i)
+        indep_vect1(ns(i)) = indep_vect1(ns(i)) + BE(i)! + integ_surf(i)
         do j=1, nodpel
             do IAUX = 1,ICX(ns(i))
                 KEJE = IA(ns(i))+IAUX-1
@@ -249,23 +265,72 @@ do ii = 1, nboun
     BB = cmplx(0.0,0.0)
     AB = cmplx(0.0,0.0)
     
-    if (boundary_alya(ii,4) == 3) then
-        call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,dummy_current,current_density1,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
-    else if (boundary_alya(ii,4) == 4) then
-        call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
-    else if ((boundary_alya(ii,4) == 1).and.(boundary_type == 'ABC')) then
+    normal_vec(1) = (coory_b(2)%re-coory_b(1)%re)
+    normal_vec(2) = -(coorx_b(2)%re-coorx_b(1)%re)
+    normal_vec = normal_vec/sqrt(normal_vec(1)**2+normal_vec(2)**2)
+   
+    tangent_vec(1) = coorx_b(2)%re-coorx_b(1)%re
+    tangent_vec(2) = coory_b(2)%re-coory_b(1)%re
+    tangent_vec = tangent_vec/sqrt(tangent_vec(1)**2+tangent_vec(2)**2)
+    
+    !if (boundary_alya(ii,4) == 6) then
+    !    call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,dummy_current,current_density1,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
+    !else if (boundary_alya(ii,4) == 4) then
+    !    call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,dummy_current,current_density2,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
+    !else if ((boundary_alya(ii,4) == 1).and.(boundary_type == 'ABC')) then
+    !    radius = sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2)!+sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2))*0.5
+    !    gamma_1_jin = (ij*k0+1./(2.0*radius)-((1./radius)**2)*(1./8.)*(1./(1.0/radius+ij*k0)))
+    !    gamma_2_jin = cmplx(0.0,0.0)!-0.5/(1.0/radius+ij*k0)
+    !    AB = cmplx(0.0,0.0)
+    !    BB = cmplx(0.0,0.0)
+    !    call bc_integ(coorx_b,coory_b,gamma_1_jin,gamma_2_jin,AB,BB,Ngauss,nodpel,2,ndim,node_pos1,node_pos2,plane_wave_source,antenna_source)
+    !endif
+    
+    if (((boundary_alya(ii,4) == 3).or.(boundary_alya(ii,4) == 5).or.(boundary_alya(ii,4) == 7)).and.(antenna_source == 'Y')) then
+        call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,current_density1_x,current_density1_y,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
+        !call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,current_density1*tangent_vec(1),current_density1*tangent_vec(2),JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
+    else if ((boundary_alya(ii,4) == 4).and.(antenna_source == 'Y')) then
+        call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,current_density2_x,current_density2_y,JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
+        !call line_integ(coorx_b,coory_b,PHI_1D1,pyye,pxxe,current_density2*tangent_vec(1),current_density2*tangent_vec(2),JACOB_1D1,integ_line,Ngauss,nodpel,nodpedge,node_pos1,node_pos2,ndim)
+    else if ((boundary_alya(ii,4) == 1).or.((boundary_alya(ii,4) == 7).or.(boundary_alya(ii,4) == 8)).and.(boundary_type == 'ABC')) then
         radius = sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2)!+sqrt((coorx_b(1)%re)**2+(coory_b(1)%re)**2))*0.5
         gamma_1_jin = (ij*k0+1./(2.0*radius)-((1./radius)**2)*(1./8.)*(1./(1.0/radius+ij*k0)))
         gamma_2_jin = cmplx(0.0,0.0)!-0.5/(1.0/radius+ij*k0)
         AB = cmplx(0.0,0.0)
         BB = cmplx(0.0,0.0)
-        call bc_integ(coorx_b,coory_b,gamma_1_jin,AB,BB,Ngauss,nodpel,2,ndim,node_pos1,node_pos2)
-        
+        call bc_integ(coorx_b,coory_b,gamma_1_jin,gamma_2_jin,AB,BB,Ngauss,nodpel,2,ndim,node_pos1,node_pos2,plane_wave_source,antenna_source)
+    !else if ((boundary_alya(ii,4) == 5).or.(boundary_alya(ii,4) == 6).or.(boundary_alya(ii,4) == 8)) then
+    !!else if ((boundary_alya(ii,4) == 5).or.(boundary_alya(ii,4) == 6).or.(boundary_alya(ii,4) == 8).or.(boundary_alya(ii,4) == 2)) then
+    !    gamma_1_jin = cmplx(0.0,0.0)
+    !    if (rea_prev=='Y') then
+    !        gamma_2_jin = -(prev_sol_array(node_pos1)+prev_sol_array(node_pos2))/2
+    !    else
+    !        if (plane_wave_source=='Y') then
+    !            xm = (coorx_b(1)%re+coorx_b(2)%re)/2
+    !            ym = (coory_b(1)%re+coory_b(2)%re)/2
+    !            um = exp(ij*(k0*(xm*cos(phii)+ym*sin(phii))))
+    !            gamma_2_jin = -ij*k0*um*(cos(phii)*normal_vec(1)+sin(phii)*normal_vec(2))
+    !        else if (antenna_source=='Y') then
+    !            gamma_2_jin = cmplx(0.0,0.0)
+    !        endif
+    !    endif
+    !    AB = cmplx(0.0,0.0)
+    !    BB = cmplx(0.0,0.0)
+    !    call bc_integ(coorx_b,coory_b,gamma_1_jin,gamma_2_jin,AB,BB,Ngauss,nodpel,2,ndim,node_pos1,node_pos2,plane_wave_source,antenna_source)
+    !else if ((plane_wave_source=="Y").and.(boundary_alya(ii,4) == 6)) then
+    !    normal_vec(1) = (coory_b(2)%re-coory_b(1)%re)
+    !    normal_vec(2) = -(coorx_b(2)%re-coorx_b(1)%re)
+    !    normal_vec = normal_vec/sqrt(normal_vec(1)**2+normal_vec(2)**2)
+    !    gamma_1_jin = cmplx(0.0,0.0)
+    !    gamma_2_jin = (cos(phii)*normal_vec(1)+sin(phii)*normal_vec(2))*ij*k0
+    !    AB = cmplx(0.0,0.0)
+    !    BB = cmplx(0.0,0.0)
+    !    call bc_integ(coorx_b,coory_b,gamma_1_jin,gamma_2_jin,AB,BB,Ngauss,nodpel,2,ndim,node_pos1,node_pos2,plane_wave_source,antenna_source)
     endif
 
     do i=1, nodpel
         AD(ns(i)) = AD(ns(i)) + AB(i,i)
-        indep_vect2(ns(i)) = indep_vect2(ns(i)) + integ_line(i) + BB(i)
+        indep_vect2(ns(i)) = indep_vect2(ns(i)) - integ_line(i) + BB(i)
         do j=1, nodpel
             do IAUX = 1,ICX(ns(i))
                 KEJE = IA(ns(i))+IAUX-1
@@ -741,7 +806,7 @@ if (Ngauss == 3) then
     
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    subroutine bc_integ(coorx,coory,alpha,AB,BB,Ngauss,nodpel,nodpedge,ndim,index1,index2)
+    subroutine bc_integ(coorx,coory,alpha,beta,AB,BB,Ngauss,nodpel,nodpedge,ndim,index1,index2,plane_wave_flag,antenna_flag)
     
     implicit none
     
@@ -749,7 +814,8 @@ if (Ngauss == 3) then
     integer :: Ngauss,nodpel, nodpedge, ndim, index1, index2
     double precision, allocatable :: phi_1d(:,:),dphi_1d(:,:),k0
     complex*16, allocatable :: jacob_1d(:,:)
-    complex*16 :: coorx(2),coory(2),radius, alpha, term
+    complex*16 :: coorx(2),coory(2),radius, alpha, beta, term
+    character :: plane_wave_flag, antenna_flag
 
     !Output variables
     complex*16, intent(out) :: AB(nodpel,nodpel), BB(nodpel)
@@ -799,17 +865,12 @@ if (Ngauss == 3) then
     
     index_list=(/index1,index2/)
     AB = cmplx(0.0,0.0)
+    BB = cmplx(0.0,0.0)
     do kgauss=1,Ngauss
         do ii=1,nodpedge
+            BB(index_list(ii)) = BB(index_list(ii)) + gauss_wt(kgauss)*phi_1d(ii,kgauss)*beta*sqrt(jacob_1d(1,kgauss)**2+jacob_1d(2,kgauss)**2)
             do jj=1,nodpedge
                 AB(index_list(ii),index_list(jj)) = AB(index_list(ii),index_list(jj)) + gauss_wt(kgauss)*PHI_1D(ii,kgauss)*PHI_1D(jj,kgauss)*alpha*sqrt(jacob_1d(1,kgauss)**2+jacob_1d(2,kgauss)**2)
-                !print*,ii,jj
-                !print*,""
-                !print*,sqrt(jacob_1d(1,kgauss)**2+jacob_1d(2,kgauss)**2)
-                !print*,""
-                !print*,phi_1D(jj,kgauss)
-                !print*,""
-                !print*,""
             enddo
         enddo
     enddo

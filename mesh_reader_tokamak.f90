@@ -112,7 +112,7 @@ subroutine mesh_reader_tokamak
         enddo
     endif
         
-    if (boundary_type == "ABC") then
+    if ((boundary_type=='ABC').or.(boundary_type=='PEC')) then
         
         !Store external boundaries
         do while(trim(adjustl(text_line)) /= 'BOUNDARIES, ELEMENT')
@@ -149,21 +149,14 @@ subroutine mesh_reader_tokamak
     ! Store boundary array 
     
     read(mesh_boundary_unit,'(A120)') text_line
-    if ( trim(adjustl(text_line)) == 'ON_NODES') then
-    read(mesh_boundary_unit,'(A120)') text_line
-        do while(text_line /= 'END_ON_NODES')
-            read(text_line,*) ii, boundary(ii)
-            read(mesh_boundary_unit,'(A120)') text_line
-            text_line = trim(adjustl(text_line))
-        enddo
-    endif
-    read(mesh_boundary_unit,'(A120)') text_line
     if (trim(adjustl(text_line)) == 'ON_BOUNDARIES, UNKNOWN') then
     read(mesh_boundary_unit,'(A120)') text_line
         do while(text_line /= 'END_ON_BOUNDARIES')
             read(text_line,*) ii, boundary_alya(ii,1), boundary_alya(ii,2), boundary_alya(ii,3), boundary_alya(ii,4)
             read(mesh_boundary_unit,'(A120)') text_line
             text_line = trim(adjustl(text_line))
+            boundary(boundary_alya(ii,2))= boundary_alya(ii,4)
+            boundary(boundary_alya(ii,3))= boundary_alya(ii,4)
         enddo
     endif        
     
@@ -207,7 +200,7 @@ subroutine mesh_reader_tokamak
 
         call lcpml_tokamak(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
-    else if (boundary_type == 'ABC') then
+    else if ((boundary_type=='ABC').or.(boundary_type=='PEC')) then
         
         do ii=1,NP
             complex_coorx(ii)%re = coorx(ii)

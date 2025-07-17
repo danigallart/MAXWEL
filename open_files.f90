@@ -11,7 +11,7 @@ subroutine open_files
 
     open(unit=stiff_matrix_unit,file=stiff_matrix_file,status='unknown')
     open(unit=connectivity_unit,file=connectivity_file,status='unknown')
-
+    
     if (reader_type == 'toka') then
         
         !mesh_geometry = 'tokamak_'//elem_shape//'_'//elem_type//'/tokamak-3.dat'
