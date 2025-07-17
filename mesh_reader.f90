@@ -156,17 +156,12 @@ subroutine mesh_reader
         
         call lcpml(coorx, coory, k0, boundary, pml_flag, n_pml_bin, n_pml_bout, NP, complex_coorx, complex_coory)
 
-    else if (boundary_type=='ABC') then
+    else if ((boundary_type=='ABC').or.(boundary_type=='PEC')) then
         
         complex_coorx%re = coorx
         complex_coory%re = coory
         
     end if
-    
-!do jj = 1, source_num
-!    dist = sqrt((coorx-source_coorx(jj))**2+(coory-source_coory(jj))**2)
-!    source_node(jj) = minloc(dist,1)
-!end do
     
     
     end subroutine mesh_reader

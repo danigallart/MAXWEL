@@ -43,17 +43,11 @@ else if (pol == 'TE') then
 
 endif
 
-write(1111,*)'MAXWEL'
-write(1111,*)'Solution',NP
-  
 do jj=1,NP
     
     write(result_tot_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx(jj),coma,coory(jj),coma,real(u_tot(jj)),coma,imag(u_tot(jj))
-    write(1111,*)jj, u_tot(jj)
     
 enddo
-
-close(1111)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -86,7 +80,7 @@ else if (pol == 'TE') then
 
 endif
 
-  
+
 do jj=1,NE
     
     x_real = real(plane_field_x(jj))
@@ -97,5 +91,5 @@ do jj=1,NE
     write(result_plane_unit,'(E15.5,a,E15.5,a,E15.5,a,E15.5,a,E15.5,a,E15.5)') coorx_mid(jj),coma,coory_mid(jj),coma,x_real,coma,x_imag,coma,y_real,coma,y_imag
     
 enddo
-  
+
 end subroutine exit_writer

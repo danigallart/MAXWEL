@@ -4,7 +4,7 @@ DIMENSIONS
   ELEMENTS=            27351
   SPACE_DIMENSIONS=        2
   TYPES_OF_ELEMENTS=      10,      0,      0,      0,      0
-  BOUNDARIES=            251
+  BOUNDARIES=            565
 END_DIMENSIONS
 $------------------------------------------------------------
 STRATEGY

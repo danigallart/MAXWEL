@@ -67,7 +67,8 @@
 		<File RelativePath=".\mesh_reader_tokamak.f90"/>
 		<File RelativePath=".\open_files.f90"/>
 		<File RelativePath=".\postprocessing.f90"/>
-		<File RelativePath=".\read_solution.f90"/>
+		<File RelativePath=".\postprocessing_nodal.f90"/>
+		<File RelativePath=".\rea_prev_sol.f90"/>
 		<File RelativePath=".\reader.f90"/>
 		<File RelativePath=".\solver.f90"/>
 		<File RelativePath=".\sparse_system.f90"/></Filter>

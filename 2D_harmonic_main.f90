@@ -29,7 +29,7 @@
         
         CALL open_files()
 
-        ! Convert frequency from MHz to Hz
+    ! Convert frequency from MHz to Hz
     freq_hz = freq * 1e6
 
     ! Calculate wavelength and other parameters
@@ -39,30 +39,28 @@
     
         print*, "Mesh reader"
         if (reader_type == 'read') then
+            ! Legacy mesh reader, all files should have Alya problem type, hence reader_type is 'toka'
             CALL mesh_reader()
         elseif (reader_type == 'toka') then
+            !Alya problem type can be downloaded from Alya repository and installed in GiD
             CALL mesh_reader_tokamak()
         endif
         
         print*, "Sparse logic"
-        
+        ! Sparse logic for scalar nodal system
         CALL sparse_logic()
         
         print*, 'Assembly'
-        
+        ! The computation of the global system matrix and right-hand side vector and its assembly
         CALL assembly()
         
         print*, 'Solver'
-        
-        if (.TRUE.) then
-            CALL solver()
-        else
-            CALL read_solution()
-        endif
+        ! Bi-conjugated gradient solver for linear equation system
+        CALL solver()
         
         print*, 'Derivatives'
-        
-        CALL derivatives()
+        ! Calculation of inplane fields, either Ex, Ey or Hx, Hy
+            CALL derivatives()
         
         print*, 'Exit'
         
