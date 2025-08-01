@@ -12,3 +12,5 @@
 /*.zip
 /tolerance_control.dat
 /fort.*
+/build
+CMskeLists.txt
