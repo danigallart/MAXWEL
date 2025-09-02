@@ -1,18 +1,18 @@
-!  $2D_harmonic_main.f90 
+!  2D_harmonic_main.f90 
 !
 !  FUNCTIONS:
-!  $2D_harmonic_main - Entry point of console application.
+!  2D_harmonic_main - Entry point of console application.
 !
 
 !****************************************************************************
 !
-!  PROGRAM: $2D_harmonic_main
+!  PROGRAM: 2D_harmonic_main
 !
 !  PURPOSE:  Entry point for the console application.
 !
 !****************************************************************************
 
-    program $2D_harmonic_main
+    program harmonic_main_2D
     
     USE def_io
     USE def_variables
@@ -72,5 +72,5 @@
     
         CALL finalise()
         
-    end program $2D_harmonic_main
+    end program
 

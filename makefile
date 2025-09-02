@@ -1,6 +1,6 @@
 # Variables
 COMPILER = ifx
-FLAGS = -g
+FLAGS = -g -traceback -warn all
 EXEC = maxwel
 OBJ_DIR = ./
 F90_FILES := $(wildcard *.f90)

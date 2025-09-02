@@ -359,6 +359,24 @@ endif
 
 indep_vect = indep_vect1 + indep_vect2
 
+open(unit=1234, file='DATA_IND_AD.data')
+open(unit=1235, file='DATA_AN_JA.data')
+open(unit=1236, file='DATA_IA.data')
+do i = 1, NP
+    write(1234,'(4F20.12)') indep_vect(i), AD(i)
+enddo
+
+do i = 1, NP+1
+    write(1236,'(I10)') IA(i)
+enddo
+
+do i = 1, nonull
+    write(1235,'(2F20.12,1X,I10)') AN(i), JA(i)
+enddo
+
+close(1234)
+close(1235)
+close(1236)
 END SUBROUTINE assembly
 
 

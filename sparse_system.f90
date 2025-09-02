@@ -23,6 +23,7 @@ if (read_logic == 'N') then
 ia=0
 ncount=0
 icx=0
+write(*,*) 'IN SPARSE'
 
 
 IA(1)=1
@@ -93,6 +94,7 @@ write(logic_unit,*) 'ROWS (IA)'
 do i=1,NP+1
     write(logic_unit,*) i, IA(i)
 enddo
+write(*,*) 'NP:prev', NP
 write(logic_unit,*) 'END_ROWS'
 
 
@@ -167,7 +169,7 @@ end if
 close(logic_unit) 
 
 write(control_unit,*) 'Nonulos del sistema: ',NONULL
-
+write(*,*) 'NP:', NP
 deallocate(consim)
 
 end subroutine sparse_logic
