@@ -23,17 +23,17 @@ elem_shape: tria					# tria	squa
 boundary_type: ABC					# PML	ABC	
 #boundary_type: PML					# PML	ABC	
 
-mesh_file = TS-LAPDHOLE2_ERMES/TS-LAPDHOLE2_ERMES   #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
+mesh_file = TS-WAVE2D_FINERES/TS-WAVE2D_FINERES   #tokamak_tria_line\tokamak     # mesh_file.dat		line_mesh_file.dat      quad_mesh_file.dat 
 
-read_logic:Y
+read_logic:N
 
 system_sym:N                 
 
-logic_file = TS-LAPDHOLE2_ERMES/TS-LAPDHOLE2_ERMES_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
+logic_file = TS-WAVE2D_FINERES/TS-WAVE2D_FINERES_sparse_logic.dat      #tokamak_tria_line\tokamak_sparse_logic.dat	 sparse_logic.dat 	quad_sparse_logic.dat	line_sparse_logic.dat
 
-antenna_source:Y
+antenna_source:N
 
-plane_wave_source:N
+plane_wave_source:Y
 
 plasma:0						 # 0: dielectric tensor is input manually        1: cold plasma dielectric tensor
 
